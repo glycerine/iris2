@@ -1,13 +1,13 @@
 package view
 
 import (
-	"github.com/kataras/go-template/amber"
+	"github.com/go-iris2/iris2/template/amber"
 )
 
 // AmberAdaptor is the  adaptor for the Amber, simple, engine.
 // Read more about the Amber Go Template at:
 // https://github.com/eknkc/amber
-// and https://github.com/kataras/go-template/tree/master/amber
+// and https://github.com/go-iris2/iris2/template/tree/master/amber
 type AmberAdaptor struct {
 	*Adaptor
 	engine *amber.Engine

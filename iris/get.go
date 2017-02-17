@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/kataras/cli"
-	"github.com/kataras/go-fs"
+	"github.com/go-iris2/iris2/fs"
 	"github.com/skratchdot/open-golang/open"
 )
 

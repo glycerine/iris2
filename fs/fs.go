@@ -3,7 +3,7 @@ package fs
 
 import (
 	"archive/zip"
-	"github.com/kataras/go-errors"
+	"github.com/go-iris2/iris2/errors"
 	"io"
 	"io/ioutil"
 	"mime"

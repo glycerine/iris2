@@ -4,7 +4,7 @@ import (
 	"io"
 	"path/filepath"
 
-	"github.com/kataras/go-errors"
+	"github.com/go-iris2/iris2/errors"
 	"github.com/valyala/bytebufferpool"
 )
 

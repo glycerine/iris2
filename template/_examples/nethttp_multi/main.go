@@ -6,9 +6,9 @@ package main
 import (
 	"net/http"
 
-	"github.com/kataras/go-template"
-	"github.com/kataras/go-template/amber"
-	"github.com/kataras/go-template/html"
+	"github.com/go-iris2/iris2/template"
+	"github.com/go-iris2/iris2/template/amber"
+	"github.com/go-iris2/iris2/template/html"
 )
 
 type mypage struct {

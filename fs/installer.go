@@ -1,7 +1,7 @@
 package fs
 
 import (
-	"github.com/kataras/go-errors"
+	"github.com/go-iris2/iris2/errors"
 	"io"
 	"net/http"
 	"os"

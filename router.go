@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/go-iris2/iris2/errors"
-	"github.com/kataras/go-fs"
+	"github.com/go-iris2/iris2/fs"
 )
 
 const (

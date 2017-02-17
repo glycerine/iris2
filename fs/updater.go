@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/google/go-github/github"
 	"github.com/hashicorp/go-version"
-	"github.com/kataras/go-errors"
+	"github.com/go-iris2/iris2/errors"
 	"io"
 	"os"
 	"os/exec"
@@ -23,7 +23,7 @@ import (
 // package main
 //
 // import (
-// 	"github.com/kataras/go-fs"
+// 	"github.com/go-iris2/iris2/fs"
 // 	"fmt"
 // )
 //

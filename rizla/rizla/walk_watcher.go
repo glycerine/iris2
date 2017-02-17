@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/kataras/go-errors"
+	"github.com/go-iris2/iris2/errors"
 )
 
 type walkWatcher struct {

@@ -1,7 +1,7 @@
 package view
 
 import (
-	"github.com/kataras/go-template/django"
+	"github.com/go-iris2/iris2/template/django"
 )
 
 type (
@@ -32,7 +32,7 @@ func convertFilters(djangoFilters map[string]FilterFunction) map[string]django.F
 // DjangoAdaptor is the  adaptor for the Django engine.
 // Read more about the Django Go Template at:
 // https://github.com/flosch/pongo2
-// and https://github.com/kataras/go-template/tree/master/django
+// and https://github.com/go-iris2/iris2/template/tree/master/django
 type DjangoAdaptor struct {
 	*Adaptor
 	engine  *django.Engine

@@ -13,7 +13,7 @@ import (
 	"strings"
 
 	"github.com/fatih/color"
-	"github.com/kataras/rizla/rizla"
+	"github.com/go-iris2/iris2/rizla/rizla"
 )
 
 const (

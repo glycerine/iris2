@@ -1,7 +1,7 @@
 package view
 
 import (
-	"github.com/kataras/go-template/html"
+	"github.com/go-iris2/iris2/template/html"
 )
 
 // HTMLAdaptor is the html engine policy adaptor

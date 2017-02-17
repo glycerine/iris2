@@ -1,12 +1,12 @@
 // Package view is the adaptor of the 5 template engines
-// as written by me at https://github.com/kataras/go-template
+// as written by me at https://github.com/go-iris2/iris2/template
 package view
 
 import (
 	"io"
 	"strings"
 
-	"github.com/kataras/go-template"
+	"github.com/go-iris2/iris2/template"
 	"github.com/go-iris2/iris2"
 )
 

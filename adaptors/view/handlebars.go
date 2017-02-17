@@ -1,13 +1,13 @@
 package view
 
 import (
-	"github.com/kataras/go-template/handlebars"
+	"github.com/go-iris2/iris2/template/handlebars"
 )
 
 // HandlebarsAdaptor is the  adaptor for the Handlebars engine.
 // Read more about the Handlebars Go Template at:
 // https://github.com/aymerick/raymond
-// and https://github.com/kataras/go-template/tree/master/handlebars
+// and https://github.com/go-iris2/iris2/template/tree/master/handlebars
 type HandlebarsAdaptor struct {
 	*Adaptor
 	engine *handlebars.Engine

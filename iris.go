@@ -26,8 +26,8 @@ import (
 
 	"github.com/geekypanda/httpcache"
 	"github.com/go-iris2/iris2/errors"
-	"github.com/kataras/go-fs"
-	"github.com/kataras/go-serializer"
+	"github.com/go-iris2/iris2/fs"
+	"github.com/go-iris2/iris2/serializer"
 )
 
 const (

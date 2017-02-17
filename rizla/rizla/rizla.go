@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/kataras/go-errors"
+	"github.com/go-iris2/iris2/errors"
 )
 
 const (
@@ -50,7 +50,7 @@ func Len() int {
 
 var (
 	errInvalidArgs = errors.New("Invalid arguments [%s], type -h to get assistant\n")
-	errUnexpected  = errors.New("Unexpected error!!! Please post an issue here: https://github.com/kataras/rizla/issues\n")
+	errUnexpected  = errors.New("Unexpected error!!! Please post an issue here: https://github.com/go-iris2/iris2/rizla/issues\n")
 	errBuild       = errors.New("Failed to build the program.\n")
 	errRun         = errors.New("Failed to run the the program. Trace: %s\n")
 )

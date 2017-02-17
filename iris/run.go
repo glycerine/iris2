@@ -6,7 +6,7 @@ import (
 
 	"github.com/kataras/cli"
 	"github.com/go-iris2/iris2/errors"
-	"github.com/kataras/rizla/rizla"
+	"github.com/go-iris2/iris2/rizla/rizla"
 )
 
 func buildRunCommand() *cli.Cmd {
@@ -29,6 +29,6 @@ func run(cli.Flags) error {
 func runAndWatch(programPath string) {
 	// we don't want the banner to be shown after the first run
 	rizla.DefaultDisableProgramRerunOutput = true
-	// See https://github.com/kataras/rizla/issues/6#issuecomment-277533051
+	// See https://github.com/go-iris2/iris2/rizla/issues/6#issuecomment-277533051
 	rizla.Run(programPath)
 }

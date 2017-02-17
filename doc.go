@@ -520,19 +520,19 @@ as `context.ResponseWriter` is an `io.Writer`.
 All of these five template engines have common features with common API,
 like Layout, Template Funcs, Party-specific layout, partial rendering and more.
 
-      The standard html, based on github.com/kataras/go-template/tree/master/html
+      The standard html, based on github.com/go-iris2/iris2/template/tree/master/html
       its template parser is the golang.org/pkg/html/template/.
 
-      Django, based ongithub.com/kataras/go-template/tree/master/django
+      Django, based ongithub.com/go-iris2/iris2/template/tree/master/django
       its template parser is the github.com/flosch/pongo2
 
-      Pug(Jade), based on github.com/kataras/go-template/tree/master/pug
+      Pug(Jade), based on github.com/go-iris2/iris2/template/tree/master/pug
       its template parser is the github.com/Joker/jade
 
-      Handlebars, based on github.com/kataras/go-template/tree/master/handlebars
+      Handlebars, based on github.com/go-iris2/iris2/template/tree/master/handlebars
       its template parser is the github.com/aymerick/raymond
 
-      Amber, based on github.com/kataras/go-template/tree/master/amber
+      Amber, based on github.com/go-iris2/iris2/template/tree/master/amber
       its template parser is the github.com/eknkc/amber
 
 

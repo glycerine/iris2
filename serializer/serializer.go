@@ -10,11 +10,11 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/kataras/go-errors"
-	"github.com/kataras/go-serializer/json"
-	"github.com/kataras/go-serializer/jsonp"
-	"github.com/kataras/go-serializer/markdown"
-	"github.com/kataras/go-serializer/xml"
+	"github.com/go-iris2/iris2/errors"
+	"github.com/go-iris2/iris2/serializer/json"
+	"github.com/go-iris2/iris2/serializer/jsonp"
+	"github.com/go-iris2/iris2/serializer/markdown"
+	"github.com/go-iris2/iris2/serializer/xml"
 )
 
 const (
