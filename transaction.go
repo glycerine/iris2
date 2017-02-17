@@ -1,4 +1,4 @@
-package iris
+package iris2
 
 // TransactionErrResult could be named also something like 'MaybeError',
 // it is useful to send it on transaction.Complete in order to execute a custom error mesasge to the user.

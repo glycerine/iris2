@@ -6,7 +6,7 @@
 // dynamic subdomains, routes, party of subdomains & routes and more
 //
 // visit https://godoc.org/github.com/go-iris2/iris2
-package iris
+package iris2
 
 import (
 	"context"

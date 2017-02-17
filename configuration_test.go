@@ -1,5 +1,5 @@
 // Black-box Testing
-package iris_test
+package iris2_test
 
 import (
 	"io/ioutil"

@@ -1,4 +1,4 @@
-package iris_test
+package iris2_test
 
 import (
 	"github.com/go-iris2/iris2"
