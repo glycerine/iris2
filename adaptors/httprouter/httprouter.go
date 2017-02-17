@@ -28,7 +28,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/kataras/go-errors"
+	"github.com/go-iris2/iris2/errors"
 	"github.com/go-iris2/iris2"
 )
 

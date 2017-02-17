@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/kataras/go-errors"
+	"github.com/go-iris2/iris2/errors"
 )
 
 var goPath string

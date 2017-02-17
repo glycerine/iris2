@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/kataras/go-errors"
+	"github.com/go-iris2/iris2/errors"
 	"golang.org/x/crypto/acme/autocert"
 )
 

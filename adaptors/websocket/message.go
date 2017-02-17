@@ -2,7 +2,7 @@ package websocket
 
 import (
 	"encoding/json"
-	"github.com/kataras/go-errors"
+	"github.com/go-iris2/iris2/errors"
 	"github.com/valyala/bytebufferpool"
 	"math/rand"
 	"strconv"

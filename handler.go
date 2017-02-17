@@ -3,7 +3,7 @@ package iris
 import (
 	"net/http"
 
-	"github.com/kataras/go-errors"
+	"github.com/go-iris2/iris2/errors"
 )
 
 // errHandler returns na error with message: 'Passed argument is not func(*Context) neither an object which implements the iris.Default.Handler with Serve(ctx *Context)

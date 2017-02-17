@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/kataras/go-errors"
+	"github.com/go-iris2/iris2/errors"
 	"github.com/go-iris2/iris2"
 )
 

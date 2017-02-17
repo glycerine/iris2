@@ -21,7 +21,7 @@ import (
 	"time"
 
 	"github.com/iris-contrib/formBinder"
-	"github.com/kataras/go-errors"
+	"github.com/go-iris2/iris2/errors"
 	"github.com/kataras/go-fs"
 	"github.com/kataras/go-template"
 )
