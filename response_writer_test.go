@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"gopkg.in/kataras/iris.v6"
-	"gopkg.in/kataras/iris.v6/httptest"
+	"github.com/go-iris2/iris2"
+	"github.com/go-iris2/iris2/httptest"
 )
 
 // most tests lives inside context_test.go:Transactions, there lives the response writer's full and coblex tests

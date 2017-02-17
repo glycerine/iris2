@@ -4,9 +4,9 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"gopkg.in/kataras/iris.v6"
-	"gopkg.in/kataras/iris.v6/adaptors/httprouter"
-	"gopkg.in/kataras/iris.v6/httptest"
+	"github.com/go-iris2/iris2"
+	"github.com/go-iris2/iris2/adaptors/httprouter"
+	"github.com/go-iris2/iris2/httptest"
 )
 
 // White-box testing *

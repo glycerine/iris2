@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"gopkg.in/kataras/iris.v6"
+	"github.com/go-iris2/iris2"
 )
 
 const (

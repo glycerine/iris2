@@ -8,8 +8,8 @@ package httprouter
 // package main
 //
 // import (
-// 	"gopkg.in/kataras/iris.v6/adaptors/httprouter"
-// 	"gopkg.in/kataras/iris.v6"
+// 	"github.com/go-iris2/iris2/adaptors/httprouter"
+// 	"github.com/go-iris2/iris2"
 // )
 //
 // func main() {
@@ -29,7 +29,7 @@ import (
 	"strings"
 
 	"github.com/kataras/go-errors"
-	"gopkg.in/kataras/iris.v6"
+	"github.com/go-iris2/iris2"
 )
 
 const (

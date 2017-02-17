@@ -3,9 +3,9 @@ package main
 import (
 	"encoding/xml"
 
-	"gopkg.in/kataras/iris.v6"
-	"gopkg.in/kataras/iris.v6/adaptors/gorillamux"
-	"gopkg.in/kataras/iris.v6/adaptors/view"
+	"github.com/go-iris2/iris2"
+	"github.com/go-iris2/iris2/adaptors/gorillamux"
+	"github.com/go-iris2/iris2/adaptors/view"
 )
 
 // ExampleXML just a test struct to view represents xml content-type

@@ -3,9 +3,9 @@ package main
 import (
 	"time"
 
-	"gopkg.in/kataras/iris.v6"
-	"gopkg.in/kataras/iris.v6/adaptors/httprouter"
-	"gopkg.in/kataras/iris.v6/middleware/basicauth"
+	"github.com/go-iris2/iris2"
+	"github.com/go-iris2/iris2/adaptors/httprouter"
+	"github.com/go-iris2/iris2/middleware/basicauth"
 )
 
 func main() {

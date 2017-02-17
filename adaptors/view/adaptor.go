@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/kataras/go-template"
-	"gopkg.in/kataras/iris.v6"
+	"github.com/go-iris2/iris2"
 )
 
 // Adaptor contains the common actions

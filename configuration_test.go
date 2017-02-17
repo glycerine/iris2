@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	. "gopkg.in/kataras/iris.v6"
+	. "github.com/go-iris2/iris2"
 )
 
 // $ go test -v -run TestConfiguration*

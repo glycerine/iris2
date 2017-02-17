@@ -1,9 +1,9 @@
 package main
 
 import (
-	"gopkg.in/kataras/iris.v6"
-	"gopkg.in/kataras/iris.v6/adaptors/cors"
-	"gopkg.in/kataras/iris.v6/adaptors/httprouter"
+	"github.com/go-iris2/iris2"
+	"github.com/go-iris2/iris2/adaptors/cors"
+	"github.com/go-iris2/iris2/adaptors/httprouter"
 )
 
 func main() {

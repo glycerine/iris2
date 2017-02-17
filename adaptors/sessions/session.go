@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/kataras/go-errors"
-	"gopkg.in/kataras/iris.v6"
+	"github.com/go-iris2/iris2"
 )
 
 type (

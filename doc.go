@@ -58,8 +58,8 @@ Example code:
       package main
 
       import (
-      	"gopkg.in/kataras/iris.v6"
-      	"gopkg.in/kataras/iris.v6/adaptors/httprouter" // <--- or adaptors/gorillamux
+      	"github.com/go-iris2/iris2"
+      	"github.com/go-iris2/iris2/adaptors/httprouter" // <--- or adaptors/gorillamux
       )
 
       func main() {
@@ -166,8 +166,8 @@ Example `gorillamux` code:
       package main
 
       import (
-      	"gopkg.in/kataras/iris.v6"
-      	"gopkg.in/kataras/iris.v6/adaptors/gorillamux"
+      	"github.com/go-iris2/iris2"
+      	"github.com/go-iris2/iris2/adaptors/gorillamux"
       )
 
       func main() {
@@ -230,8 +230,8 @@ Example `httprouter` code:
       package main
 
       import (
-        "gopkg.in/kataras/iris.v6"
-        "gopkg.in/kataras/iris.v6/adaptors/httprouter" // <---- NEW
+        "github.com/go-iris2/iris2"
+        "github.com/go-iris2/iris2/adaptors/httprouter" // <---- NEW
       )
 
       func main() {
@@ -399,8 +399,8 @@ Example code:
       package main
 
       import (
-      	"gopkg.in/kataras/iris.v6"
-      	"gopkg.in/kataras/iris.v6/adaptors/httprouter"
+      	"github.com/go-iris2/iris2"
+      	"github.com/go-iris2/iris2/adaptors/httprouter"
       )
 
       func main() {
@@ -479,8 +479,8 @@ Example code:
 
       import (
       	"github.com/rs/cors"
-      	"gopkg.in/kataras/iris.v6"
-      	"gopkg.in/kataras/iris.v6/adaptors/gorillamux"
+      	"github.com/go-iris2/iris2"
+      	"github.com/go-iris2/iris2/adaptors/gorillamux"
       )
 
       // newCorsMiddleware returns a new cors middleware
@@ -541,9 +541,9 @@ Example code:
       package main
 
       import (
-      	"gopkg.in/kataras/iris.v6"
-      	"gopkg.in/kataras/iris.v6/adaptors/gorillamux"
-      	"gopkg.in/kataras/iris.v6/adaptors/view" // <--- it contains all the template engines
+      	"github.com/go-iris2/iris2"
+      	"github.com/go-iris2/iris2/adaptors/gorillamux"
+      	"github.com/go-iris2/iris2/adaptors/view" // <--- it contains all the template engines
       )
 
       func main() {

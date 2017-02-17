@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"gopkg.in/kataras/iris.v6/httptest"
+	"github.com/go-iris2/iris2/httptest"
 )
 
 // $ cd _example
