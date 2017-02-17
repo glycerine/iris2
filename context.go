@@ -1523,7 +1523,7 @@ Edit your main .go source file to adapt one of these and restart your app.
 
 		// OPTIONALLY:
 		// import "github.com/go-iris2/iris2/adaptors/sessions/sessiondb/redis"
-		// or import "github.com/kataras/go-sessions/sessiondb/$any_available_community_database"
+		// or import "github.com/go-iris2/iris2/sessions/sessiondb/$any_available_community_database"
 		// mySessions.UseDatabase(redis.New(...))
 
 		app.Adapt(mySessions) // <--- and this line were missing.

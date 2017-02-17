@@ -1,11 +1,11 @@
-// Package sessions as originally written by me at https://github.com/kataras/go-sessions
+// Package sessions as originally written by me at https://github.com/go-iris2/iris2/sessions
 // Based on kataras/go-sessions v1.0.0.
 //
 // Edited for Iris v6 (or iris vNext) and removed all fasthttp things in order to reduce the
 // compiled and go getable size. The 'file' and 'leveldb' databases are missing
 // because they written by community, not me, you can still adapt any database with
 // .UseDatabase because it expects an interface,
-//              find more databases here: https://github.com/kataras/go-sessions/tree/master/sessiondb
+//              find more databases here: https://github.com/go-iris2/iris2/sessions/tree/master/sessiondb
 package sessions
 
 import (
@@ -28,7 +28,7 @@ type (
 
 		// UseDatabase ,optionally, adds a session database to the manager's provider,
 		// a session db doesn't have write access
-		// see https://github.com/kataras/go-sessions/tree/master/sessiondb
+		// see https://github.com/go-iris2/iris2/sessions/tree/master/sessiondb
 		UseDatabase(Database)
 
 		// Start starts the session for the particular net/http request
