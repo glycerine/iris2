@@ -4,10 +4,10 @@ import (
 	"strconv"
 	"testing"
 
-	"gopkg.in/kataras/iris.v6"
-	"gopkg.in/kataras/iris.v6/adaptors/gorillamux"
-	"gopkg.in/kataras/iris.v6/adaptors/httprouter"
-	"gopkg.in/kataras/iris.v6/httptest"
+	"github.com/go-iris2/iris2"
+	"github.com/go-iris2/iris2/adaptors/gorillamux"
+	"github.com/go-iris2/iris2/adaptors/httprouter"
+	"github.com/go-iris2/iris2/httptest"
 )
 
 func testRouteStateSimple(t *testing.T, router iris.Policy, offlineRoutePath string) {
