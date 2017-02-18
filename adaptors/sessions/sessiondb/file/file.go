@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-// Structure for the file-storage
+// Database structure for the file-storage
 type Database struct {
 	path string
 }
@@ -24,6 +24,9 @@ func (d *Database) Load(sid string) map[string]interface{} {
 	val, err := ioutil.ReadFile(d.path + "/" + sid)
 	if err == nil {
 		err = DeserializeBytes(val, &values)
+		if err != nil {
+			println("Filestorage deserialize error: " + err.Error())
+		}
 	}
 
 	return values
