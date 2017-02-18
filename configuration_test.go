@@ -108,7 +108,6 @@ func TestConfigurationYAML(t *testing.T) {
   ReadTimeout: 0
   WriteTimeout: 5s
   MaxHeaderBytes: 8096
-  CheckForUpdates: true
   DisablePathCorrection: false
   EnablePathEscape: false
   FireMethodNotAllowed: true
@@ -142,10 +141,6 @@ func TestConfigurationYAML(t *testing.T) {
 
 	if expected := 8096; c.MaxHeaderBytes != expected {
 		t.Fatalf("error on TestConfigurationYAML: Expected MaxHeaderBytes %s but got %s", expected, c.MaxHeaderBytes)
-	}
-
-	if expected := true; c.CheckForUpdates != expected {
-		t.Fatalf("error on TestConfigurationYAML: Expected checkForUpdates %v but got %v", expected, c.CheckForUpdates)
 	}
 
 	if expected := false; c.DisablePathCorrection != expected {

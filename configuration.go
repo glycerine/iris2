@@ -116,22 +116,6 @@ type Configuration struct {
 	// If zero, DefaultMaxHeaderBytes is used.
 	MaxHeaderBytes int `yaml:"MaxHeaderBytes"`
 
-	// CheckForUpdates will try to search for newer version of Iris based on the https://github.com/kataras/iris/releases
-	// If a newer version found then the app will ask the he dev/user if want to update the 'x' version
-	// if 'y' is pressed then the updater will try to install the latest version
-	// the updater, will notify the dev/user that the update is finished and should restart the App manually.
-	// Notes:
-	// 1. Experimental feature
-	// 2. If setted to true, the app will start the server normally and runs the updater in its own goroutine,
-	//    in order to no delay the boot time on your development state.
-	// 3. If you as developer edited the $GOPATH/src/github/kataras or any other Iris' Go dependencies at the past
-	//    then the update process will fail.
-	//
-	// Usage: app := iris.New(iris.Configuration{CheckForUpdates: true})
-	//
-	// Defaults to false.
-	CheckForUpdates bool `yaml:"CheckForUpdates"`
-
 	// DisablePathCorrection corrects and redirects the requested path to the registered path
 	// for example, if /home/ path is requested but no handler for this Route found,
 	// then the Router checks if /home handler exists, if yes,
@@ -261,26 +245,6 @@ var (
 		}
 	}
 
-	// OptionCheckForUpdates will try to search for newer version of Iris based on the https://github.com/kataras/iris/releases
-	// If a newer version found then the app will ask the he dev/user if want to update the 'x' version
-	// if 'y' is pressed then the updater will try to install the latest version
-	// the updater, will notify the dev/user that the update is finished and should restart the App manually.
-	// Notes:
-	// 1. Experimental feature
-	// 2. If setted to true, the app will have a little startup delay
-	// 3. If you as developer edited the $GOPATH/src/github/kataras or any other Iris' Go dependencies at the past
-	//    then the update process will fail.
-	//
-	// Usage: iris.Default.Set(iris.OptionCheckForUpdates(true)) or
-	//        iris.Default.Config.CheckForUpdates = true or
-	//        app := iris.New(iris.OptionCheckForUpdates(true))
-	// Defaults to false.
-	OptionCheckForUpdates = func(val bool) OptionSet {
-		return func(c *Configuration) {
-			c.CheckForUpdates = val
-		}
-	}
-
 	// OptionDisablePathCorrection corrects and redirects the requested path to the registered path
 	// for example, if /home/ path is requested but no handler for this Route found,
 	// then the Router checks if /home handler exists, if yes,
@@ -398,7 +362,6 @@ func DefaultConfiguration() Configuration {
 		ReadTimeout:                       DefaultReadTimeout,
 		WriteTimeout:                      DefaultWriteTimeout,
 		MaxHeaderBytes:                    DefaultMaxHeaderBytes,
-		CheckForUpdates:                   false,
 		DisablePathCorrection:             DefaultDisablePathCorrection,
 		EnablePathEscape:                  DefaultEnablePathEscape,
 		FireMethodNotAllowed:              false,

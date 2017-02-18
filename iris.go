@@ -26,7 +26,6 @@ import (
 
 	"github.com/geekypanda/httpcache"
 	"github.com/go-iris2/iris2/errors"
-	"github.com/go-iris2/iris2/fs"
 	"github.com/go-iris2/iris2/serializer"
 )
 
@@ -356,20 +355,6 @@ func New(setters ...OptionSetter) *Framework {
 
 	}
 
-	{
-		//  +------------------------------------------------------------+
-		//  | Module Name: System                                        |
-		//  | On Build: Check for updates on Build, async                |
-		//  +------------------------------------------------------------+
-
-		// On Build: local repository updates
-		s.Adapt(EventPolicy{Build: func(*Framework) {
-			if s.Config.CheckForUpdates {
-				go s.CheckForUpdates(false)
-			}
-		}})
-	}
-
 	return s
 }
 
@@ -641,41 +626,6 @@ const (
 	githubOwner = "kataras"
 	githubRepo  = "iris"
 )
-
-// CheckForUpdates will try to search for newer version of Iris based on the https://github.com/kataras/iris/releases
-// If a newer version found then the app will ask the he dev/user if want to update the 'x' version
-// if 'y' is pressed then the updater will try to install the latest version
-// the updater, will notify the dev/user that the update is finished and should restart the App manually.
-// Note: exported func CheckForUpdates exists because of the reason that an update can be executed while Iris is running
-func (s *Framework) CheckForUpdates(force bool) {
-	updated := false
-	checker := func() {
-
-		fs.DefaultUpdaterAlreadyInstalledMessage = "Updater: Running with the latest version(%s)\n"
-		updater, err := fs.GetUpdater(githubOwner, githubRepo, Version)
-
-		if err != nil {
-			// ignore writer's error
-			s.Log(DevMode, "update failed: "+err.Error())
-			return
-		}
-
-		updated = updater.Run(fs.Stdout(s.policies.LoggerPolicy), fs.Stderr(s.policies.LoggerPolicy), fs.Silent(false))
-
-	}
-
-	if force {
-		checker()
-	} else {
-		updateOnce.Do(checker)
-	}
-
-	if updated { // if updated, then do not run the web server
-		s.Log(DevMode, "exiting now...")
-		os.Exit(1)
-	}
-
-}
 
 // Adapt adapds a policy to the Framework.
 // It accepts single or more objects that implements the iris.Policy.
