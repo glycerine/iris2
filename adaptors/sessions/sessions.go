@@ -72,12 +72,13 @@ func (s *sessions) Adapt(frame *iris2.Policies) {
 func (s *sessions) Start(res http.ResponseWriter, req *http.Request) iris2.Session {
 	var sess iris2.Session
 
-	sessionID := GetCookie(s.config.Cookie, req)
-	if sessionID != "" && s.provider.Exist(sessionID) {
+	cookieName := GetCookie(s.config.Cookie, req)
+	sessionID := req.RemoteAddr + "_" + cookieName
+	if cookieName != "" && s.provider.Exist(sessionID) {
 		sess = s.provider.Read(sessionID, s.config.Expires)
 	} else {
 		for {
-			sessionID = sessionIDGenerator(s.config.CookieLength)
+			sessionID = req.RemoteAddr + "_" + sessionIDGenerator(s.config.CookieLength)
 			if !s.provider.Exist(sessionID) {
 				break
 			}
@@ -85,19 +86,19 @@ func (s *sessions) Start(res http.ResponseWriter, req *http.Request) iris2.Sessi
 		sess = s.provider.Init(sessionID, s.config.Expires)
 	}
 	// We always use AddCookie
-	SetCookie(s.buildCookie(sessionID, req.URL.Host), res)
+	SetCookie(s.buildCookie(cookieName, req.URL.Host), res)
 
 	return sess
 }
 
 // Destroy kills the net/http session and remove the associated cookie
 func (s *sessions) Destroy(res http.ResponseWriter, req *http.Request) {
-	sessionID := GetCookie(s.config.Cookie, req)
-	if sessionID == "" { // nothing to destroy
+	cookieName := GetCookie(s.config.Cookie, req)
+	if cookieName == "" { // nothing to destroy
 		return
 	}
 	RemoveCookie(s.config.Cookie, res, req)
-	s.provider.Destroy(sessionID)
+	s.provider.Destroy(req.RemoteAddr + "_" + cookieName)
 }
 
 // DestroyByID removes the session entry
@@ -115,7 +116,7 @@ func (s *sessions) DestroyByID(sid string) {
 // Client's session cookie will still exist but it will be reseted on the next request.
 // Works for both net/http
 func (s *sessions) DestroyAll() {
-	//s.provider.DestroyAll()
+	s.provider.DestroyAll()
 }
 
 func (s *sessions) buildCookie(sid, host string) *http.Cookie {
