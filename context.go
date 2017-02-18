@@ -20,9 +20,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/iris-contrib/formBinder"
 	"github.com/go-iris2/iris2/errors"
 	"github.com/go-iris2/iris2/template"
+	"github.com/iris-contrib/formBinder"
 )
 
 const (

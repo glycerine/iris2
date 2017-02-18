@@ -8,7 +8,7 @@ import (
 func main() {
 	app := iris2.New()
 	app.Adapt(iris2.DevLogger()) // writes both prod and dev logs to the os.Stdout
-	app.Adapt(gorillamux.New()) // uses the gorillamux for routing and reverse routing
+	app.Adapt(gorillamux.New())  // uses the gorillamux for routing and reverse routing
 
 	// set a custom 404 handler
 	app.OnError(iris2.StatusNotFound, func(ctx *iris2.Context) {

@@ -28,8 +28,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gorilla/mux"
 	"github.com/go-iris2/iris2"
+	"github.com/gorilla/mux"
 )
 
 const dynamicSymbol = '{'

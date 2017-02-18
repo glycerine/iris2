@@ -48,7 +48,7 @@ func main() {
 	app.Get("/template", func(ctx *iris2.Context) {
 
 		ctx.MustRender(
-			"hi.html",                // the file name of the template relative to the './templates'
+			"hi.html",                 // the file name of the template relative to the './templates'
 			iris2.Map{"Name": "Iris"}, // the .Name inside the ./templates/hi.html
 			iris2.Map{"gzip": false},  // enable gzip for big files
 		)

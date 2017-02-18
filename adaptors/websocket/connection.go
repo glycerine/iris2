@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gorilla/websocket"
 	"github.com/go-iris2/iris2"
+	"github.com/gorilla/websocket"
 )
 
 // UnderlineConnection is used for compatible with fasthttp and net/http underline websocket libraries

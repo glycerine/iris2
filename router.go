@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/go-iris2/iris2/errors"
-	"path/filepath"
 	"mime"
+	"path/filepath"
 )
 
 const (
@@ -381,8 +381,8 @@ func (router *Router) StaticServe(systemPath string, requestPath ...string) Rout
 
 	if len(requestPath) == 0 {
 		reqPath = strings.Replace(systemPath, string(os.PathSeparator), slash, -1) // replaces any \ to /
-		reqPath = strings.Replace(reqPath, "//", slash, -1)                // for any case, replaces // to /
-		reqPath = strings.Replace(reqPath, ".", "", -1)                    // replace any dots (./mypath -> /mypath)
+		reqPath = strings.Replace(reqPath, "//", slash, -1)                        // for any case, replaces // to /
+		reqPath = strings.Replace(reqPath, ".", "", -1)                            // replace any dots (./mypath -> /mypath)
 	} else {
 		reqPath = requestPath[0]
 	}

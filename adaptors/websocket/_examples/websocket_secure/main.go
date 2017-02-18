@@ -19,7 +19,7 @@ type clientPage struct {
 
 func main() {
 	app := iris2.New()
-	app.Adapt(iris2.DevLogger())                  // enable all (error) logs
+	app.Adapt(iris2.DevLogger())                 // enable all (error) logs
 	app.Adapt(httprouter.New())                  // select the httprouter as the servemux
 	app.Adapt(view.HTML("./templates", ".html")) // select the html engine to serve templates
 

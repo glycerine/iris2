@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/iris-contrib/httpexpect"
 	"github.com/go-iris2/iris2"
 	"github.com/go-iris2/iris2/adaptors/httprouter"
 	"github.com/go-iris2/iris2/httptest"
+	"github.com/iris-contrib/httpexpect"
 )
 
 func getRandomNumber(min int, max int) int {

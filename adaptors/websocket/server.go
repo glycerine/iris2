@@ -3,8 +3,8 @@ package websocket
 import (
 	"sync"
 
-	"github.com/gorilla/websocket"
 	"github.com/go-iris2/iris2"
+	"github.com/gorilla/websocket"
 )
 
 // Server is the websocket server,

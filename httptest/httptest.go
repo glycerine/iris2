@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/iris-contrib/httpexpect"
 	"github.com/go-iris2/iris2"
+	"github.com/iris-contrib/httpexpect"
 )
 
 type (

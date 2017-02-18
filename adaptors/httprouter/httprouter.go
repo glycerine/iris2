@@ -29,8 +29,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-iris2/iris2/errors"
 	"github.com/go-iris2/iris2"
+	"github.com/go-iris2/iris2/errors"
 )
 
 const (

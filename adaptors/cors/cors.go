@@ -10,8 +10,8 @@ package cors
 // app.Adapt(cors.New(cors.Options{})))
 
 import (
-	"github.com/rs/cors"
 	"github.com/go-iris2/iris2"
+	"github.com/rs/cors"
 )
 
 // Options is a configuration container to setup the CORS.

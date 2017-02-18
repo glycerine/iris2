@@ -6,8 +6,8 @@ import (
 	"io"
 	"strings"
 
-	"github.com/go-iris2/iris2/template"
 	"github.com/go-iris2/iris2"
+	"github.com/go-iris2/iris2/template"
 )
 
 // Adaptor contains the common actions
