@@ -72,7 +72,9 @@ func (p *provider) Read(sid string, expires time.Duration) iris2.Session {
 	sess, found := p.sessions[sid]
 	p.mu.Unlock()
 	if found {
-		p.sessions[sid].timeout.Reset(expires)
+		if p.sessions[sid].timeout != nil {
+			p.sessions[sid].timeout.Reset(expires)
+		}
 		sess.runFlashGC()
 		return sess
 	}
