@@ -1,9 +1,6 @@
 package sessions
 
 import (
-	"bytes"
-	"encoding/base64"
-	"encoding/gob"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -81,18 +78,6 @@ func IsValidCookieDomain(domain string) bool {
 	return true
 }
 
-func encodeCookieValue(value string) string {
-	return base64.URLEncoding.EncodeToString([]byte(value))
-}
-
-func decodeCookieValue(value string) (string, error) {
-	v, err := base64.URLEncoding.DecodeString(value)
-	if err != nil {
-		return "", err
-	}
-	return string(v), nil
-}
-
 // -------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------
 // ----------------------------------Strings & Serialization----------------------------
@@ -111,7 +96,7 @@ const (
 // note: this code doesn't belongs to me, but it works just fine*
 //
 // Used for the default SessionIDGenerator which you can change.
-func random(n int) []byte {
+func randomByteArr(n int) []byte {
 	src := rand.NewSource(time.Now().UnixNano())
 	b := make([]byte, n)
 	// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
@@ -132,34 +117,5 @@ func random(n int) []byte {
 
 // randomString accepts a number(10 for example) and returns a random string using simple but fairly safe random algorithm
 func randomString(n int) string {
-	return string(random(n))
-}
-
-// Serialize serialize any type to gob bytes and after returns its the base64 encoded string
-func Serialize(m interface{}) (string, error) {
-	b := bytes.Buffer{}
-	encoder := gob.NewEncoder(&b)
-	err := encoder.Encode(m)
-	if err != nil {
-		return "", err
-	}
-	return base64.StdEncoding.EncodeToString(b.Bytes()), nil
-}
-
-// Deserialize accepts an encoded string and a data struct  which will be filled with the desierialized string
-// using gob decoder
-func Deserialize(str string, m interface{}) error {
-	by, err := base64.StdEncoding.DecodeString(str)
-	if err != nil {
-		return err
-	}
-	b := bytes.Buffer{}
-	b.Write(by)
-	d := gob.NewDecoder(&b)
-	//	d := gob.NewDecoder(bytes.NewBufferString(str))
-	err = d.Decode(&m)
-	if err != nil {
-		return err
-	}
-	return nil
+	return string(randomByteArr(n))
 }

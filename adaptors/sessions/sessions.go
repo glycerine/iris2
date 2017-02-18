@@ -1,15 +1,9 @@
-// Package sessions as originally written by me at https://github.com/go-iris2/iris2/sessions
-// Based on kataras/go-sessions v1.0.0.
+// Package sessions for Iris2, original by kataras, updated by rikvdh
+// Based on kataras/go-sessions.
 //
-// Edited for Iris v6 (or iris vNext) and removed all fasthttp things in order to reduce the
-// compiled and go getable size. The 'file' and 'leveldb' databases are missing
-// because they written by community, not me, you can still adapt any database with
-// .UseDatabase because it expects an interface,
-//              find more databases here: https://github.com/go-iris2/iris2/sessions/tree/master/sessiondb
 package sessions
 
 import (
-	"encoding/base64"
 	"net/http"
 	"strings"
 	"time"
@@ -180,5 +174,5 @@ func (s *sessions) DestroyAll() {
 // SessionIDGenerator returns a random string, used to set the session id
 // you are able to override this to use your own method for generate session ids
 var SessionIDGenerator = func(strLength int) string {
-	return base64.URLEncoding.EncodeToString(random(strLength))
+	return randomString(strLength)
 }
