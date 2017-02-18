@@ -73,7 +73,7 @@ func (s *sessions) Start(res http.ResponseWriter, req *http.Request) iris2.Sessi
 	var sess iris2.Session
 
 	clientIP := req.RemoteAddr
-	idx := strings.IndexByte(clientIP, ',')
+	idx := strings.IndexByte(clientIP, ':')
 	if idx > 0 {
 		clientIP = clientIP[0:idx]
 	}
@@ -106,7 +106,7 @@ func (s *sessions) Destroy(res http.ResponseWriter, req *http.Request) {
 	}
 	RemoveCookie(s.config.Cookie, res, req)
 	clientIP := req.RemoteAddr
-	idx := strings.IndexByte(clientIP, ',')
+	idx := strings.IndexByte(clientIP, ':')
 	if idx > 0 {
 		clientIP = clientIP[0:idx]
 	}
