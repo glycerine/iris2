@@ -63,7 +63,7 @@ Example code:
       )
 
       func main() {
-      	app := iris.New()
+      	app := iris2.New()
       	app.Adapt(httprouter.New()) // <--- or gorillamux.New()
 
       	// HTTP Method: GET
@@ -74,8 +74,8 @@ Example code:
       	app.Listen(":80")
       }
 
-      func index(ctx *iris.Context) {
-      	ctx.HTML(iris.StatusOK, "<h1> Welcome to my page!</h1>")
+      func index(ctx *iris2.Context) {
+      	ctx.HTML(iris2.StatusOK, "<h1> Welcome to my page!</h1>")
       }
 
 
@@ -89,35 +89,35 @@ Run
 All HTTP methods are supported, users can register handlers for same paths on different methods.
 The first parameter is the HTTP Method,
 second parameter is the request path of the route,
-third variadic parameter should contains one or more iris.Handler/HandlerFunc executed
+third variadic parameter should contains one or more iris2.Handler/HandlerFunc executed
 by the registered order when a user requests for that specific resouce path from the server.
 
 Example code:
 
 
-        app := iris.New()
+        app := iris2.New()
 
         app.Handle("GET", "/about", aboutHandler)
 
         type aboutHandler struct {}
-        func (a aboutHandler) Serve(ctx *iris.Context){
-          ctx.HTML("Hello from /about, executed from an iris.Handler")
+        func (a aboutHandler) Serve(ctx *iris2.Context){
+          ctx.HTML("Hello from /about, executed from an iris2.Handler")
         }
 
-        app.HandleFunc("GET", "/contact", func(ctx *iris.Context){
-          ctx.HTML(iris.StatusOK, "Hello from /contact, executed from an iris.HandlerFunc")
+        app.HandleFunc("GET", "/contact", func(ctx *iris2.Context){
+          ctx.HTML(iris2.StatusOK, "Hello from /contact, executed from an iris2.HandlerFunc")
         })
 
 
 In order to make things easier for the user, Iris provides functions for all HTTP Methods.
 The first parameter is the request path of the route,
-second variadic parameter should contains one or more iris.HandlerFunc executed
+second variadic parameter should contains one or more iris2.HandlerFunc executed
 by the registered order when a user requests for that specific resouce path from the server.
 
 Example code:
 
 
-      app := iris.New()
+      app := iris2.New()
 
       // Method: "GET"
       app.Get("/", handler)
@@ -149,7 +149,7 @@ Example code:
       // register the route for all HTTP Methods
       app.Any("/", handler)
 
-      func handler(ctx *iris.Context){
+      func handler(ctx *iris2.Context){
         ctx.Writef("Hello from method: %s and path: %s", ctx.Method(), ctx.Path())
       }
 
@@ -171,17 +171,17 @@ Example `gorillamux` code:
       )
 
       func main() {
-      	app := iris.New()
-      	app.Adapt(iris.DevLogger())
+      	app := iris2.New()
+      	app.Adapt(iris2.DevLogger())
       	app.Adapt(gorillamux.New())
 
-      	app.OnError(iris.StatusNotFound, func(ctx *iris.Context) {
-      		ctx.HTML(iris.StatusNotFound, "<h1> custom http error page </h1>")
+      	app.OnError(iris2.StatusNotFound, func(ctx *iris2.Context) {
+      		ctx.HTML(iris2.StatusNotFound, "<h1> custom http error page </h1>")
       	})
 
       	app.Get("/healthcheck", h)
 
-      	gamesMiddleware := func(ctx *iris.Context) {
+      	gamesMiddleware := func(ctx *iris2.Context) {
       		println(ctx.Method() + ": " + ctx.Path())
       		ctx.Next()
       	}
@@ -207,7 +207,7 @@ Example `gorillamux` code:
       		games.Post("/{gameID:[0-9]+}/clans/{clanPublicID:[0-9]+}/memberships/demote", h)
       	}
 
-      	app.Get("/anything/{anythingparameter:.*}", func(ctx *iris.Context) {
+      	app.Get("/anything/{anythingparameter:.*}", func(ctx *iris2.Context) {
       		s := ctx.Param("anythingparameter")
       		ctx.Writef("The path after /anything is: %s", s)
       	})
@@ -219,8 +219,8 @@ Example `gorillamux` code:
       	app.Listen("myhost.com:80")
       }
 
-      func h(ctx *iris.Context) {
-      	ctx.HTML(iris.StatusOK, "<h1>Path<h1/>"+ctx.Path())
+      func h(ctx *iris2.Context) {
+      	ctx.HTML(iris2.StatusOK, "<h1>Path<h1/>"+ctx.Path())
       }
 
 
@@ -235,19 +235,19 @@ Example `httprouter` code:
       )
 
       func main() {
-        app := iris.New()
-        app.Adapt(iris.DevLogger())
+        app := iris2.New()
+        app.Adapt(iris2.DevLogger())
         app.Adapt(httprouter.New()) // <---- NEW
 
 
-        app.OnError(iris.StatusNotFound, func(ctx *iris.Context){
-          ctx.HTML(iris.StatusNotFound, "<h1> custom http error page </h1>")
+        app.OnError(iris2.StatusNotFound, func(ctx *iris2.Context){
+          ctx.HTML(iris2.StatusNotFound, "<h1> custom http error page </h1>")
         })
 
 
         app.Get("/healthcheck", h)
 
-        gamesMiddleware := func(ctx *iris.Context) {
+        gamesMiddleware := func(ctx *iris2.Context) {
           println(ctx.Method() + ": " + ctx.Path())
           ctx.Next()
         }
@@ -273,7 +273,7 @@ Example `httprouter` code:
         	 games.Post("/:gameID/clans/:clanPublicID/memberships/demote", h)
         }
 
-        app.Get("/anything/*anythingparameter", func(ctx *iris.Context){
+        app.Get("/anything/*anythingparameter", func(ctx *iris2.Context){
           s := ctx.Param("anythingparameter")
           ctx.Writef("The path after /anything is: %s",s)
         })
@@ -285,8 +285,8 @@ Example `httprouter` code:
         app.Listen("myhost.com:80")
       }
 
-      func h(ctx *iris.Context) {
-      	ctx.HTML(iris.StatusOK, "<h1>Path<h1/>"+ctx.Path())
+      func h(ctx *iris2.Context) {
+      	ctx.HTML(iris2.StatusOK, "<h1>Path<h1/>"+ctx.Path())
       }
 
 
@@ -322,11 +322,11 @@ Example code:
 
       // when 404 then render the template $templatedir/errors/404.html
       // *read below for information about the view engine.*
-      app.OnError(iris.StatusNotFound, func(ctx *iris.Context){
-        ctx.RenderWithstatus(iris.StatusNotFound, "errors/404.html", nil)
+      app.OnError(iris2.StatusNotFound, func(ctx *iris2.Context){
+        ctx.RenderWithstatus(iris2.StatusNotFound, "errors/404.html", nil)
       })
 
-      app.OnError(500, func(ctx *iris.Context){
+      app.OnError(500, func(ctx *iris2.Context){
         // ...
       })
 
@@ -343,7 +343,7 @@ Example code:
           games.Get("/{gameID:[0-9]+}/clans/search", h)
       }
 
-      games.OnError(iris.StatusNotFound, gamesNotFoundHandler)
+      games.OnError(iris2.StatusNotFound, gamesNotFoundHandler)
 
 
 
@@ -375,9 +375,9 @@ Static Files
       // second parameter: the system directory
       // third OPTIONAL parameter: the exception routes
       //      (= give priority to these routes instead of the static handler)
-      // for more options look iris.StaticHandler.
+      // for more options look iris2.StaticHandler.
       //
-      //     iris.StaticWeb("/static", "./static")
+      //     iris2.StaticWeb("/static", "./static")
       //
       // As a special case, the returned file server redirects any request
       // ending in "/index.html" to the same path, without the final
@@ -405,8 +405,8 @@ Example code:
 
       func main() {
 
-      	app := iris.New()
-      	app.Adapt(iris.DevLogger())
+      	app := iris2.New()
+      	app.Adapt(iris2.DevLogger())
       	app.Adapt(httprouter.New())
 
       	app.Favicon("./static/favicons/iris_favicon_32_32.ico")
@@ -415,8 +415,8 @@ Example code:
       	// app.Favicon("./static/favicons/iris_favicon_32_32.ico", "/favicon_32_32.ico")
       	// This will serve the ./static/favicons/iris_favicon_32_32.ico to: 127.0.0.1:8080/favicon_32_32.ico
 
-      	app.Get("/", func(ctx *iris.Context) {
-      		ctx.HTML(iris.StatusOK, "You should see the favicon now at the side of your browser.")
+      	app.Get("/", func(ctx *iris2.Context) {
+      		ctx.HTML(iris2.StatusOK, "You should see the favicon now at the side of your browser.")
       	})
 
       	app.Listen(":8080")
@@ -434,7 +434,7 @@ Example code:
 
       // globally
       // before any routes, appends the middleware to all routes
-      app.UseFunc(func(ctx *iris.Context){
+      app.UseFunc(func(ctx *iris2.Context){
          // ... any code here
 
          ctx.Next() // in order to continue to the next handler,
@@ -460,15 +460,15 @@ Example code:
 
       // per wildcard, dynamic subdomain
       dynamicSub := app.Party(".*", firstMiddleware, secondMiddleware)
-      dynamicSub.Get("/", func(ctx *iris.Context){
+      dynamicSub.Get("/", func(ctx *iris2.Context){
         ctx.Writef("Hello from subdomain: "+ ctx.Subdomain())
       })
 
 
-    `iris.ToHandler` converts(by wrapping) any `http.Handler/HandlerFunc` or
-    `func(w http.ResponseWriter,r *http.Request, next http.HandlerFunc)` to an `iris.HandlerFunc`.
+    `iris2.ToHandler` converts(by wrapping) any `http.Handler/HandlerFunc` or
+    `func(w http.ResponseWriter,r *http.Request, next http.HandlerFunc)` to an `iris2.HandlerFunc`.
 
-    iris.ToHandler(nativeNethttpHandler)
+    iris2.ToHandler(nativeNethttpHandler)
 
 Let's convert the https://github.com/rs/cors net/http external middleware which returns a `next form` handler.
 
@@ -485,7 +485,7 @@ Example code:
 
       // newCorsMiddleware returns a new cors middleware
       // with the provided options.
-      func newCorsMiddleware() iris.HandlerFunc {
+      func newCorsMiddleware() iris2.HandlerFunc {
       	options := cors.Options{
       		AllowedOrigins: []string{"*"},
       	}
@@ -493,16 +493,16 @@ Example code:
 
       	// this is the only func you will have to use if you're going
       	// to make use of any external net/http middleware.
-      	// iris.ToHandler converts the net/http middleware to an iris-compatible.
-      	return iris.ToHandler(handlerWithNext)
+      	// iris2.ToHandler converts the net/http middleware to an iris-compatible.
+      	return iris2.ToHandler(handlerWithNext)
       }
 
       func main() {
-      	app := iris.New()
+      	app := iris2.New()
       	app.Adapt(gorillamux.New())
 
       	// Any registers a route to all http methods.
-      	app.Any("/user", newCorsMiddleware(), func(ctx *iris.Context) {
+      	app.Any("/user", newCorsMiddleware(), func(ctx *iris2.Context) {
       		// ....
       	})
 
@@ -547,9 +547,9 @@ Example code:
       )
 
       func main() {
-      	app := iris.New(iris.Configuration{Gzip: false, Charset: "UTF-8"}) // defaults to these
+      	app := iris2.New(iris2.Configuration{Gzip: false, Charset: "UTF-8"}) // defaults to these
 
-      	app.Adapt(iris.DevLogger())
+      	app.Adapt(iris2.DevLogger())
       	app.Adapt(gorillamux.New())
 
       	// - standard html  | view.HTML(...)
@@ -569,18 +569,18 @@ Example code:
       	// - {{ current }}
       	//
       	// to adapt custom funcs, use:
-      	app.Adapt(iris.TemplateFuncsPolicy{"myfunc": func(s string) string {
+      	app.Adapt(iris2.TemplateFuncsPolicy{"myfunc": func(s string) string {
       		return "hi " + s
       	}}) // usage inside template: {{ hi "kataras"}}
 
-      	app.Get("/hi", func(ctx *iris.Context) {
+      	app.Get("/hi", func(ctx *iris2.Context) {
       		ctx.Render(
       			// the file name of the template relative to the './templates'.
       			"hi.html",
-      			iris.Map{"Name": "Iris"},
+      			iris2.Map{"Name": "Iris"},
       			// the .Name inside the ./templates/hi.html,
       			// you can use any custom struct that you want to bind to the requested template.
-      			iris.Map{"gzip": false}, // set to true to enable gzip compression.
+      			iris2.Map{"gzip": false}, // set to true to enable gzip compression.
       		)
 
       	})

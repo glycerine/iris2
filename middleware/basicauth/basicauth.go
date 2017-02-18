@@ -14,9 +14,9 @@ import (
 //
 // import "github.com/go-iris2/iris2/middleware/basicauth"
 //
-// app := iris.New()
+// app := iris2.New()
 // authentication := basicauth.Default(map[string]string{"myusername": "mypassword", "mySecondusername": "mySecondpassword"})
-// app.Get("/dashboard", authentication, func(ctx *iris.Context){})
+// app.Get("/dashboard", authentication, func(ctx *iris2.Context){})
 //
 // for more configuration basicauth.New(basicauth.Config{...})
 // see _example
@@ -42,16 +42,16 @@ type (
 //
 
 // New takes one parameter, the Config returns a HandlerFunc
-// use: iris.UseFunc(New(...)), iris.Get(...,New(...),...)
-func New(c Config) iris.HandlerFunc {
+// use: iris2.UseFunc(New(...)), iris2.Get(...,New(...),...)
+func New(c Config) iris2.HandlerFunc {
 	b := &basicAuthMiddleware{config: DefaultConfig().MergeSingle(c)}
 	b.init()
 	return b.Serve
 }
 
 // Default takes one parameter, the users returns a HandlerFunc
-// use: iris.UseFunc(Default(...)), iris.Get(...,Default(...),...)
-func Default(users map[string]string) iris.HandlerFunc {
+// use: iris2.UseFunc(Default(...)), iris2.Get(...,Default(...),...)
+func Default(users map[string]string) iris2.HandlerFunc {
 	c := DefaultConfig()
 	c.Users = users
 	return New(c)
@@ -60,7 +60,7 @@ func Default(users map[string]string) iris.HandlerFunc {
 //
 
 // User returns the user from context key same as 'ctx.GetString("user")' but cannot be used by the developer, use the basicauth.Config.User func instead.
-func (b *basicAuthMiddleware) User(ctx *iris.Context) string {
+func (b *basicAuthMiddleware) User(ctx *iris2.Context) string {
 	return b.config.User(ctx)
 }
 
@@ -98,13 +98,13 @@ func (b *basicAuthMiddleware) findAuth(headerValue string) (auth *encodedUser, f
 	return
 }
 
-func (b *basicAuthMiddleware) askForCredentials(ctx *iris.Context) {
+func (b *basicAuthMiddleware) askForCredentials(ctx *iris2.Context) {
 	ctx.SetHeader("WWW-Authenticate", b.realmHeaderValue)
-	ctx.SetStatusCode(iris.StatusUnauthorized)
+	ctx.SetStatusCode(iris2.StatusUnauthorized)
 }
 
 // Serve the actual middleware
-func (b *basicAuthMiddleware) Serve(ctx *iris.Context) {
+func (b *basicAuthMiddleware) Serve(ctx *iris2.Context) {
 
 	if auth, found := b.findAuth(ctx.RequestHeader("Authorization")); !found {
 		b.askForCredentials(ctx)

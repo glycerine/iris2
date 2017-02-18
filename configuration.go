@@ -16,13 +16,13 @@ type (
 	// they really want and nothing else.
 	//
 	// Usage:
-	// iris.New(iris.Configuration{Charset: "UTF-8", Gzip:true})
-	// now can be done also by using iris.Option$FIELD:
-	// iris.New(iris.OptionCharset("UTF-8"), iris.OptionGzip(true))
+	// iris2.New(iris2.Configuration{Charset: "UTF-8", Gzip:true})
+	// now can be done also by using iris2.Option$FIELD:
+	// iris2.New(iris2.OptionCharset("UTF-8"), iris2.OptionGzip(true))
 	//
 	// Benefits:
 	// 1. Developers have no worries what option to pass,
-	//    they can just type iris.Option and all options should
+	//    they can just type iris2.Option and all options should
 	//    be visible to their editor's autocomplete-popup window
 	// 2. Can be passed with any order
 	// 3. Can override previous configuration
@@ -46,7 +46,7 @@ func (o OptionSet) Set(c *Configuration) {
 // Error may occur when the file.yml doesn't exists or is not formatted correctly.
 //
 // Usage:
-// 1. `app := iris.New(YAML("myfile.yml"))`
+// 1. `app := iris2.New(YAML("myfile.yml"))`
 // 2. `app.Set(YAML("myfile.yml"))`
 func YAML(filename string) Configuration {
 	c := DefaultConfiguration()
@@ -80,7 +80,7 @@ type Configuration struct {
 	// When to set VHost manually:
 	// 1. it's automatically setted when you're calling
 	//     $instance.Listen/ListenUNIX/ListenTLS/ListenLETSENCRYPT functions or
-	//     ln,_ := iris.TCP4/UNIX/TLS/LETSENCRYPT; $instance.Serve(ln)
+	//     ln,_ := iris2.TCP4/UNIX/TLS/LETSENCRYPT; $instance.Serve(ln)
 	// 2. If you using a balancer, or something like nginx
 	//    then set it in order to have the correct url
 	//    when calling the template helper '{{url }}'
@@ -89,7 +89,7 @@ type Configuration struct {
 	// Note: this is the main's server Host, you can setup unlimited number of net/http servers
 	// listening to the $instance.Handler after the manually-called $instance.Build
 	//
-	// Default comes from iris.Default.Listen/.Serve with iris' listeners (iris.TCP4/UNIX/TLS/LETSENCRYPT).
+	// Default comes from iris2.Default.Listen/.Serve with iris' listeners (iris2.TCP4/UNIX/TLS/LETSENCRYPT).
 	VHost string `yaml:"VHost"`
 
 	// VScheme is the scheme (http:// or https://) putted at the template function '{{url }}'
@@ -100,7 +100,7 @@ type Configuration struct {
 	// 2. if you're using something like nginx and have iris listening with
 	//   addr only(http://) but the nginx mapper is listening to https://
 	//
-	// Default comes from iris.Default.Listen/.Serve with iris' listeners (TCP4,UNIX,TLS,LETSENCRYPT).
+	// Default comes from iris2.Default.Listen/.Serve with iris' listeners (TCP4,UNIX,TLS,LETSENCRYPT).
 	VScheme string `yaml:"VScheme"`
 
 	// ReadTimeout is the maximum duration before timing out read of the request.
@@ -164,7 +164,7 @@ type Configuration struct {
 	// Gzip enables gzip compression on your Render actions, this includes any type of render,
 	// templates and pure/raw content
 	// If you don't want to enable it globally, you could just use the third parameter
-	// on context.Render("myfileOrResponse", structBinding{}, iris.RenderOptions{"gzip": true})
+	// on context.Render("myfileOrResponse", structBinding{}, iris2.RenderOptions{"gzip": true})
 	// Defaults to false.
 	Gzip bool `yaml:"Gzip"`
 
@@ -189,7 +189,7 @@ var (
 	// When to set VHost manually:
 	// 1. it's automatically setted when you're calling
 	//     $instance.Listen/ListenUNIX/ListenTLS/ListenLETSENCRYPT functions or
-	//     ln,_ := iris.TCP4/UNIX/TLS/LETSENCRYPT; $instance.Serve(ln)
+	//     ln,_ := iris2.TCP4/UNIX/TLS/LETSENCRYPT; $instance.Serve(ln)
 	// 2. If you using a balancer, or something like nginx
 	//    then set it in order to have the correct url
 	//    when calling the template helper '{{url }}'
@@ -198,7 +198,7 @@ var (
 	// Note: this is the main's server Host, you can setup unlimited number of net/http servers
 	// listening to the $instance.Handler after the manually-called $instance.Build
 	//
-	// Default comes from iris.Default.Listen/.Serve with iris' listeners (iris.TCP4/UNIX/TLS/LETSENCRYPT).
+	// Default comes from iris2.Default.Listen/.Serve with iris' listeners (iris2.TCP4/UNIX/TLS/LETSENCRYPT).
 	OptionVHost = func(val string) OptionSet {
 		return func(c *Configuration) {
 			c.VHost = val
@@ -213,7 +213,7 @@ var (
 	// 2. if you're using something like nginx and have iris listening with
 	//    addr only(http://) but the nginx mapper is listening to https://
 	//
-	// Default comes from iris.Default.Listen/.Serve with iris' listeners (TCP4,UNIX,TLS,LETSENCRYPT).
+	// Default comes from iris2.Default.Listen/.Serve with iris' listeners (TCP4,UNIX,TLS,LETSENCRYPT).
 	OptionVScheme = func(val string) OptionSet {
 		return func(c *Configuration) {
 			c.VScheme = val
@@ -305,7 +305,7 @@ var (
 	}
 
 	// OptionGzip enables gzip compression on your Render actions, this includes any type of render, templates and pure/raw content
-	// If you don't want to enable it globally, you could just use the third parameter on context.Render("myfileOrResponse", structBinding{}, iris.RenderOptions{"gzip": true})
+	// If you don't want to enable it globally, you could just use the third parameter on context.Render("myfileOrResponse", structBinding{}, iris2.RenderOptions{"gzip": true})
 	// Defaults to false.
 	OptionGzip = func(val bool) OptionSet {
 		return func(c *Configuration) {

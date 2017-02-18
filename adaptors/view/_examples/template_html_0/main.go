@@ -7,9 +7,9 @@ import (
 )
 
 func main() {
-	app := iris.New(iris.Configuration{Gzip: false, Charset: "UTF-8"}) // defaults to these
+	app := iris2.New(iris2.Configuration{Gzip: false, Charset: "UTF-8"}) // defaults to these
 
-	app.Adapt(iris.DevLogger())
+	app.Adapt(iris2.DevLogger())
 	app.Adapt(httprouter.New())
 
 	app.Adapt(view.HTML("./templates", ".html"))
@@ -18,6 +18,6 @@ func main() {
 	app.Listen(":8080")
 }
 
-func hi(ctx *iris.Context) {
+func hi(ctx *iris2.Context) {
 	ctx.MustRender("hi.html", struct{ Name string }{Name: "iris"})
 }

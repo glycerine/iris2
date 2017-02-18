@@ -8,8 +8,8 @@ import (
 )
 
 func main() {
-	app := iris.New()
-	app.Adapt(iris.DevLogger())
+	app := iris2.New()
+	app.Adapt(iris2.DevLogger())
 	app.Adapt(gorillamux.New())
 
 	app.Adapt(view.HTML("./templates", ".html"))
@@ -24,18 +24,18 @@ func main() {
 
 	app.Get("/mypath6/{param1}/{param2}/staticParam/{param3AfterStatic}", emptyHandler).ChangeName("my-page6")
 
-	app.Get("/", func(ctx *iris.Context) {
+	app.Get("/", func(ctx *iris2.Context) {
 		// for /mypath6...
 		paramsAsArray := []string{"param1", "theParam1",
 			"param2", "theParam2",
 			"param3AfterStatic", "theParam3"}
 
-		if err := ctx.Render("page.html", iris.Map{"ParamsAsArray": paramsAsArray}); err != nil {
+		if err := ctx.Render("page.html", iris2.Map{"ParamsAsArray": paramsAsArray}); err != nil {
 			panic(err)
 		}
 	})
 
-	app.Get("/redirect/{namedRoute}", func(ctx *iris.Context) {
+	app.Get("/redirect/{namedRoute}", func(ctx *iris2.Context) {
 		routeName := ctx.Param("namedRoute")
 
 		println("The full uri of " + routeName + "is: " + app.URL(routeName))
@@ -48,6 +48,6 @@ func main() {
 	app.Listen("localhost:8080")
 }
 
-func emptyHandler(ctx *iris.Context) {
+func emptyHandler(ctx *iris2.Context) {
 	ctx.Writef("Hello from %s.", ctx.Path())
 }

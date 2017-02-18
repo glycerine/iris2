@@ -12,13 +12,13 @@ import (
 type Server interface {
 	// Adapt implements the iris' adaptor, it adapts the websocket server to an Iris station.
 	// see websocket.go
-	Adapt(frame *iris.Policies)
+	Adapt(frame *iris2.Policies)
 
-	// Handler returns the iris.HandlerFunc
+	// Handler returns the iris2.HandlerFunc
 	// which is setted to the 'Websocket Endpoint path',
 	// the client should target to this handler's developer's custom path
-	// ex: iris.Default.Any("/myendpoint", mywebsocket.Handler())
-	Handler() iris.HandlerFunc
+	// ex: iris2.Default.Any("/myendpoint", mywebsocket.Handler())
+	Handler() iris2.HandlerFunc
 
 	// OnConnection this is the main event you, as developer, will work with each of the websocket connections
 	OnConnection(cb ConnectionFunc)
@@ -175,12 +175,12 @@ var _ Server = &server{}
 
 // server implementation
 
-func (s *server) Handler() iris.HandlerFunc {
+func (s *server) Handler() iris2.HandlerFunc {
 	// build the upgrader once
 	c := s.config
 
 	upgrader := websocket.Upgrader{ReadBufferSize: c.ReadBufferSize, WriteBufferSize: c.WriteBufferSize, Error: c.Error, CheckOrigin: c.CheckOrigin}
-	return func(ctx *iris.Context) {
+	return func(ctx *iris2.Context) {
 		// Upgrade upgrades the HTTP server connection to the WebSocket protocol.
 		//
 		// The responseHeader is included in the response to the client's upgrade
@@ -191,8 +191,8 @@ func (s *server) Handler() iris.HandlerFunc {
 		// response.
 		conn, err := upgrader.Upgrade(ctx.ResponseWriter, ctx.Request, ctx.ResponseWriter.Header())
 		if err != nil {
-			ctx.Log(iris.DevMode, "websocket error: "+err.Error())
-			ctx.EmitError(iris.StatusServiceUnavailable)
+			ctx.Log(iris2.DevMode, "websocket error: "+err.Error())
+			ctx.EmitError(iris2.StatusServiceUnavailable)
 			return
 		}
 		s.handleConnection(ctx, conn)
@@ -200,7 +200,7 @@ func (s *server) Handler() iris.HandlerFunc {
 }
 
 // handleConnection creates & starts to listening to a new connection
-func (s *server) handleConnection(ctx *iris.Context, websocketConn UnderlineConnection) {
+func (s *server) handleConnection(ctx *iris2.Context, websocketConn UnderlineConnection) {
 	// use the config's id generator (or the default) to create a websocket client/connection id
 	cid := s.config.IDGenerator(ctx)
 	// create the new connection

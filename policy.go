@@ -22,7 +22,7 @@ type (
 	// are adapted to the object which contains a field of type *Policies.
 	//
 	// Policies can have nested policies behaviors too.
-	// See iris.go field: 'policies' and function 'Adapt' for more.
+	// See iris2.go field: 'policies' and function 'Adapt' for more.
 	Policies struct {
 		LoggerPolicy
 		EventPolicy
@@ -392,7 +392,7 @@ func (r RenderPolicy) Adapt(frame *Policies) {
 }
 
 // TemplateFuncsPolicy sets or overrides template func map.
-// Defaults are the iris.URL and iris.Path, all the template engines supports the following:
+// Defaults are the iris2.URL and iris2.Path, all the template engines supports the following:
 // {{ url "mynamedroute" "pathParameter_ifneeded"} }
 // {{ urlpath "mynamedroute" "pathParameter_ifneeded" }}
 // {{ render "header.html" }}
@@ -480,13 +480,13 @@ type (
 	//
 	// A SessionsPolicy should be responsible to Start a sesion based
 	// on raw http.ResponseWriter and http.Request, which should return
-	// a compatible iris.Session interface, type. If the external session manager
+	// a compatible iris2.Session interface, type. If the external session manager
 	// doesn't qualifies, then the user should code the rest of the functions with empty implementation.
 	//
 	// A SessionsPolicy should be responsible to Destroy a session based
 	// on the http.ResponseWriter and http.Request, this function should works individually.
 	//
-	// No iris.Context required from users. In order to be able to adapt any external session manager.
+	// No iris2.Context required from users. In order to be able to adapt any external session manager.
 	//
 	// The SessionsPolicy should be adapted once.
 	SessionsPolicy struct {

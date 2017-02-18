@@ -20,13 +20,13 @@ func TestParseAddr(t *testing.T) {
 	// test hosts
 	expectedHost1 := "mydomain.com:1993"
 	expectedHost2 := "mydomain.com"
-	expectedHost3 := iris.DefaultServerHostname + ":9090"
+	expectedHost3 := iris2.DefaultServerHostname + ":9090"
 	expectedHost4 := "mydomain.com:443"
 
-	host1 := iris.ParseHost(expectedHost1)
-	host2 := iris.ParseHost(expectedHost2)
-	host3 := iris.ParseHost(":9090")
-	host4 := iris.ParseHost(expectedHost4)
+	host1 := iris2.ParseHost(expectedHost1)
+	host2 := iris2.ParseHost(expectedHost2)
+	host3 := iris2.ParseHost(":9090")
+	host4 := iris2.ParseHost(expectedHost4)
 
 	if host1 != expectedHost1 {
 		t.Fatalf("Expecting server 1's host to be %s but we got %s", expectedHost1, host1)
@@ -44,13 +44,13 @@ func TestParseAddr(t *testing.T) {
 	// test hostname
 	expectedHostname1 := "mydomain.com"
 	expectedHostname2 := "mydomain.com"
-	expectedHostname3 := iris.DefaultServerHostname
+	expectedHostname3 := iris2.DefaultServerHostname
 	expectedHostname4 := "mydomain.com"
 
-	hostname1 := iris.ParseHostname(host1)
-	hostname2 := iris.ParseHostname(host2)
-	hostname3 := iris.ParseHostname(host3)
-	hostname4 := iris.ParseHostname(host4)
+	hostname1 := iris2.ParseHostname(host1)
+	hostname2 := iris2.ParseHostname(host2)
+	hostname3 := iris2.ParseHostname(host3)
+	hostname4 := iris2.ParseHostname(host4)
 	if hostname1 != expectedHostname1 {
 		t.Fatalf("Expecting server 1's hostname to be %s but we got %s", expectedHostname1, hostname1)
 	}
@@ -68,14 +68,14 @@ func TestParseAddr(t *testing.T) {
 	}
 
 	// test scheme, no need to test fullhost(scheme+host)
-	expectedScheme1 := iris.SchemeHTTP
-	expectedScheme2 := iris.SchemeHTTP
-	expectedScheme3 := iris.SchemeHTTP
-	expectedScheme4 := iris.SchemeHTTPS
-	scheme1 := iris.ParseScheme(host1)
-	scheme2 := iris.ParseScheme(host2)
-	scheme3 := iris.ParseScheme(host3)
-	scheme4 := iris.ParseScheme(host4)
+	expectedScheme1 := iris2.SchemeHTTP
+	expectedScheme2 := iris2.SchemeHTTP
+	expectedScheme3 := iris2.SchemeHTTP
+	expectedScheme4 := iris2.SchemeHTTPS
+	scheme1 := iris2.ParseScheme(host1)
+	scheme2 := iris2.ParseScheme(host2)
+	scheme3 := iris2.ParseScheme(host3)
+	scheme4 := iris2.ParseScheme(host4)
 	if scheme1 != expectedScheme1 {
 		t.Fatalf("Expecting server 1's hostname to be %s but we got %s", expectedScheme1, scheme1)
 	}
@@ -151,8 +151,8 @@ func getRandomNumber(min int, max int) int {
 }
 
 // works as
-// defer listenTLS(iris.Default, hostTLS)()
-func listenTLS(app *iris.Framework, hostTLS string) func() {
+// defer listenTLS(iris2.Default, hostTLS)()
+func listenTLS(app *iris2.Framework, hostTLS string) func() {
 	// create the key and cert files on the fly, and delete them when this test finished
 	certFile, ferr := ioutil.TempFile("", "cert")
 
@@ -186,37 +186,37 @@ func listenTLS(app *iris.Framework, hostTLS string) func() {
 
 // Contains the server test for multi running servers
 func TestMultiRunningServers_v1_PROXY(t *testing.T) {
-	app := iris.New()
+	app := iris2.New()
 	app.Adapt(newTestNativeRouter())
 
 	host := "localhost"
 	hostTLS := host + ":" + strconv.Itoa(getRandomNumber(1919, 2021))
-	app.Get("/", func(ctx *iris.Context) {
+	app.Get("/", func(ctx *iris2.Context) {
 		ctx.Writef("Hello from %s", hostTLS)
 	})
 
 	defer listenTLS(app, hostTLS)()
 
 	e := httptest.New(app, t, httptest.ExplicitURL(true))
-	e.Request("GET", "/").Expect().Status(iris.StatusOK).Body().Equal("Hello from " + hostTLS)
+	e.Request("GET", "/").Expect().Status(iris2.StatusOK).Body().Equal("Hello from " + hostTLS)
 
 	// proxy http to https
 	proxyHost := host + ":" + strconv.Itoa(getRandomNumber(3300, 3340))
 	// println("running proxy on: " + proxyHost)
 
-	iris.Proxy(proxyHost, "https://"+hostTLS)
+	iris2.Proxy(proxyHost, "https://"+hostTLS)
 
-	//	proxySrv := &http.Server{Addr: proxyHost, Handler: iris.ProxyHandler("https://" + hostTLS)}
+	//	proxySrv := &http.Server{Addr: proxyHost, Handler: iris2.ProxyHandler("https://" + hostTLS)}
 	//	go proxySrv.ListenAndServe()
 	//	time.Sleep(3 * time.Second)
 
 	eproxy := httptest.NewInsecure("http://"+proxyHost, t, httptest.ExplicitURL(true))
-	eproxy.Request("GET", "/").Expect().Status(iris.StatusOK).Body().Equal("Hello from " + hostTLS)
+	eproxy.Request("GET", "/").Expect().Status(iris2.StatusOK).Body().Equal("Hello from " + hostTLS)
 }
 
 // Contains the server test for multi running servers
 func TestMultiRunningServers_v2(t *testing.T) {
-	app := iris.New()
+	app := iris2.New()
 	app.Adapt(newTestNativeRouter())
 
 	domain := "localhost"
@@ -224,7 +224,7 @@ func TestMultiRunningServers_v2(t *testing.T) {
 	srv1Host := domain + ":" + strconv.Itoa(getRandomNumber(4446, 5444))
 	srv2Host := domain + ":" + strconv.Itoa(getRandomNumber(7778, 8887))
 
-	app.Get("/", func(ctx *iris.Context) {
+	app.Get("/", func(ctx *iris2.Context) {
 		ctx.Writef("Hello from %s", hostTLS)
 	})
 
@@ -235,17 +235,17 @@ func TestMultiRunningServers_v2(t *testing.T) {
 	go srv2.ListenAndServe()
 
 	// using the proxy handler
-	srv1 := &http.Server{Handler: iris.ProxyHandler("https://" + hostTLS), Addr: srv1Host}
+	srv1 := &http.Server{Handler: iris2.ProxyHandler("https://" + hostTLS), Addr: srv1Host}
 	go srv1.ListenAndServe()
 	time.Sleep(200 * time.Millisecond) // wait a little for the http servers
 
 	e := httptest.New(app, t, httptest.ExplicitURL(true))
-	e.Request("GET", "/").Expect().Status(iris.StatusOK).Body().Equal("Hello from " + hostTLS)
+	e.Request("GET", "/").Expect().Status(iris2.StatusOK).Body().Equal("Hello from " + hostTLS)
 
 	eproxy1 := httptest.NewInsecure("http://"+srv1Host, t, httptest.ExplicitURL(true))
-	eproxy1.Request("GET", "/").Expect().Status(iris.StatusOK).Body().Equal("Hello from " + hostTLS)
+	eproxy1.Request("GET", "/").Expect().Status(iris2.StatusOK).Body().Equal("Hello from " + hostTLS)
 
 	eproxy2 := httptest.NewInsecure("http://"+srv2Host, t)
-	eproxy2.Request("GET", "/").Expect().Status(iris.StatusOK).Body().Equal("Hello from " + hostTLS)
+	eproxy2.Request("GET", "/").Expect().Status(iris2.StatusOK).Body().Equal("Hello from " + hostTLS)
 
 }

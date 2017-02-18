@@ -9,7 +9,7 @@ import (
 )
 
 // StaticHandlerBuilder is the web file system's Handler builder
-// use that or the iris.StaticHandler/StaticWeb methods
+// use that or the iris2.StaticHandler/StaticWeb methods
 type StaticHandlerBuilder interface {
 	Path(requestRoutePath string) StaticHandlerBuilder
 	Gzip(enable bool) StaticHandlerBuilder
@@ -58,7 +58,7 @@ func abs(path string) string {
 // Note that, this static builder returns a Handler
 // it doesn't cares about the rest of your iris configuration.
 //
-// Use the iris.StaticHandler/StaticWeb in order to serve static files on more automatic way
+// Use the iris2.StaticHandler/StaticWeb in order to serve static files on more automatic way
 // this builder is used by people who have more complicated application
 // structure and want a fluent api to work on.
 func NewStaticHandlerBuilder(dir string) StaticHandlerBuilder {

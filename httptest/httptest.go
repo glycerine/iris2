@@ -66,13 +66,13 @@ func DefaultConfiguration() *Configuration {
 // New Prepares and returns a new test framework based on the app
 // is useful when you need to have more than one test framework for the same iris instance
 // usage:
-// iris.Default.Get("/mypath", func(ctx *iris.Context){ctx.Write("my body")})
+// iris2.Default.Get("/mypath", func(ctx *iris2.Context){ctx.Write("my body")})
 // ...
-// e := httptest.New(iris.Default, t)
-// e.GET("/mypath").Expect().Status(iris.StatusOK).Body().Equal("my body")
+// e := httptest.New(iris2.Default, t)
+// e.GET("/mypath").Expect().Status(iris2.StatusOK).Body().Equal("my body")
 //
 // You can find example on the https://github.com/kataras/iris/glob/master/context_test.go
-func New(app *iris.Framework, t *testing.T, setters ...OptionSetter) *httpexpect.Expect {
+func New(app *iris2.Framework, t *testing.T, setters ...OptionSetter) *httpexpect.Expect {
 	conf := DefaultConfiguration()
 	for _, setter := range setters {
 		setter.Set(conf)
@@ -85,7 +85,7 @@ func New(app *iris.Framework, t *testing.T, setters ...OptionSetter) *httpexpect
 		baseURL = app.Config.VScheme + app.Config.VHost
 		// if it's still empty then set it to the default server addr
 		if baseURL == "" {
-			baseURL = iris.SchemeHTTP + iris.DefaultServerAddr
+			baseURL = iris2.SchemeHTTP + iris2.DefaultServerAddr
 		}
 
 	}

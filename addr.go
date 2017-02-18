@@ -109,7 +109,7 @@ func LETSENCRYPT(addr string, cacheDirOptional ...string) (net.Listener, error) 
 	m := autocert.Manager{
 		Prompt: autocert.AcceptTOS,
 	} // HostPolicy is missing, if user wants it, then she/he should manually
-	// configure the autocertmanager and use the `iris.Default.Serve` to pass that listener
+	// configure the autocertmanager and use the `iris2.Default.Serve` to pass that listener
 
 	if cacheDir == "" {
 		// then the user passed empty by own will, then I guess she/he doesnt' want any cache directory
@@ -129,7 +129,7 @@ func LETSENCRYPT(addr string, cacheDirOptional ...string) (net.Listener, error) 
 // go away
 // It is not used by default if you want to pass a keep alive listener
 // then just pass the child listener, example:
-// listener := iris.TCPKeepAliveListener{iris.TCP4(":8080").(*net.TCPListener)}
+// listener := iris2.TCPKeepAliveListener{iris2.TCP4(":8080").(*net.TCPListener)}
 type TCPKeepAliveListener struct {
 	*net.TCPListener
 }

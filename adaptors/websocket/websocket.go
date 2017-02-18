@@ -31,19 +31,19 @@ func fixPath(s string) string {
 }
 
 // Adapt implements the iris' adaptor, it adapts the websocket server to an Iris station.
-func (s *server) Adapt(frame *iris.Policies) {
+func (s *server) Adapt(frame *iris2.Policies) {
 	// bind the server's Handler to Iris at Boot state
-	evt := iris.EventPolicy{
-		Boot: func(f *iris.Framework) {
+	evt := iris2.EventPolicy{
+		Boot: func(f *iris2.Framework) {
 			wsPath := fixPath(s.config.Endpoint)
 			if wsPath == "" {
-				f.Log(iris.DevMode, "websocket's configuration field 'Endpoint' cannot be empty, websocket server stops")
+				f.Log(iris2.DevMode, "websocket's configuration field 'Endpoint' cannot be empty, websocket server stops")
 				return
 			}
 
 			wsClientSidePath := fixPath(s.config.ClientSourcePath)
 			if wsClientSidePath == "" {
-				f.Log(iris.DevMode, "websocket's configuration field 'ClientSourcePath' cannot be empty, websocket server stops")
+				f.Log(iris2.DevMode, "websocket's configuration field 'ClientSourcePath' cannot be empty, websocket server stops")
 				return
 			}
 

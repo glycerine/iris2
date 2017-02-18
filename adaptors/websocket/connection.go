@@ -79,11 +79,11 @@ type (
 		// ID returns the connection's identifier
 		ID() string
 
-		// Context returns the (upgraded) *iris.Context of this connection
+		// Context returns the (upgraded) *iris2.Context of this connection
 		// avoid using it, you normally don't need it,
 		// websocket has everything you need to authenticate the user BUT if it's necessary
 		// then  you use it to receive user information, for example: from headers
-		Context() *iris.Context
+		Context() *iris2.Context
 
 		// OnDisconnect registers a callback which fires when this connection is closed by an error or manual
 		OnDisconnect(DisconnectFunc)
@@ -125,7 +125,7 @@ type (
 		all       Emitter // pre-defined emitter which sends message to all clients
 
 		// access to the Context, use with causion, you can't use response writer as you imagine.
-		ctx    *iris.Context
+		ctx    *iris2.Context
 		server *server
 		// #119 , websocket writers are not protected by locks inside the gorilla's websocket code
 		// so we must protect them otherwise we're getting concurrent connection error on multi writers in the same time.
@@ -138,7 +138,7 @@ type (
 
 var _ Connection = &connection{}
 
-func newConnection(s *server, ctx *iris.Context, underlineConn UnderlineConnection, id string) *connection {
+func newConnection(s *server, ctx *iris2.Context, underlineConn UnderlineConnection, id string) *connection {
 	c := &connection{
 		underline:                underlineConn,
 		id:                       id,
@@ -313,7 +313,7 @@ func (c *connection) ID() string {
 	return c.id
 }
 
-func (c *connection) Context() *iris.Context {
+func (c *connection) Context() *iris2.Context {
 	return c.ctx
 }
 

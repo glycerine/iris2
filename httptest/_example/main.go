@@ -6,25 +6,25 @@ import (
 	"github.com/go-iris2/iris2/adaptors/sessions"
 )
 
-func newApp() *iris.Framework {
-	app := iris.New()
+func newApp() *iris2.Framework {
+	app := iris2.New()
 	app.Adapt(httprouter.New())
 	app.Adapt(sessions.New(sessions.Config{Cookie: "mysessionid"}))
 
-	app.Get("/hello", func(ctx *iris.Context) {
+	app.Get("/hello", func(ctx *iris2.Context) {
 		sess := ctx.Session()
 		if !sess.HasFlash() /* or sess.GetFlash("name") == "", same thing here */ {
-			ctx.HTML(iris.StatusUnauthorized, "<h1> Unauthorized Page! </h1>")
+			ctx.HTML(iris2.StatusUnauthorized, "<h1> Unauthorized Page! </h1>")
 			return
 		}
 
-		ctx.JSON(iris.StatusOK, iris.Map{
+		ctx.JSON(iris2.StatusOK, iris2.Map{
 			"Message": "Hello",
 			"From":    sess.GetFlash("name"),
 		})
 	})
 
-	app.Post("/login", func(ctx *iris.Context) {
+	app.Post("/login", func(ctx *iris2.Context) {
 		sess := ctx.Session()
 		if !sess.HasFlash() {
 			sess.SetFlash("name", ctx.FormValue("name"))

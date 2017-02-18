@@ -42,7 +42,7 @@ type (
 	// and a host which is listening for
 	Editor struct {
 		config  *Config
-		logger  func(iris.LogMode, string)
+		logger  func(iris2.LogMode, string)
 		enabled bool // default true
 		// after alm started
 		process     *os.Process
@@ -65,8 +65,8 @@ func New(cfg ...Config) *Editor {
 // Note:
 // We use that method and not the return on New because we
 // want to export the Editor's functionality to the user.
-func (e *Editor) Adapt(frame *iris.Policies) {
-	policy := iris.EventPolicy{
+func (e *Editor) Adapt(frame *iris2.Policies) {
+	policy := iris2.EventPolicy{
 		Build:       e.build,
 		Interrupted: e.close,
 	}
@@ -124,10 +124,10 @@ type editorWriter struct {
 }
 
 // build runs before the server's listens,  creates the listener ( use of port parent hostname:DefaultPort if not exist)
-func (e *Editor) build(s *iris.Framework) {
+func (e *Editor) build(s *iris2.Framework) {
 	e.logger = s.Log
 	if e.config.Hostname == "" {
-		e.config.Hostname = iris.ParseHostname(s.Config.VHost)
+		e.config.Hostname = iris2.ParseHostname(s.Config.VHost)
 	}
 
 	if e.config.Port <= 0 {
@@ -142,11 +142,11 @@ func (e *Editor) build(s *iris.Framework) {
 }
 
 // close kills the editor's server when Iris is closed
-func (e *Editor) close(s *iris.Framework) {
+func (e *Editor) close(s *iris2.Framework) {
 	if e.process != nil {
 		err := e.process.Kill()
 		if err != nil {
-			e.logger(iris.DevMode, fmt.Sprintf(`Error while trying to terminate the Editor,
+			e.logger(iris2.DevMode, fmt.Sprintf(`Error while trying to terminate the Editor,
 				 please kill this process by yourself, process id: %d`, e.process.Pid))
 		}
 	}
@@ -155,19 +155,19 @@ func (e *Editor) close(s *iris.Framework) {
 // start starts the job
 func (e *Editor) start() {
 	if e.config.Username == "" || e.config.Password == "" {
-		e.logger(iris.ProdMode, `Error before running alm-tools.
+		e.logger(iris2.ProdMode, `Error before running alm-tools.
 			You have to set username & password for security reasons, otherwise this adaptor won't run.`)
 		return
 	}
 
 	if !npm.NodeModuleExists("alm/bin/alm") {
-		e.logger(iris.DevMode, "Installing alm-tools, please wait...")
+		e.logger(iris2.DevMode, "Installing alm-tools, please wait...")
 		res := npm.NodeModuleInstall("alm")
 		if res.Error != nil {
-			e.logger(iris.ProdMode, res.Error.Error())
+			e.logger(iris2.ProdMode, res.Error.Error())
 			return
 		}
-		e.logger(iris.DevMode, res.Message)
+		e.logger(iris2.DevMode, res.Message)
 	}
 
 	cmd := npm.CommandBuilder("node", npm.NodeModuleAbs("alm/src/server.js"))
@@ -189,7 +189,7 @@ func (e *Editor) start() {
 
 			go func() {
 				for outputScanner.Scan() {
-					e.logger(iris.DevMode, "Editor: "+outputScanner.Text())
+					e.logger(iris2.DevMode, "Editor: "+outputScanner.Text())
 				}
 			}()
 
@@ -198,7 +198,7 @@ func (e *Editor) start() {
 				errScanner := bufio.NewScanner(errReader)
 				go func() {
 					for errScanner.Scan() {
-						e.logger(iris.DevMode, "Editor: "+errScanner.Text())
+						e.logger(iris2.DevMode, "Editor: "+errScanner.Text())
 					}
 				}()
 			}
@@ -207,7 +207,7 @@ func (e *Editor) start() {
 
 	err := cmd.Start()
 	if err != nil {
-		e.logger(iris.ProdMode, "Error while running alm-tools. Trace: "+err.Error())
+		e.logger(iris2.ProdMode, "Error while running alm-tools. Trace: "+err.Error())
 		return
 	}
 

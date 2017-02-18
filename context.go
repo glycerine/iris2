@@ -141,7 +141,7 @@ type (
 		// See Acquire.
 		Release(ctx *Context)
 
-		// Framework is never used, except when you're in a place where you don't have access to the *iris.Framework station
+		// Framework is never used, except when you're in a place where you don't have access to the *iris2.Framework station
 		// but you need to fire a func or check its Config.
 		//
 		// Used mostly inside external routers to take the .Config.VHost
@@ -277,14 +277,14 @@ func (ctx *Context) GetHandlerName() string {
 // BUT it isn't available by browsing, its handlers executed only when other handler's context call them
 // it can validate paths, has sessions, path parameters and all.
 //
-// You can find the Route by iris.Default.Routes().Lookup("theRouteName")
-// you can set a route name as: myRoute := iris.Default.Get("/mypath", handler)("theRouteName")
-// that will set a name to the route and returns its iris.Route instance for further usage.
+// You can find the Route by iris2.Default.Routes().Lookup("theRouteName")
+// you can set a route name as: myRoute := iris2.Default.Get("/mypath", handler)("theRouteName")
+// that will set a name to the route and returns its iris2.Route instance for further usage.
 //
 // It doesn't changes the global state, if a route was "offline" it remains offline.
 //
 // see ExecRouteAgainst(routeName, againstRequestPath string),
-// iris.Default.None(...) and iris.Default.SetRouteOnline/SetRouteOffline
+// iris2.Default.None(...) and iris2.Default.SetRouteOnline/SetRouteOffline
 // For more details look: https://github.com/kataras/iris/issues/585
 //
 // Example: https://github.com/iris-contrib/examples/tree/master/route_state
@@ -292,20 +292,20 @@ func (ctx *Context) ExecRoute(r RouteInfo) {
 	ctx.ExecRouteAgainst(r, ctx.Path())
 }
 
-// ExecRouteAgainst calls any iris.Route against a 'virtually' request path
+// ExecRouteAgainst calls any iris2.Route against a 'virtually' request path
 // like it was requested by the user, but it is not.
 // Offline means that the route is registered to the iris and have all features that a normal route has
 // BUT it isn't available by browsing, its handlers executed only when other handler's context call them
 // it can validate paths, has sessions, path parameters and all.
 //
-// You can find the Route by iris.Default.Routes().Lookup("theRouteName")
-// you can set a route name as: myRoute := iris.Default.Get("/mypath", handler)("theRouteName")
-// that will set a name to the route and returns its iris.Route instance for further usage.
+// You can find the Route by iris2.Default.Routes().Lookup("theRouteName")
+// you can set a route name as: myRoute := iris2.Default.Get("/mypath", handler)("theRouteName")
+// that will set a name to the route and returns its iris2.Route instance for further usage.
 //
 // It doesn't changes the global state, if a route was "offline" it remains offline.
 //
 // see ExecRoute(routeName),
-// iris.Default.None(...) and iris.Default.SetRouteOnline/SetRouteOffline
+// iris2.Default.None(...) and iris2.Default.SetRouteOnline/SetRouteOffline
 // For more details look: https://github.com/kataras/iris/issues/585
 //
 // Example: https://github.com/iris-contrib/examples/tree/master/route_state
@@ -345,9 +345,9 @@ func (ctx *Context) ExecRouteAgainst(r RouteInfo, againstRequestPath string) {
 // if this function is not enough for you and you want to test more than one parameterized path
 // then use the:  if c := ExecRoute(r); c == nil { /*  move to the next, the route is not valid */ }
 //
-// You can find the Route by iris.Default.Routes().Lookup("theRouteName")
-// you can set a route name as: myRoute := iris.Default.Get("/mypath", handler)("theRouteName")
-// that will set a name to the route and returns its iris.Route instance for further usage.
+// You can find the Route by iris2.Default.Routes().Lookup("theRouteName")
+// you can set a route name as: myRoute := iris2.Default.Get("/mypath", handler)("theRouteName")
+// that will set a name to the route and returns its iris2.Route instance for further usage.
 //
 // if the route found then it executes that and don't continue to the next handler
 // if not found then continue to the next handler
@@ -596,7 +596,7 @@ var (
 // -------------------------------------------------------------------------------------
 
 // NOTE: No default max body size http package has some built'n protection for DoS attacks
-// See iris.Default.Config.MaxBytesReader, https://github.com/golang/go/issues/2093#issuecomment-66057813
+// See iris2.Default.Config.MaxBytesReader, https://github.com/golang/go/issues/2093#issuecomment-66057813
 // and https://github.com/golang/go/issues/2093#issuecomment-66057824
 
 // LimitRequestBodySize is a middleware which sets a request body size limit for all next handlers
@@ -756,7 +756,7 @@ func (ctx *Context) RedirectTo(routeName string, args ...interface{}) {
 // -------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------
 // -----------------------------(Custom) Errors-----------------------------------------
-// ----------------------Look iris.OnError/EmitError for more---------------------------
+// ----------------------Look iris2.OnError/EmitError for more---------------------------
 // -------------------------------------------------------------------------------------
 
 // NotFound emits an error 404 to the client, using the custom http errors
@@ -780,7 +780,7 @@ func (ctx *Context) EmitError(statusCode int) {
 // -------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------
 // -------------------------Context's gzip inline response writer ----------------------
-// ---------------------Look template.go & iris.go for more options---------------------
+// ---------------------Look template.go & iris2.go for more options---------------------
 // -------------------------------------------------------------------------------------
 
 var (
@@ -966,7 +966,7 @@ func (ctx *Context) RenderWithStatus(status int, name string, binding interface{
 	return
 }
 
-// Render same as .RenderWithStatus but with status to iris.StatusOK (200) if no previous status exists
+// Render same as .RenderWithStatus but with status to iris2.StatusOK (200) if no previous status exists
 // builds up the response from the specified template or a serialize engine.
 // Note: the options: "gzip" and "charset" are built'n support by Iris, so you can pass these on any template engine or serialize engine
 func (ctx *Context) Render(name string, binding interface{}, options ...map[string]interface{}) error {
@@ -1058,7 +1058,7 @@ func (ctx *Context) Markdown(status int, markdown string) error {
 // -------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------
 // --------------------Static content serve by context implementation-------------------
-// --------------------Look iris.go for more useful Static web system methods-----------
+// --------------------Look iris2.go for more useful Static web system methods-----------
 // -------------------------------------------------------------------------------------
 
 // staticCachePassed checks the IfModifiedSince header and
@@ -1163,7 +1163,7 @@ func (ctx *Context) SendFile(filename string, destinationName string) error {
 //
 // This function may be used in the following cases:
 //
-//     * if response body is too big (more than iris.LimitRequestBodySize(if setted)).
+//     * if response body is too big (more than iris2.LimitRequestBodySize(if setted)).
 //     * if response body is streamed from slow external sources.
 //     * if response body must be streamed to the client in chunks.
 //     (aka `http server push`).
@@ -1220,7 +1220,7 @@ func (ctx *Context) getFmt(key string) func(format string, args ...interface{}) 
 // TranslateLanguageContextKey & TranslateFunctionContextKey are used by i18n handlers/middleware
 // currently we have only one: https://github.com/iris-contrib/middleware/tree/master/i18n
 // but you can use these keys to override the i18n's cookie name (TranslateLanguageContextKey)
-// or to store new translate function  by using the ctx.Set(iris.TranslateFunctionContextKey, theTrFunc)
+// or to store new translate function  by using the ctx.Set(iris2.TranslateFunctionContextKey, theTrFunc)
 var (
 	TranslateLanguageContextKey = "language"
 	TranslateFunctionContextKey = "translate"
@@ -1513,8 +1513,8 @@ Edit your main .go source file to adapt one of these and restart your app.
 	)
 
 	func main(){
-		app := iris.New()
-		// right below the iris.New()
+		app := iris2.New()
+		// right below the iris2.New()
 		app.Adapt(httprouter.New()) // or gorillamux.New()
 
 		mySessions := sessions.New(sessions.Config{
@@ -1661,7 +1661,7 @@ var errTransactionInterrupted = errors.New("Transaction Interrupted, recovery fr
 // it's not covers all paths,
 // such as databases, this should be managed by the libraries you use to make your database connection,
 // this transaction scope is only for context's response.
-// Transactions have their own middleware ecosystem also, look iris.go:UseTransaction.
+// Transactions have their own middleware ecosystem also, look iris2.go:UseTransaction.
 //
 // See https://github.com/iris-contrib/examples/tree/master/transactions for more
 func (ctx *Context) BeginTransaction(pipe func(transaction *Transaction)) {

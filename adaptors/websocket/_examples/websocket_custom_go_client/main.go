@@ -135,8 +135,8 @@ func OnConnect(c websocket.Connection) {
 
 // ServerLoop listen and serve websocket requests
 func ServerLoop() {
-	app := iris.New()
-	app.Adapt(iris.DevLogger()) // enable all (error) logs
+	app := iris2.New()
+	app.Adapt(iris2.DevLogger()) // enable all (error) logs
 	app.Adapt(httprouter.New()) // select the httprouter as the servemux
 
 	ws := websocket.New(websocket.Config{Endpoint: "/socket"})

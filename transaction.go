@@ -60,7 +60,7 @@ func newTransaction(from *Context) *Transaction {
 }
 
 // SetScope sets the current transaction's scope
-// iris.RequestTransactionScope || iris.TransientTransactionScope (default)
+// iris2.RequestTransactionScope || iris2.TransientTransactionScope (default)
 func (t *Transaction) SetScope(scope TransactionScope) {
 	t.scope = scope
 }

@@ -6,7 +6,7 @@ package cors
 //
 // import "github.com/go-iris2/iris2/adaptors/cors"
 //
-// app := iris.New()
+// app := iris2.New()
 // app.Adapt(cors.New(cors.Options{})))
 
 import (
@@ -26,8 +26,8 @@ type Options cors.Options
 //
 // Unlike the cors middleware, this wrapper wraps the entirely router,
 // it cannot be registered to specific routes. It works better and all Options are working.
-func New(opts Options) iris.RouterWrapperPolicy { return cors.New(cors.Options(opts)).ServeHTTP }
+func New(opts Options) iris2.RouterWrapperPolicy { return cors.New(cors.Options(opts)).ServeHTTP }
 
 // Default returns a New cors wrapper with the default options
 // accepting GET and POST requests and allowing all origins.
-func Default() iris.RouterWrapperPolicy { return New(Options{}) }
+func Default() iris2.RouterWrapperPolicy { return New(Options{}) }

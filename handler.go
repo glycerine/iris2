@@ -6,10 +6,10 @@ import (
 	"github.com/go-iris2/iris2/errors"
 )
 
-// errHandler returns na error with message: 'Passed argument is not func(*Context) neither an object which implements the iris.Default.Handler with Serve(ctx *Context)
+// errHandler returns na error with message: 'Passed argument is not func(*Context) neither an object which implements the iris2.Default.Handler with Serve(ctx *Context)
 // It seems to be a  +type Points to: +pointer.'
 var errHandler = errors.New(`
-Passed argument is not an iris.Handler (or func(*iris.Context)) neither one of these types:
+Passed argument is not an iris2.Handler (or func(*iris2.Context)) neither one of these types:
   - http.Handler
   - func(w http.ResponseWriter, r *http.Request)
   - func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc)
@@ -46,7 +46,7 @@ func ToNativeHandler(s *Framework, h Handler) http.Handler {
 }
 
 // ToHandler converts different style of handlers that you
-// used to use (usually with third-party net/http middleware) to an iris.HandlerFunc.
+// used to use (usually with third-party net/http middleware) to an iris2.HandlerFunc.
 //
 // Supported types:
 // - .ToHandler(h http.Handler)

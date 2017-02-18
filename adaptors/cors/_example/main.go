@@ -8,8 +8,8 @@ import (
 
 func main() {
 
-	app := iris.New()
-	app.Adapt(iris.DevLogger())
+	app := iris2.New()
+	app.Adapt(iris2.DevLogger())
 	app.Adapt(httprouter.New())
 
 	crs := cors.New(cors.Options{
@@ -25,16 +25,16 @@ func main() {
 
 	v1 := app.Party("/api/v1")
 	{
-		v1.Post("/home", func(c *iris.Context) {
-			app.Log(iris.DevMode, "lalala")
+		v1.Post("/home", func(c *iris2.Context) {
+			app.Log(iris2.DevMode, "lalala")
 			c.WriteString("Hello from /home")
 		})
-		v1.Get("/g", func(c *iris.Context) {
-			app.Log(iris.DevMode, "lalala")
+		v1.Get("/g", func(c *iris2.Context) {
+			app.Log(iris2.DevMode, "lalala")
 			c.WriteString("Hello from /home")
 		})
-		v1.Post("/h", func(c *iris.Context) {
-			app.Log(iris.DevMode, "lalala")
+		v1.Post("/h", func(c *iris2.Context) {
+			app.Log(iris2.DevMode, "lalala")
 			c.WriteString("Hello from /home")
 		})
 	}

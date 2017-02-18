@@ -32,7 +32,7 @@ func testSubdomainURL(scheme string, host string) string {
 	return scheme + subdomainHost
 }
 
-func subdomainTester(e *httpexpect.Expect, app *iris.Framework) *httpexpect.Expect {
+func subdomainTester(e *httpexpect.Expect, app *iris2.Framework) *httpexpect.Expect {
 	es := e.Builder(func(req *httpexpect.Request) {
 		req.WithURL(testSubdomainURL(app.Config.VScheme, app.Config.VHost))
 	})
@@ -56,8 +56,8 @@ type testRoute struct {
 	URLParams    []param
 }
 
-func newApp() *iris.Framework {
-	app := iris.New()
+func newApp() *iris2.Framework {
+	app := iris2.New()
 	app.Adapt(httprouter.New())
 
 	return app
@@ -100,7 +100,7 @@ func TestMuxSimple(t *testing.T) {
 	for idx := range testRoutes {
 		r := testRoutes[idx]
 		if r.Register {
-			app.HandleFunc(r.Method, r.Path, func(ctx *iris.Context) {
+			app.HandleFunc(r.Method, r.Path, func(ctx *iris2.Context) {
 				ctx.SetStatusCode(r.Status)
 				if r.Params != nil && len(r.Params) > 0 {
 					ctx.Writef(ctx.ParamsSentence())
@@ -140,7 +140,7 @@ func TestMuxSimple(t *testing.T) {
 func TestMuxSimpleParty(t *testing.T) {
 	app := newApp()
 
-	h := func(ctx *iris.Context) { ctx.WriteString(ctx.Host() + ctx.Path()) }
+	h := func(ctx *iris2.Context) { ctx.WriteString(ctx.Host() + ctx.Path()) }
 
 	if testEnableSubdomain {
 		subdomainParty := app.Party(testSubdomain + ".")
@@ -172,7 +172,7 @@ func TestMuxSimpleParty(t *testing.T) {
 
 		e.Request("GET", reqPath).
 			Expect().
-			Status(iris.StatusOK).Body().Equal(app.Config.VHost + reqPath)
+			Status(iris2.StatusOK).Body().Equal(app.Config.VHost + reqPath)
 	}
 
 	// run the tests
@@ -187,7 +187,7 @@ func TestMuxSimpleParty(t *testing.T) {
 		subdomainRequest := func(reqPath string) {
 			es.Request("GET", reqPath).
 				Expect().
-				Status(iris.StatusOK).Body().Equal(testSubdomainHost(app.Config.VHost) + reqPath)
+				Status(iris2.StatusOK).Body().Equal(testSubdomainHost(app.Config.VHost) + reqPath)
 		}
 
 		subdomainRequest("/")
@@ -201,7 +201,7 @@ func TestMuxSimpleParty(t *testing.T) {
 func TestMuxPathEscape(t *testing.T) {
 	app := newApp()
 
-	app.Get("/details/:name", func(ctx *iris.Context) {
+	app.Get("/details/:name", func(ctx *iris2.Context) {
 		name := ctx.Param("name")
 		highlight := ctx.URLParam("highlight")
 		ctx.Writef("name=%s,highlight=%s", name, highlight)
@@ -211,21 +211,21 @@ func TestMuxPathEscape(t *testing.T) {
 
 	e.GET("/details/Sakamoto desu ga").
 		WithQuery("highlight", "text").
-		Expect().Status(iris.StatusOK).Body().Equal("name=Sakamoto desu ga,highlight=text")
+		Expect().Status(iris2.StatusOK).Body().Equal("name=Sakamoto desu ga,highlight=text")
 }
 
 func TestMuxParamDecodedDecodeURL(t *testing.T) {
 	app := newApp()
 
-	app.Get("/encoding/:url", func(ctx *iris.Context) {
-		url := iris.DecodeURL(ctx.ParamDecoded("url"))
-		ctx.SetStatusCode(iris.StatusOK)
+	app.Get("/encoding/:url", func(ctx *iris2.Context) {
+		url := iris2.DecodeURL(ctx.ParamDecoded("url"))
+		ctx.SetStatusCode(iris2.StatusOK)
 		ctx.WriteString(url)
 	})
 
 	e := httptest.New(app, t)
 
-	e.GET("/encoding/http%3A%2F%2Fsome-url.com").Expect().Status(iris.StatusOK).Body().Equal("http://some-url.com")
+	e.GET("/encoding/http%3A%2F%2Fsome-url.com").Expect().Status(iris2.StatusOK).Body().Equal("http://some-url.com")
 }
 
 func TestMuxCustomErrors(t *testing.T) {
@@ -259,18 +259,18 @@ func TestMuxCustomErrors(t *testing.T) {
 	// first register the testRoutes needed
 	for _, r := range testRoutesCustomErrors {
 		if r.Register {
-			app.HandleFunc(r.Method, r.Path, func(ctx *iris.Context) {
+			app.HandleFunc(r.Method, r.Path, func(ctx *iris2.Context) {
 				ctx.EmitError(r.Status)
 			})
 		}
 	}
 
 	// register the custom errors
-	app.OnError(iris.StatusNotFound, func(ctx *iris.Context) {
+	app.OnError(iris2.StatusNotFound, func(ctx *iris2.Context) {
 		ctx.Writef("%s", notFoundMessage)
 	})
 
-	app.OnError(iris.StatusInternalServerError, func(ctx *iris.Context) {
+	app.OnError(iris2.StatusInternalServerError, func(ctx *iris2.Context) {
 		ctx.Writef("%s", internalServerMessage)
 	})
 
@@ -286,7 +286,7 @@ func TestMuxCustomErrors(t *testing.T) {
 }
 
 func TestRouteURLPath(t *testing.T) {
-	app := iris.New()
+	app := iris2.New()
 	app.Adapt(httprouter.New())
 
 	app.None("/profile/:user_id/:ref/*anything", nil).ChangeName("profile")

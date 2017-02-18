@@ -8,7 +8,7 @@ import (
 	"github.com/go-iris2/iris2"
 )
 
-func getRequestLogs(ctx *iris.Context) string {
+func getRequestLogs(ctx *iris2.Context) string {
 	var status, ip, method, path string
 	status = strconv.Itoa(ctx.ResponseWriter.StatusCode())
 	path = ctx.Path()
@@ -21,8 +21,8 @@ func getRequestLogs(ctx *iris.Context) string {
 // New returns a new recover middleware
 // it logs to the LoggerOut iris' configuration field if its IsDeveloper configuration field is enabled.
 // otherwise it just continues to serve
-func New() iris.HandlerFunc {
-	return func(ctx *iris.Context) {
+func New() iris2.HandlerFunc {
+	return func(ctx *iris2.Context) {
 		defer func() {
 			if err := recover(); err != nil {
 				if ctx.IsStopped() {
@@ -45,10 +45,10 @@ func New() iris.HandlerFunc {
 				logMessage += fmt.Sprintf("At Request: %s\n", getRequestLogs(ctx))
 				logMessage += fmt.Sprintf("Trace: %s\n", err)
 				logMessage += fmt.Sprintf("\n%s\n", stacktrace)
-				ctx.Log(iris.DevMode, logMessage)
+				ctx.Log(iris2.DevMode, logMessage)
 
 				ctx.StopExecution()
-				ctx.EmitError(iris.StatusInternalServerError)
+				ctx.EmitError(iris2.StatusInternalServerError)
 
 			}
 		}()

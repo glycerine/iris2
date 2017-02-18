@@ -6,18 +6,18 @@ import (
 )
 
 func main() {
-	app := iris.New()
-	app.Adapt(iris.DevLogger()) // writes both prod and dev logs to the os.Stdout
+	app := iris2.New()
+	app.Adapt(iris2.DevLogger()) // writes both prod and dev logs to the os.Stdout
 	app.Adapt(gorillamux.New()) // uses the gorillamux for routing and reverse routing
 
 	// set a custom 404 handler
-	app.OnError(iris.StatusNotFound, func(ctx *iris.Context) {
-		ctx.HTML(iris.StatusNotFound, "<h1> custom http error page </h1>")
+	app.OnError(iris2.StatusNotFound, func(ctx *iris2.Context) {
+		ctx.HTML(iris2.StatusNotFound, "<h1> custom http error page </h1>")
 	})
 
 	app.Get("/healthcheck", h)
 
-	gamesMiddleware := func(ctx *iris.Context) {
+	gamesMiddleware := func(ctx *iris2.Context) {
 		println(ctx.Method() + ": " + ctx.Path())
 		ctx.Next()
 	}
@@ -43,12 +43,12 @@ func main() {
 		games.Post("/{gameID:[0-9]+}/clans/{clanPublicID:[0-9]+}/memberships/demote", h)
 	}
 
-	myroute := app.Get("/anything/{anythingparameter:.*}", func(ctx *iris.Context) {
+	myroute := app.Get("/anything/{anythingparameter:.*}", func(ctx *iris2.Context) {
 		s := ctx.Param("anythingparameter")
 		ctx.Writef("The path after /anything is: %s", s)
 	}) // .ChangeName("myroute")
 
-	app.Get("/reverse_myroute", func(ctx *iris.Context) {
+	app.Get("/reverse_myroute", func(ctx *iris2.Context) {
 		// reverse routing snippet using templates:
 		// https://github.com/kataras/iris/tree/v6/adaptors/view/_examples/template_html_3 (gorillamux)
 		// https://github.com/kataras/iris/tree/v6/adaptors/view/_examples/template_html_4 (httprouter)
@@ -64,6 +64,6 @@ func main() {
 	app.Listen(":8080")
 }
 
-func h(ctx *iris.Context) {
-	ctx.HTML(iris.StatusOK, "<h1>Path<h1/>"+ctx.Path())
+func h(ctx *iris2.Context) {
+	ctx.HTML(iris2.StatusOK, "<h1>Path<h1/>"+ctx.Path())
 }

@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-	app := iris.New()
-	app.Adapt(iris.DevLogger())
+	app := iris2.New()
+	app.Adapt(iris2.DevLogger())
 	app.Adapt(httprouter.New()) // adapt a router, order doesn't matters but before Listen.
 
 	ts := typescript.New()

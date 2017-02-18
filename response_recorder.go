@@ -35,7 +35,7 @@ func releaseResponseRecorder(w *ResponseRecorder) {
 //
 // You are NOT limited to use that too:
 // just call context.ResponseWriter.Recorder()/Record() and
-// response writer will act like context.ResponseWriter.(*iris.ResponseRecorder)
+// response writer will act like context.ResponseWriter.(*iris2.ResponseRecorder)
 type ResponseRecorder struct {
 	*responseWriter
 	// these three fields are setted on flushBody which runs only once on the end of the handler execution.

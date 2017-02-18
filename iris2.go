@@ -36,8 +36,8 @@ const (
 // Default is the field which keeps an empty `Framework`
 // instance with its default configuration (config can change at runtime).
 //
-// Use that as `iris.Default.Handle(...)`
-// or create a new, ex: `app := iris.New(); app.Handle(...)`
+// Use that as `iris2.Default.Handle(...)`
+// or create a new, ex: `app := iris2.New(); app.Handle(...)`
 var (
 	Default *Framework
 	// ResetDefault resets the `.Default`
@@ -127,8 +127,8 @@ var defaultGlobalLoggerOuput = log.New(os.Stdout, "[Iris] ", log.LstdFlags)
 // DevLogger returns a new Logger which prints both ProdMode and DevMode messages
 // to the default global logger printer.
 //
-// Usage: app := iris.New()
-//        app.Adapt(iris.DevLogger())
+// Usage: app := iris2.New()
+//        app.Adapt(iris2.DevLogger())
 //
 // Users can always ignore that and adapt a custom LoggerPolicy,
 // which will use your custom printer instead.
@@ -161,8 +161,8 @@ func New(setters ...OptionSetter) *Framework {
 		// instead it defaults to a logger with os.Stdout as the print target which prints
 		// ONLY prodction level messages.
 		// While in ProdMode Iris logs only panics and fatal errors.
-		// You can override the default log policy with app.Adapt(iris.DevLogger())
-		//                            or app.Adapt(iris.LoggerPolicy(customLogger))
+		// You can override the default log policy with app.Adapt(iris2.DevLogger())
+		//                            or app.Adapt(iris2.LoggerPolicy(customLogger))
 		// to log both ProdMode and DevMode messages.
 		//
 		// Note:
@@ -615,14 +615,14 @@ const (
 )
 
 // Adapt adapds a policy to the Framework.
-// It accepts single or more objects that implements the iris.Policy.
+// It accepts single or more objects that implements the iris2.Policy.
 // Iris provides some of them but you can build your own based on one or more of these:
-// - iris.EventPolicy
-// - iris.RouterReversionPolicy
-// - iris.RouterBuilderPolicy
-// - iris.RouterWrapperPolicy
-// - iris.TemplateRenderPolicy
-// - iris.TemplateFuncsPolicy
+// - iris2.EventPolicy
+// - iris2.RouterReversionPolicy
+// - iris2.RouterBuilderPolicy
+// - iris2.RouterWrapperPolicy
+// - iris2.TemplateRenderPolicy
+// - iris2.TemplateFuncsPolicy
 //
 // With a Policy you can change the behavior of almost each of the existing Iris' features.
 // See policy.go for more.
@@ -653,14 +653,14 @@ func (c *cachedMuxEntry) Serve(ctx *Context) {
 }
 
 // Cache is just a wrapper for a route's handler which you want to enable body caching
-// Usage: iris.Default.Get("/", iris.Cache(func(ctx *iris.Context){
+// Usage: iris2.Default.Get("/", iris2.Cache(func(ctx *iris2.Context){
 //    ctx.WriteString("Hello, world!") // or a template or anything else
 // }, time.Duration(10*time.Second))) // duration of expiration
 // if <=time.Second then it tries to find it though request header's "cache-control" maxage value
 //
 // Note that it depends on a station instance's cache service.
-// Do not try to call it from default' station if you use the form of app := iris.New(),
-// use the app.Cache instead of iris.Cache
+// Do not try to call it from default' station if you use the form of app := iris2.New(),
+// use the app.Cache instead of iris2.Cache
 func (s *Framework) Cache(bodyHandler HandlerFunc, expiration time.Duration) HandlerFunc {
 	ce := newCachedMuxEntry(s, bodyHandler, expiration)
 	return ce.Serve
@@ -801,8 +801,8 @@ Edit your main .go source file to adapt one of these and restart your app.
 	)
 
 	func main(){
-		app := iris.New()
-		// right below the iris.New():
+		app := iris2.New()
+		// right below the iris2.New():
 		app.Adapt(httprouter.New()) // or gorillamux.New()
 
 		app.Adapt(view.HTML("./templates", ".html")) // <--- and this line were missing.
@@ -817,14 +817,14 @@ Edit your main .go source file to adapt one of these and restart your app.
 
 // RenderOptions is a helper type for  the optional runtime options can be passed by user when Render called.
 // I.e the "layout" or "gzip" option
-// same as iris.Map but more specific name
+// same as iris2.Map but more specific name
 type RenderOptions map[string]interface{}
 
 // Render renders using the specific template or any other rich content renderer to the 'w'.
 //
 // Example of usage:
 // - send an e-mail using a template engine that you already
-//   adapted via: app.Adapt(view.HTML("./templates", ".html"))  or app.Adapt(iris.RenderPolicy(mycustomRenderer)).
+//   adapted via: app.Adapt(view.HTML("./templates", ".html"))  or app.Adapt(iris2.RenderPolicy(mycustomRenderer)).
 //
 // It can also render json,xml,jsonp and markdown by-default before or after .Build too.
 func (s *Framework) Render(w io.Writer, name string, bind interface{}, options ...map[string]interface{}) error {
@@ -837,7 +837,7 @@ func (s *Framework) Render(w io.Writer, name string, bind interface{}, options .
 		// we don't want to panic for that, let's give a message if the user adapted a logger for dev.
 		// And return that error in the case the user wasn't in dev mode, she/he can catch this error.
 
-		// Also on the README we will add the .Adapt(iris.DevLogger()) to mention that
+		// Also on the README we will add the .Adapt(iris2.DevLogger()) to mention that
 		// logging for any runtime info(except http server's panics and unexpected serious errors) is not enabled by-default.
 		if strings.Contains(name, ".") {
 			err = errTemplateRendererIsMissing.Format(name, s.Config.VHost)

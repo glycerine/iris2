@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-	app := iris.New()
-	app.Adapt(iris.DevLogger())
+	app := iris2.New()
+	app.Adapt(iris2.DevLogger())
 	app.Adapt(httprouter.New())
 
 	//$ go-bindata ./templates/...
@@ -19,6 +19,6 @@ func main() {
 	app.Listen(":8080")
 }
 
-func hi(ctx *iris.Context) {
+func hi(ctx *iris2.Context) {
 	ctx.MustRender("hi.html", struct{ Name string }{Name: "iris"})
 }

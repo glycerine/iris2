@@ -13,7 +13,7 @@ var (
 
 func init() {
 	// init the cli app
-	app = cli.NewApp("iris", "Command line tool for Iris web framework", iris.Version)
+	app = cli.NewApp("iris", "Command line tool for Iris web framework", iris2.Version)
 	// version command
 	app.Command(cli.Command("version", "\t      prints your iris version").
 		Action(func(cli.Flags) error { app.Printf("%s", app.Version); return nil }))

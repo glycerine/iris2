@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	app := iris.New()
+	app := iris2.New()
 	app.Adapt(httprouter.New()) // adapt a router first of all
 
 	authConfig := basicauth.Config{
@@ -20,11 +20,11 @@ func main() {
 	}
 
 	authentication := basicauth.New(authConfig)
-	app.Get("/", func(ctx *iris.Context) { ctx.Redirect("/admin") })
+	app.Get("/", func(ctx *iris2.Context) { ctx.Redirect("/admin") })
 	// to global app.Use(authentication) (or app.UseGlobal before the .Listen)
 	// to routes
 	/*
-		app.Get("/mysecret", authentication, func(ctx *iris.Context) {
+		app.Get("/mysecret", authentication, func(ctx *iris2.Context) {
 			username := ctx.GetString("mycustomkey") //  the Contextkey from the authConfig
 			ctx.Writef("Hello authenticated user: %s ", username)
 		})
@@ -35,17 +35,17 @@ func main() {
 	needAuth := app.Party("/admin", authentication)
 	{
 		//http://localhost:8080/admin
-		needAuth.Get("/", func(ctx *iris.Context) {
+		needAuth.Get("/", func(ctx *iris2.Context) {
 			username := ctx.GetString("mycustomkey") //  the Contextkey from the authConfig
 			ctx.Writef("Hello authenticated user: %s from: %s ", username, ctx.Path())
 		})
 		// http://localhost:8080/admin/profile
-		needAuth.Get("/profile", func(ctx *iris.Context) {
+		needAuth.Get("/profile", func(ctx *iris2.Context) {
 			username := ctx.GetString("mycustomkey") //  the Contextkey from the authConfig
 			ctx.Writef("Hello authenticated user: %s from: %s ", username, ctx.Path())
 		})
 		// http://localhost:8080/admin/settings
-		needAuth.Get("/settings", func(ctx *iris.Context) {
+		needAuth.Get("/settings", func(ctx *iris2.Context) {
 			username := authConfig.User(ctx) // shortcut for ctx.GetString("mycustomkey")
 			ctx.Writef("Hello authenticated user: %s from: %s ", username, ctx.Path())
 		})

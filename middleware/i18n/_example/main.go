@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	app := iris.New()
+	app := iris2.New()
 	app.Adapt(httprouter.New()) // adapt a router first of all
 
 	app.Use(i18n.New(i18n.Config{
@@ -18,7 +18,7 @@ func main() {
 			"el-GR": "./locales/locale_el-GR.ini",
 			"zh-CN": "./locales/locale_zh-CN.ini"}}))
 
-	app.Get("/", func(ctx *iris.Context) {
+	app.Get("/", func(ctx *iris2.Context) {
 
 		// it tries to find the language by:
 		// ctx.Get("language") , that should be setted on other middleware before the i18n middleware*
@@ -35,10 +35,10 @@ func main() {
 		// or:
 		hi := i18n.Translate(ctx, "hi", "kataras")
 
-		language := ctx.Get(iris.TranslateLanguageContextKey) // language is the language key, example 'en-US'
+		language := ctx.Get(iris2.TranslateLanguageContextKey) // language is the language key, example 'en-US'
 
 		// The first succeed language found saved at the cookie with name ("language"),
-		//  you can change that by changing the value of the:  iris.TranslateLanguageContextKey
+		//  you can change that by changing the value of the:  iris2.TranslateLanguageContextKey
 		ctx.Writef("From the language %s translated output: %s", language, hi)
 	})
 

@@ -8,7 +8,7 @@ import (
 )
 
 func TestRouteURLPath(t *testing.T) {
-	app := iris.New()
+	app := iris2.New()
 	app.Adapt(gorillamux.New())
 
 	app.None("/profile/{user_id}/{ref}/{anything:.*}", nil).ChangeName("profile")

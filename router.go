@@ -76,8 +76,8 @@ Edit your main .go source file to adapt one of these routers and restart your ap
 	)
 
 	func main(){
-		app := iris.New()
-		// right below the iris.New()
+		app := iris2.New()
+		// right below the iris2.New()
 		app.Adapt(httprouter.New()) // <--- and this line were missing.
 
 		// the rest of your source code...
@@ -95,8 +95,8 @@ Edit your main .go source file to adapt one of these routers and restart your ap
 	)
 
 	func main(){
-		app := iris.New()
-		// right below the iris.New()
+		app := iris2.New()
+		// right below the iris2.New()
 		app.Adapt(gorillamux.New()) // <--- and this line were missing.
 
 		app.Listen("%s")
@@ -259,10 +259,10 @@ func (router *Router) Handle(method string, registeredPath string, handlers ...H
 
 	// we splitted the path and subdomain parts so we're ready to check only the path,
 	// otherwise we will had problems with subdomains
-	// if the user wants beta:= iris.Default.Party("/beta"); beta.Get("/") to be registered as
+	// if the user wants beta:= iris2.Default.Party("/beta"); beta.Get("/") to be registered as
 	//: /beta/ then should disable the path correction OR register it like: beta.Get("//")
 	// this is only for the party's roots in order to have expected paths,
-	// as we do with iris.Default.Get("/") which is localhost:8080 as RFC points, not localhost:8080/
+	// as we do with iris2.Default.Get("/") which is localhost:8080 as RFC points, not localhost:8080/
 	///TODO: 31 Jan 2017 -> It does nothing I don't know why I code it but any way' I think it later...
 	// if router.mux.correctPath && registeredPath == slash { // check the given relative path
 	// 	// remove last "/" if any, "/xyz/"
@@ -294,7 +294,7 @@ func (router *Router) HandleFunc(method string, registeredPath string, handlersF
 
 // None registers an "offline" route
 // see context.ExecRoute(routeName),
-// iris.Default.None(...) and iris.Default.SetRouteOnline/SetRouteOffline
+// iris2.Default.None(...) and iris2.Default.SetRouteOnline/SetRouteOffline
 // For more details look: https://github.com/kataras/iris/issues/585
 //
 // Example: https://github.com/iris-contrib/examples/tree/master/route_state
@@ -455,7 +455,7 @@ func (router *Router) StaticEmbedded(requestPath string, vdir string, assetFn fu
 	}
 	if len(names) == 0 {
 		// we don't start the server yet, so:
-		panic("iris.StaticEmbedded: Unable to locate any embedded files located to the (virtual) directory: " + vdir)
+		panic("iris2.StaticEmbedded: Unable to locate any embedded files located to the (virtual) directory: " + vdir)
 	}
 
 	modtime := time.Now()
@@ -639,9 +639,9 @@ func (router *Router) StaticWeb(reqPath string, systemPath string, exceptRoutes 
 // Layout oerrides the parent template layout with a more specific layout for this Party
 // returns this Party, to continue as normal
 // example:
-// my := iris.Default.Party("/my").Layout("layouts/mylayout.html")
+// my := iris2.Default.Party("/my").Layout("layouts/mylayout.html")
 // 	{
-// 		my.Get("/", func(ctx *iris.Context) {
+// 		my.Get("/", func(ctx *iris2.Context) {
 // 			ctx.MustRender("page1.html", nil)
 // 		})
 // 	}
@@ -678,7 +678,7 @@ func (router *Router) OnError(statusCode int, handlerFn HandlerFunc) {
 				newHandler.Serve(ctx)
 				return
 			}
-			// serve with the user-specific global ("/") pure iris.OnError receiver Handler or the standar handler if OnError called only from inside a no-relative Party.
+			// serve with the user-specific global ("/") pure iris2.OnError receiver Handler or the standar handler if OnError called only from inside a no-relative Party.
 			prevErrHandler.Serve(ctx)
 		})
 

@@ -13,7 +13,7 @@ type loggerMiddleware struct {
 }
 
 // Serve serves the middleware
-func (l *loggerMiddleware) Serve(ctx *iris.Context) {
+func (l *loggerMiddleware) Serve(ctx *iris2.Context) {
 	//all except latency to string
 	var date, status, ip, method, path string
 	var latency time.Duration
@@ -46,12 +46,12 @@ func (l *loggerMiddleware) Serve(ctx *iris.Context) {
 	}
 
 	//finally print the logs
-	ctx.Log(iris.DevMode, fmt.Sprintf("%s %v %4v %s %s %s \n", date, status, latency, ip, method, path))
+	ctx.Log(iris2.DevMode, fmt.Sprintf("%s %v %4v %s %s %s \n", date, status, latency, ip, method, path))
 }
 
 // New returns the logger middleware
 // receives optional configs(logger.Config)
-func New(cfg ...Config) iris.HandlerFunc {
+func New(cfg ...Config) iris2.HandlerFunc {
 	c := DefaultConfig()
 	if len(cfg) > 0 {
 		c = cfg[0]

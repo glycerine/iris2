@@ -13,7 +13,7 @@ type (
 		// which can be change without any bad side-affects
 		// so it's the only setter here.
 		//
-		// It's used on iris.Default.Handle()
+		// It's used on iris2.Default.Handle()
 		ChangeName(name string) RouteInfo
 
 		// Name returns the name of the route
@@ -253,7 +253,7 @@ func (r *routeRepository) ChangeMethod(routeInfo RouteInfo,
 // returns true if state was actually changed
 //
 // see context.ExecRoute(routeInfo),
-// iris.Default.None(...) and iris.Routes.Online/.Routes.Offline
+// iris2.Default.None(...) and iris2.Routes.Online/.Routes.Offline
 // For more details look: https://github.com/kataras/iris/issues/585
 //
 // Example: https://github.com/iris-contrib/examples/tree/master/route_state
@@ -266,7 +266,7 @@ func (r *routeRepository) Online(routeInfo RouteInfo, HTTPMethod string) bool {
 // returns true if state was actually changed
 //
 // see context.ExecRoute(routeInfo),
-// iris.Default.None(...) and iris.Routes.Online/.Routes.Offline
+// iris2.Default.None(...) and iris2.Routes.Online/.Routes.Offline
 // For more details look: https://github.com/kataras/iris/issues/585
 //
 // Example: https://github.com/iris-contrib/examples/tree/master/route_state
@@ -275,8 +275,8 @@ func (r *routeRepository) Offline(routeInfo RouteInfo) bool {
 }
 
 // changeRouteState changes the state of the route.
-// iris.MethodNone for offline
-// and iris.MethodGet/MethodPost/MethodPut/MethodDelete /MethodConnect/MethodOptions/MethodHead/MethodTrace/MethodPatch for online
+// iris2.MethodNone for offline
+// and iris2.MethodGet/MethodPost/MethodPut/MethodDelete /MethodConnect/MethodOptions/MethodHead/MethodTrace/MethodPatch for online
 // it re-builds the router
 //
 // returns true if state was actually changed

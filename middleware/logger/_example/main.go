@@ -7,9 +7,9 @@ import (
 )
 
 func main() {
-	app := iris.New()
+	app := iris2.New()
 
-	app.Adapt(iris.DevLogger()) // it just enables the print of the iris.DevMode logs. Enable it to view the middleware's messages.
+	app.Adapt(iris2.DevLogger()) // it just enables the print of the iris2.DevMode logs. Enable it to view the middleware's messages.
 	app.Adapt(httprouter.New())
 
 	customLogger := logger.New(logger.Config{
@@ -25,22 +25,22 @@ func main() {
 
 	app.Use(customLogger)
 
-	app.Get("/", func(ctx *iris.Context) {
+	app.Get("/", func(ctx *iris2.Context) {
 		ctx.Writef("hello")
 	})
 
-	app.Get("/1", func(ctx *iris.Context) {
+	app.Get("/1", func(ctx *iris2.Context) {
 		ctx.Writef("hello")
 	})
 
-	app.Get("/2", func(ctx *iris.Context) {
+	app.Get("/2", func(ctx *iris2.Context) {
 		ctx.Writef("hello")
 	})
 
 	// log http errors
 	errorLogger := logger.New()
 
-	app.OnError(iris.StatusNotFound, func(ctx *iris.Context) {
+	app.OnError(iris2.StatusNotFound, func(ctx *iris2.Context) {
 		errorLogger.Serve(ctx)
 		ctx.Writef("My Custom 404 error page ")
 	})
