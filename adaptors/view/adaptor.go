@@ -56,17 +56,17 @@ func (h *Adaptor) Reload(developmentMode bool) *Adaptor {
 
 // Adapt adapts a template engine to the main Iris' policies.
 // this specific Adapt is a multi-policies adaptors
-// we use  that instead of just return New() iris.RenderPolicy
+// we use  that instead of just return New() iris2.RenderPolicy
 // for two reasons:
 // -  the user may need to edit the adaptor's fields
 //   like Directory, Binary
 // - we need to adapt an event policy to add the engine to the external mux
 //   and load it.
-func (h *Adaptor) Adapt(frame *iris.Policies) {
+func (h *Adaptor) Adapt(frame *iris2.Policies) {
 	mux := template.DefaultMux
 	// on the build state in order to have the shared funcs also
-	evt := iris.EventPolicy{
-		Build: func(s *iris.Framework) {
+	evt := iris2.EventPolicy{
+		Build: func(s *iris2.Framework) {
 			// mux has default to ./templates and .html ext
 			// no need for any checks here.
 			// the RenderPolicy will give a "no templates found on 'directory'"
@@ -90,12 +90,12 @@ func (h *Adaptor) Adapt(frame *iris.Policies) {
 			// as I explain on the TemplateFuncsPolicy it exists in order to allow community to create plugins
 			// even by adding custom template funcs to their behaviors.
 
-			// We know that iris.TemplateFuncsPolicy is useless without this specific
+			// We know that iris2.TemplateFuncsPolicy is useless without this specific
 			// adaptor. We also know that it is not a good idea to have two
 			// policies with the same function or we can? wait. No we can't.
 			// We can't because:
 			// - the RenderPolicy should accept any type of render process, not only templates.
-			// - I didn't design iris/policy.go to keep logic about implementation, this would make that very limited
+			// - I didn't design iris2/policy.go to keep logic about implementation, this would make that very limited
 			//    and I don't want to break that just for the templates.
 			// - We want community to be able to create packages which can adapt template functions but
 			//   not to worry about the rest of the template engine adaptor policy.
@@ -108,7 +108,7 @@ func (h *Adaptor) Adapt(frame *iris.Policies) {
 			// - Use the kataras/iris/adaptors/view.Adaptor adaptor wrapper for RenderPolicy with a combination of kataras/go-template/.Engine
 			//
 			//
-			// So here is the only place we adapt the iris.TemplateFuncsPolicy to the templates, if and only if templates are used,
+			// So here is the only place we adapt the iris2.TemplateFuncsPolicy to the templates, if and only if templates are used,
 			//  otherwise they are just ignored without any creepy things.
 			//
 			// The TemplateFuncsPolicy will work in combination with the specific template adaptor's functions(see html.go and the rest)
@@ -118,14 +118,14 @@ func (h *Adaptor) Adapt(frame *iris.Policies) {
 			}
 
 			if err := mux.Load(); err != nil {
-				s.Log(iris.ProdMode, err.Error())
+				s.Log(iris2.ProdMode, err.Error())
 			}
 		},
 	}
 	// adapt the build event to the main policies
 	evt.Adapt(frame)
 
-	r := iris.RenderPolicy(func(out io.Writer, file string, tmplContext interface{}, options ...map[string]interface{}) (error, bool) {
+	r := iris2.RenderPolicy(func(out io.Writer, file string, tmplContext interface{}, options ...map[string]interface{}) (error, bool) {
 		// template mux covers that but maybe we have more than one RenderPolicy
 		// and each of them carries a different mux on the new design.
 		if strings.Contains(file, h.extension) {
