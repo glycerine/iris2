@@ -578,8 +578,8 @@ func (ctx *Context) FormFile(key string) (multipart.File, *multipart.FileHeader,
 }
 
 var (
-	errReadBody        = errors.New("While trying to read %s from the request body. Trace %s")
-	errServeContent    = errors.New("While trying to serve content to the client. Trace %s")
+	errReadBody     = errors.New("While trying to read %s from the request body. Trace %s")
+	errServeContent = errors.New("While trying to serve content to the client. Trace %s")
 )
 
 // -------------------------------------------------------------------------------------
@@ -913,7 +913,10 @@ func (ctx *Context) RenderWithStatus(status int, name string, binding interface{
 	ctxLayout := ctx.GetString(TemplateLayoutContextKey)
 	if ctxLayout != "" {
 		if len(options) > 0 {
-			options[0]["layout"] = ctxLayout
+			_, hasLayout := options[0]["layout"]
+			if !hasLayout {
+				options[0]["layout"] = ctxLayout
+			}
 		} else {
 			options = []map[string]interface{}{{"layout": ctxLayout}}
 		}
@@ -955,7 +958,7 @@ func (ctx *Context) RenderWithStatus(status int, name string, binding interface{
 		m = make(Map)
 		ok = true
 	} else {
-		m, ok = binding.(Map);
+		m, ok = binding.(Map)
 	}
 	if ok {
 		if ctx.framework.Config.AutoFlashMessage {
