@@ -132,7 +132,7 @@ func TestConfigurationYAML(t *testing.T) {
 	}
 
 	if expected := 0; c.ReadTimeout != time.Duration(expected) {
-		t.Fatalf("error on TestConfigurationYAML: Expected ReadTimeout %s but got %s", expected, c.ReadTimeout)
+		t.Fatalf("error on TestConfigurationYAML: Expected ReadTimeout %d but got %s", expected, c.ReadTimeout)
 	}
 
 	if expected := time.Duration(5 * time.Second); c.WriteTimeout != expected {
@@ -140,7 +140,7 @@ func TestConfigurationYAML(t *testing.T) {
 	}
 
 	if expected := 8096; c.MaxHeaderBytes != expected {
-		t.Fatalf("error on TestConfigurationYAML: Expected MaxHeaderBytes %s but got %s", expected, c.MaxHeaderBytes)
+		t.Fatalf("error on TestConfigurationYAML: Expected MaxHeaderBytes %d but got %d", expected, c.MaxHeaderBytes)
 	}
 
 	if expected := false; c.DisablePathCorrection != expected {

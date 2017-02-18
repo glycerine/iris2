@@ -112,7 +112,7 @@ func TestResponseRecorderStatusCodeContentTypeBody(t *testing.T) {
 
 		previousContentType := ctx.ContentType()
 		if previousContentType != contentType {
-			t.Fatalf("First content type should be %s but got %d", contentType, previousContentType)
+			t.Fatalf("First content type should be %s but got %s", contentType, previousContentType)
 		}
 		// change the status code, this will tested later on (httptest)
 		ctx.SetStatusCode(iris2.StatusForbidden)
