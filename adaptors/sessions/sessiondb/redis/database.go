@@ -1,10 +1,8 @@
 package redis
 
 import (
-	"bytes"
-	"encoding/gob"
-
 	"github.com/go-iris2/iris2/adaptors/sessions/sessiondb/redis/service"
+	"gopkg.in/vmihailenco/msgpack.v2"
 )
 
 // Database the redis database for q sessions
@@ -70,18 +68,12 @@ func (d *Database) Update(sid string, newValues map[string]interface{}) {
 }
 
 // SerializeBytes serializa bytes using gob encoder and returns them
+// SerializeBytes serializa bytes using gob encoder and returns them
 func SerializeBytes(m interface{}) ([]byte, error) {
-	buf := new(bytes.Buffer)
-	enc := gob.NewEncoder(buf)
-	err := enc.Encode(m)
-	if err == nil {
-		return buf.Bytes(), nil
-	}
-	return nil, err
+	return msgpack.Marshal(m)
 }
 
 // DeserializeBytes converts the bytes to an object using gob decoder
 func DeserializeBytes(b []byte, m interface{}) error {
-	dec := gob.NewDecoder(bytes.NewBuffer(b))
-	return dec.Decode(m) //no reference here otherwise doesn't work because of go remote object
+	return msgpack.Unmarshal(b, m)
 }

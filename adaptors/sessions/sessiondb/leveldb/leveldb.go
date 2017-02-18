@@ -1,8 +1,6 @@
 package leveldb
 
 import (
-	"bytes"
-	"encoding/gob"
 	"runtime"
 	"time"
 
@@ -12,9 +10,8 @@ import (
 	"github.com/syndtr/goleveldb/leveldb/iterator"
 	"github.com/syndtr/goleveldb/leveldb/opt"
 	"github.com/syndtr/goleveldb/leveldb/util"
+	"gopkg.in/vmihailenco/msgpack.v2"
 )
-
-func init() { gob.Register(record.Record{}) }
 
 // New returns a database interface
 func New(cfg ...Config) Interface {
@@ -177,19 +174,11 @@ func (ldb *impl) Update(id string, values map[string]interface{}) {
 }
 
 // SerializeBytes serializa bytes using gob encoder and returns them
-func SerializeBytes(m interface{}) (ret []byte, err error) {
-	var buf = new(bytes.Buffer)
-	var enc = gob.NewEncoder(buf)
-	err = enc.Encode(m)
-	if err != nil {
-		return
-	}
-	ret = buf.Bytes()
-	return
+func SerializeBytes(m interface{}) ([]byte, error) {
+	return msgpack.Marshal(m)
 }
 
 // DeserializeBytes converts the bytes to an object using gob decoder
-func DeserializeBytes(b []byte, m interface{}) (err error) {
-	err = gob.NewDecoder(bytes.NewBuffer(b)).Decode(m)
-	return
+func DeserializeBytes(b []byte, m interface{}) error {
+	return msgpack.Unmarshal(b, m)
 }
