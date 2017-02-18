@@ -22,7 +22,6 @@ import (
 
 	"github.com/iris-contrib/formBinder"
 	"github.com/go-iris2/iris2/errors"
-	"github.com/go-iris2/iris2/fs"
 	"github.com/go-iris2/iris2/template"
 )
 
@@ -804,9 +803,9 @@ func (ctx *Context) WriteGzip(b []byte) (int, error) {
 	if ctx.clientAllowsGzip() {
 		ctx.ResponseWriter.Header().Add(varyHeader, acceptEncodingHeader)
 
-		gzipWriter := fs.AcquireGzipWriter(ctx.ResponseWriter)
+		gzipWriter := AcquireGzipWriter(ctx.ResponseWriter)
 		n, err := gzipWriter.Write(b)
-		fs.ReleaseGzipWriter(gzipWriter)
+		defer ReleaseGzipWriter(gzipWriter)
 
 		if err == nil {
 			ctx.SetHeader(contentEncodingHeader, "gzip")
@@ -881,8 +880,8 @@ func (ctx *Context) fastRenderWithStatus(status int, cType string, data []byte) 
 		ctx.ResponseWriter.Header().Add(varyHeader, acceptEncodingHeader)
 		ctx.SetHeader(contentEncodingHeader, "gzip")
 
-		gzipWriter := fs.AcquireGzipWriter(ctx.ResponseWriter)
-		defer fs.ReleaseGzipWriter(gzipWriter)
+		gzipWriter := AcquireGzipWriter(ctx.ResponseWriter)
+		defer ReleaseGzipWriter(gzipWriter)
 		out = gzipWriter
 	} else {
 		out = ctx.ResponseWriter
@@ -949,8 +948,8 @@ func (ctx *Context) RenderWithStatus(status int, name string, binding interface{
 		ctx.ResponseWriter.Header().Add(varyHeader, acceptEncodingHeader)
 		ctx.SetHeader(contentEncodingHeader, "gzip")
 
-		gzipWriter := fs.AcquireGzipWriter(ctx.ResponseWriter)
-		defer fs.ReleaseGzipWriter(gzipWriter)
+		gzipWriter := AcquireGzipWriter(ctx.ResponseWriter)
+		defer ReleaseGzipWriter(gzipWriter)
 		out = gzipWriter
 	} else {
 		out = ctx.ResponseWriter
@@ -1103,7 +1102,7 @@ func (ctx *Context) ServeContent(content io.ReadSeeker, filename string, modtime
 		return nil
 	}
 
-	ctx.ResponseWriter.Header().Set(contentType, fs.TypeByExtension(filename))
+	ctx.ResponseWriter.Header().Set(contentType, TypeByExtension(filename))
 	ctx.ResponseWriter.Header().Set(lastModified, modtime.UTC().Format(ctx.framework.Config.TimeFormat))
 	ctx.SetStatusCode(StatusOK)
 	var out io.Writer
@@ -1111,8 +1110,8 @@ func (ctx *Context) ServeContent(content io.ReadSeeker, filename string, modtime
 		ctx.ResponseWriter.Header().Add(varyHeader, acceptEncodingHeader)
 		ctx.SetHeader(contentEncodingHeader, "gzip")
 
-		gzipWriter := fs.AcquireGzipWriter(ctx.ResponseWriter)
-		defer fs.ReleaseGzipWriter(gzipWriter)
+		gzipWriter := AcquireGzipWriter(ctx.ResponseWriter)
+		defer ReleaseGzipWriter(gzipWriter)
 		out = gzipWriter
 	} else {
 		out = ctx.ResponseWriter

@@ -8,7 +8,8 @@ import (
 	"time"
 
 	"github.com/go-iris2/iris2/errors"
-	"github.com/go-iris2/iris2/fs"
+	"path/filepath"
+	"mime"
 )
 
 const (
@@ -379,7 +380,7 @@ func (router *Router) StaticServe(systemPath string, requestPath ...string) Rout
 	var reqPath string
 
 	if len(requestPath) == 0 {
-		reqPath = strings.Replace(systemPath, fs.PathSeparator, slash, -1) // replaces any \ to /
+		reqPath = strings.Replace(systemPath, string(os.PathSeparator), slash, -1) // replaces any \ to /
 		reqPath = strings.Replace(reqPath, "//", slash, -1)                // for any case, replaces // to /
 		reqPath = strings.Replace(reqPath, ".", "", -1)                    // replace any dots (./mypath -> /mypath)
 	} else {
@@ -389,10 +390,10 @@ func (router *Router) StaticServe(systemPath string, requestPath ...string) Rout
 	return router.Get(reqPath+"/*file", func(ctx *Context) {
 		filepath := ctx.Param("file")
 
-		spath := strings.Replace(filepath, "/", fs.PathSeparator, -1)
+		spath := strings.Replace(filepath, "/", string(os.PathSeparator), -1)
 		spath = path.Join(systemPath, spath)
 
-		if !fs.DirectoryExists(spath) {
+		if _, err := os.Stat(spath); os.IsNotExist(err) {
 			ctx.NotFound()
 			return
 		}
@@ -469,7 +470,7 @@ func (router *Router) StaticEmbedded(requestPath string, vdir string, assetFn fu
 				continue
 			}
 
-			cType := fs.TypeByExtension(path)
+			cType := TypeByExtension(path)
 			fullpath := vdir + path
 
 			buf, err := assetFn(fullpath)
@@ -525,7 +526,7 @@ func (router *Router) Favicon(favPath string, requestPath ...string) RouteInfo {
 		fi, _ = f.Stat()
 	}
 
-	cType := fs.TypeByExtension(favPath)
+	cType := TypeByExtension(favPath)
 	// copy the bytes here in order to cache and not read the ico on each request.
 	cacheFav := make([]byte, fi.Size())
 	if _, err = f.Read(cacheFav); err != nil {
@@ -623,7 +624,7 @@ func (router *Router) StaticWeb(reqPath string, systemPath string, exceptRoutes 
 	handler := func(ctx *Context) {
 		h(ctx)
 		if fname := ctx.Param(paramName); fname != "" {
-			cType := fs.TypeByExtension(fname)
+			cType := TypeByExtension(fname)
 			if cType != contentBinary && !strings.Contains(cType, "charset") {
 				cType += "; charset=" + ctx.framework.Config.Charset
 			}
@@ -692,4 +693,56 @@ func (router *Router) OnError(statusCode int, handlerFn HandlerFunc) {
 // if no custom error defined with this statuscode, then iris creates one, and once at runtime
 func (router *Router) EmitError(statusCode int, ctx *Context) {
 	router.Errors.Fire(statusCode, ctx)
+}
+
+// TypeByExtension returns the MIME type associated with the file extension ext.
+// The extension ext should begin with a leading dot, as in ".html".
+// When ext has no associated type, TypeByExtension returns "".
+//
+// Extensions are looked up first case-sensitively, then case-insensitively.
+//
+// The built-in table is small but on unix it is augmented by the local
+// system's mime.types file(s) if available under one or more of these
+// names:
+//
+//   /etc/mime.types
+//   /etc/apache2/mime.types
+//   /etc/apache/mime.types
+//
+// On Windows, MIME types are extracted from the registry.
+//
+// Text types have the charset parameter set to "utf-8" by default.
+func TypeByExtension(fullfilename string) (t string) {
+	ext := filepath.Ext(fullfilename)
+	//these should be found by the windows(registry) and unix(apache) but on windows some machines have problems on this part.
+	if t = mime.TypeByExtension(ext); t == "" {
+		// no use of map here because we will have to lock/unlock it, by hand is better, no problem:
+		if ext == ".json" {
+			t = "application/json"
+		} else if ext == ".js" {
+			t = "application/javascript"
+		} else if ext == ".zip" {
+			t = "application/zip"
+		} else if ext == ".3gp" {
+			t = "video/3gpp"
+		} else if ext == ".7z" {
+			t = "application/x-7z-compressed"
+		} else if ext == ".ace" {
+			t = "application/x-ace-compressed"
+		} else if ext == ".aac" {
+			t = "audio/x-aac"
+		} else if ext == ".ico" { // for any case
+			t = "image/x-icon"
+		} else if ext == ".png" {
+			t = "image/png"
+		} else {
+			t = "application/octet-stream"
+		}
+		// mime.TypeByExtension returns as text/plain; | charset=utf-8 the static .js (not always)
+	} else if t == "text/plain" || t == "text/plain; charset=utf-8" {
+		if ext == ".js" {
+			t = "application/javascript"
+		}
+	}
+	return
 }
