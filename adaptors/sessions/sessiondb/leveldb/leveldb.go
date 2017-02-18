@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"time"
 
-	"github.com/go-iris2/iris2/sessions/sessiondb/leveldb/record"
+	"github.com/go-iris2/iris2/adaptors/sessions/sessiondb/leveldb/record"
 
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/iterator"
