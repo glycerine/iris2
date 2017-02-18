@@ -21,10 +21,10 @@ type (
 	// Sessions is the start point of this package
 	// contains all the registered sessions and manages them
 	Sessions interface {
-		// Adapt is used to adapt this sessions manager as an iris.SessionsPolicy
+		// Adapt is used to adapt this sessions manager as an iris2.SessionsPolicy
 		// to an Iris station.
 		// It's being used by the framework, developers should not actually call this function.
-		Adapt(*iris.Policies)
+		Adapt(*iris2.Policies)
 
 		// UseDatabase ,optionally, adds a session database to the manager's provider,
 		// a session db doesn't have write access
@@ -32,7 +32,7 @@ type (
 		UseDatabase(Database)
 
 		// Start starts the session for the particular net/http request
-		Start(http.ResponseWriter, *http.Request) iris.Session
+		Start(http.ResponseWriter, *http.Request) iris2.Session
 
 		// Destroy kills the net/http session and remove the associated cookie
 		Destroy(http.ResponseWriter, *http.Request)
@@ -65,12 +65,12 @@ func New(cfg Config) Sessions {
 	}
 }
 
-func (s *sessions) Adapt(frame *iris.Policies) {
+func (s *sessions) Adapt(frame *iris2.Policies) {
 	// for newcomers this maybe looks strange:
 	// Each policy is an adaptor too, so they all can contain an Adapt.
 	// If they contains an Adapt func then the policy is an adaptor too and this Adapt func is called
 	// by Iris on .Adapt(...)
-	policy := iris.SessionsPolicy{
+	policy := iris2.SessionsPolicy{
 		Start:   s.Start,
 		Destroy: s.Destroy,
 	}
@@ -85,8 +85,8 @@ func (s *sessions) UseDatabase(db Database) {
 }
 
 // Start starts the session for the particular net/http request
-func (s *sessions) Start(res http.ResponseWriter, req *http.Request) iris.Session {
-	var sess iris.Session
+func (s *sessions) Start(res http.ResponseWriter, req *http.Request) iris2.Session {
+	var sess iris2.Session
 
 	cookieValue := GetCookie(s.config.Cookie, req)
 	if cookieValue == "" { // cookie doesn't exists, let's generate a session and add set a cookie

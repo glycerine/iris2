@@ -76,7 +76,7 @@ func (p *provider) updateDatabases(sid string, newValues map[string]interface{})
 }
 
 // Init creates the session  and returns it
-func (p *provider) Init(sid string, expires time.Duration) iris.Session {
+func (p *provider) Init(sid string, expires time.Duration) iris2.Session {
 	newSession := p.newSession(sid, expires)
 	p.mu.Lock()
 	p.sessions[sid] = newSession
@@ -85,7 +85,7 @@ func (p *provider) Init(sid string, expires time.Duration) iris.Session {
 }
 
 // Read returns the store which sid parameter belongs
-func (p *provider) Read(sid string, expires time.Duration) iris.Session {
+func (p *provider) Read(sid string, expires time.Duration) iris2.Session {
 	p.mu.Lock()
 	if sess, found := p.sessions[sid]; found {
 		sess.runFlashGC() // run the flash messages GC, new request here of existing session

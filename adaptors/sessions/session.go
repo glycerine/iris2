@@ -12,7 +12,7 @@ import (
 type (
 
 	// session is an 'object' which wraps the session provider with its session databases, only frontend user has access to this session object.
-	// implements the iris.Session interface
+	// implements the iris2.Session interface
 	session struct {
 		sid    string
 		values map[string]interface{} // here are the real values
@@ -35,7 +35,7 @@ type (
 	}
 )
 
-var _ iris.Session = &session{}
+var _ iris2.Session = &session{}
 
 // ID returns the session's id
 func (s *session) ID() string {
