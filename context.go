@@ -44,11 +44,6 @@ const (
 	contentJSON = "application/json"
 	// ContentJSONP header value for JSONP & Javascript data.
 	contentJSONP = "application/javascript"
-	// ContentJavascript header value for Javascript/JSONP
-	// conversional
-	contentJavascript = "application/javascript"
-	// ContentText header value for Text data.
-	contentText = "text/plain"
 	// ContentXML header value for XML data.
 	contentXML = "text/xml"
 
@@ -583,7 +578,6 @@ func (ctx *Context) FormFile(key string) (multipart.File, *multipart.FileHeader,
 }
 
 var (
-	errTemplateExecute = errors.New("Unable to execute a template. Trace: %s")
 	errReadBody        = errors.New("While trying to read %s from the request body. Trace %s")
 	errServeContent    = errors.New("While trying to serve content to the client. Trace %s")
 )

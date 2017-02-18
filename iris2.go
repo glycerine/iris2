@@ -606,14 +606,6 @@ func (s *Framework) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.Router.ServeHTTP(w, r)
 }
 
-// global once because is not necessary to check for updates on more than one iris station*
-var updateOnce sync.Once
-
-const (
-	githubOwner = "kataras"
-	githubRepo  = "iris"
-)
-
 // Adapt adapds a policy to the Framework.
 // It accepts single or more objects that implements the iris2.Policy.
 // Iris provides some of them but you can build your own based on one or more of these:
