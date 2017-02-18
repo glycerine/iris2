@@ -1,4 +1,4 @@
-// Package iris provides efficient and well-designed tools with robust set of features to
+// Package iris2 provides efficient and well-designed tools with robust set of features to
 // create your own perfect high performance web application
 // with unlimited potentials and portability.
 //
@@ -11,7 +11,6 @@ package iris2
 import (
 	"context"
 	"crypto/tls"
-	"fmt"
 	"io"
 	"log"
 	"net"
@@ -32,15 +31,6 @@ import (
 const (
 	// Version is the current version number of the Iris web framework
 	Version = "6.2.0"
-
-	codeName = `√Νεxτ`
-
-	banner = `         _____      _
-        |_   _|    (_)
-          | |  ____ _  ___
-          | | | __|| |/ __|
-         _| |_| |  | |\__ \
-        |_____|_|  |_||___/ ` + codeName
 )
 
 // Default is the field which keeps an empty `Framework`
@@ -484,9 +474,6 @@ func (s *Framework) Serve(ln net.Listener) error {
 }
 
 func (s *Framework) postServe() {
-	bannerMessage := fmt.Sprintf("| Running at %s\n\n%s\n", s.Config.VHost, banner)
-	s.Log(DevMode, bannerMessage)
-
 	ch := make(chan os.Signal, 1)
 	signal.Notify(ch, os.Interrupt)
 	<-ch
