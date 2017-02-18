@@ -19,13 +19,13 @@
 // SOFTWARE.
 
 /*
-Package iris provides efficient and well-designed tools with robust set of features to
+Package iris2 provides efficient and well-designed tools with robust set of features to
 create your own perfect high performance web application
 with unlimited potentials and portability.
 
 Source code and other details for the project are available at GitHub:
 
-   https://github.com/kataras/iris
+   https://github.com/go-iris2/iris2
 
 Note: This package is under active development status.
 Each month a new version is releasing
@@ -622,9 +622,9 @@ If you enjoy what you just saw and want to learn more, please follow the below l
 
 * Examples: https://github.com/iris-contrib/examples
 
-* Adaptors: https://github.com/kataras/iris/tree/v6/adaptors
+* Adaptors: https://github.com/go-iris2/iris2/tree/v6/adaptors
 
-* Middleware: https://github.com/kataras/iris/tree/v6/middleware and
+* Middleware: https://github.com/go-iris2/iris2/tree/v6/middleware and
 * https://github.com/iris-contrib/middleware
 
 
