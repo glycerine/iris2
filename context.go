@@ -497,6 +497,11 @@ func (ctx *Context) IsAjax() bool {
 	return ctx.RequestHeader("HTTP_X_REQUESTED_WITH") == "XMLHttpRequest"
 }
 
+// Referer returns the referer URL
+func (ctx *Context) Referer() string {
+	return ctx.RequestHeader("Referer")
+}
+
 // -------------------------------------------------------------------------------------
 // -------------------------------------------------------------------------------------
 // -----------------------------GET & POST arguments------------------------------------
