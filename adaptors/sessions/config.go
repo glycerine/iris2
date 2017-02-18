@@ -6,7 +6,7 @@ import (
 
 const (
 	// DefaultCookieName the secret cookie's name for sessions
-	DefaultCookieName = "irissessionid"
+	DefaultCookieName = "iris2sessionid"
 	// DefaultCookieLength is the default Session Manager's CookieLength, which is 32
 	DefaultCookieLength = 32
 )
@@ -39,6 +39,11 @@ type (
 		//
 		// Defaults to 32
 		CookieLength int
+
+		// HttpOnly is a security option for cookies which allow only use via HTTP.
+		// Setting this to false, allows the use of the session-cookie in for example
+		// javascript. Defaults to false.
+		HTTPOnly bool
 
 		// DisableSubdomainPersistence set it to true in order dissallow your q subdomains to have access to the session cookie
 		//

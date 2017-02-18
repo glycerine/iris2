@@ -1,7 +1,6 @@
 package sessions
 
 import (
-	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
@@ -26,8 +25,8 @@ func GetCookie(name string, req *http.Request) string {
 	return c.Value
 }
 
-// AddCookie adds a cookie
-func AddCookie(cookie *http.Cookie, res http.ResponseWriter) {
+// SetCookie adds a cookie
+func SetCookie(cookie *http.Cookie, res http.ResponseWriter) {
 	if v := cookie.String(); v != "" {
 		http.SetCookie(res, cookie)
 	}
@@ -45,7 +44,7 @@ func RemoveCookie(name string, res http.ResponseWriter, req *http.Request) {
 	c.MaxAge = -1
 	c.Value = ""
 	c.Path = "/"
-	AddCookie(c, res)
+	SetCookie(c, res)
 }
 
 // IsValidCookieDomain returns true if the receiver is a valid domain to set
@@ -76,46 +75,4 @@ func IsValidCookieDomain(domain string) bool {
 	}
 
 	return true
-}
-
-// -------------------------------------------------------------------------------------
-// -------------------------------------------------------------------------------------
-// ----------------------------------Strings & Serialization----------------------------
-// -------------------------------------------------------------------------------------
-// -------------------------------------------------------------------------------------
-
-const (
-	letterBytes   = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	letterIdxBits = 6                    // 6 bits to represent a letter index
-	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
-	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
-)
-
-// random takes a parameter (int) and returns random slice of byte
-// ex: var randomstrbytes []byte; randomstrbytes =  Random(32)
-// note: this code doesn't belongs to me, but it works just fine*
-//
-// Used for the default SessionIDGenerator which you can change.
-func randomByteArr(n int) []byte {
-	src := rand.NewSource(time.Now().UnixNano())
-	b := make([]byte, n)
-	// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
-	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
-		if remain == 0 {
-			cache, remain = src.Int63(), letterIdxMax
-		}
-		if idx := int(cache & letterIdxMask); idx < len(letterBytes) {
-			b[i] = letterBytes[idx]
-			i--
-		}
-		cache >>= letterIdxBits
-		remain--
-	}
-
-	return b
-}
-
-// randomString accepts a number(10 for example) and returns a random string using simple but fairly safe random algorithm
-func randomString(n int) string {
-	return string(randomByteArr(n))
 }

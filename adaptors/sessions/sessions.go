@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-iris2/iris2"
+	"math/rand"
 )
 
 type (
@@ -82,64 +83,16 @@ func (s *sessions) UseDatabase(db Database) {
 func (s *sessions) Start(res http.ResponseWriter, req *http.Request) iris2.Session {
 	var sess iris2.Session
 
-	cookieValue := GetCookie(s.config.Cookie, req)
-	if cookieValue == "" { // cookie doesn't exists, let's generate a session and add set a cookie
-		sid := SessionIDGenerator(s.config.CookieLength)
-		sess = s.provider.Init(sid, s.config.Expires)
-		cookie := &http.Cookie{}
-
-		// The RFC makes no mention of encoding url value, so here I think to encode both sessionid key and the value using the safe(to put and to use as cookie) url-encoding
-		cookie.Name = s.config.Cookie
-		cookie.Value = sid
-		cookie.Path = "/"
-		if !s.config.DisableSubdomainPersistence {
-
-			requestDomain := req.URL.Host
-			if portIdx := strings.IndexByte(requestDomain, ':'); portIdx > 0 {
-				requestDomain = requestDomain[0:portIdx]
-			}
-			if IsValidCookieDomain(requestDomain) {
-
-				// RFC2109, we allow level 1 subdomains, but no further
-				// if we have localhost.com , we want the localhost.cos.
-				// so if we have something like: mysubdomain.localhost.com we want the localhost here
-				// if we have mysubsubdomain.mysubdomain.localhost.com we want the .mysubdomain.localhost.com here
-				// slow things here, especially the 'replace' but this is a good and understable( I hope) way to get the be able to set cookies from subdomains & domain with 1-level limit
-				if dotIdx := strings.LastIndexByte(requestDomain, '.'); dotIdx > 0 {
-					// is mysubdomain.localhost.com || mysubsubdomain.mysubdomain.localhost.com
-					s := requestDomain[0:dotIdx] // set mysubdomain.localhost || mysubsubdomain.mysubdomain.localhost
-					if secondDotIdx := strings.LastIndexByte(s, '.'); secondDotIdx > 0 {
-						//is mysubdomain.localhost ||  mysubsubdomain.mysubdomain.localhost
-						s = s[secondDotIdx+1:] // set to localhost || mysubdomain.localhost
-					}
-					// replace the s with the requestDomain before the domain's siffux
-					subdomainSuff := strings.LastIndexByte(requestDomain, '.')
-					if subdomainSuff > len(s) { // if it is actual exists as subdomain suffix
-						requestDomain = strings.Replace(requestDomain, requestDomain[0:subdomainSuff], s, 1) // set to localhost.com || mysubdomain.localhost.com
-					}
-				}
-				// finally set the .localhost.com (for(1-level) || .mysubdomain.localhost.com (for 2-level subdomain allow)
-				cookie.Domain = "." + requestDomain // . to allow persistence
-			}
-
-		}
-		cookie.HttpOnly = true
-		// MaxAge=0 means no 'Max-Age' attribute specified.
-		// MaxAge<0 means delete cookie now, equivalently 'Max-Age: 0'
-		// MaxAge>0 means Max-Age attribute present and given in seconds
-		if s.config.Expires >= 0 {
-			if s.config.Expires == 0 { // unlimited life
-				cookie.Expires = CookieExpireUnlimited
-			} else { // > 0
-				cookie.Expires = time.Now().Add(s.config.Expires)
-			}
-			cookie.MaxAge = int(cookie.Expires.Sub(time.Now()).Seconds())
-		}
-
-		AddCookie(cookie, res)
+	sessionID := GetCookie(s.config.Cookie, req)
+	if sessionID == "" {
+		sessionID = sessionIDGenerator(s.config.CookieLength)
+		sess = s.provider.Init(sessionID, s.config.Expires)
 	} else {
-		sess = s.provider.Read(cookieValue, s.config.Expires)
+		sess = s.provider.Read(sessionID, s.config.Expires)
 	}
+	// We always use AddCookie
+	SetCookie(s.buildCookie(sessionID, req.URL.Host), res)
+
 	return sess
 }
 
@@ -171,8 +124,81 @@ func (s *sessions) DestroyAll() {
 	s.provider.DestroyAll()
 }
 
-// SessionIDGenerator returns a random string, used to set the session id
-// you are able to override this to use your own method for generate session ids
-var SessionIDGenerator = func(strLength int) string {
-	return randomString(strLength)
+func (s *sessions) buildCookie(sid, host string) *http.Cookie {
+	cookie := http.Cookie{
+		Name:     s.config.Cookie,
+		Value:    sid,
+		Path:     "/",
+		HttpOnly: s.config.HTTPOnly,
+	}
+
+	if !s.config.DisableSubdomainPersistence {
+		requestDomain := host
+		if portIdx := strings.IndexByte(requestDomain, ':'); portIdx > 0 {
+			requestDomain = requestDomain[0:portIdx]
+		}
+		if IsValidCookieDomain(requestDomain) {
+			// RFC2109, we allow level 1 subdomains, but no further
+			// if we have localhost.com , we want the localhost.cos.
+			// so if we have something like: mysubdomain.localhost.com we want the localhost here
+			// if we have mysubsubdomain.mysubdomain.localhost.com we want the .mysubdomain.localhost.com here
+			// slow things here, especially the 'replace' but this is a good and understable( I hope) way to get the be able to set cookies from subdomains & domain with 1-level limit
+			if dotIdx := strings.LastIndexByte(requestDomain, '.'); dotIdx > 0 {
+				// is mysubdomain.localhost.com || mysubsubdomain.mysubdomain.localhost.com
+				s := requestDomain[0:dotIdx] // set mysubdomain.localhost || mysubsubdomain.mysubdomain.localhost
+				if secondDotIdx := strings.LastIndexByte(s, '.'); secondDotIdx > 0 {
+					//is mysubdomain.localhost ||  mysubsubdomain.mysubdomain.localhost
+					s = s[secondDotIdx+1:] // set to localhost || mysubdomain.localhost
+				}
+				// replace the s with the requestDomain before the domain's siffux
+				subdomainSuff := strings.LastIndexByte(requestDomain, '.')
+				if subdomainSuff > len(s) { // if it is actual exists as subdomain suffix
+					requestDomain = strings.Replace(requestDomain, requestDomain[0:subdomainSuff], s, 1) // set to localhost.com || mysubdomain.localhost.com
+				}
+			}
+			// finally set the .localhost.com (for(1-level) || .mysubdomain.localhost.com (for 2-level subdomain allow)
+			cookie.Domain = "." + requestDomain // . to allow persistence
+		}
+
+	}
+
+	// MaxAge=0 means no 'Max-Age' attribute specified.
+	// MaxAge<0 means delete cookie now, equivalently 'Max-Age: 0'
+	// MaxAge>0 means Max-Age attribute present and given in seconds
+	if s.config.Expires >= 0 {
+		if s.config.Expires == 0 { // unlimited life
+			cookie.Expires = CookieExpireUnlimited
+		} else { // > 0
+			cookie.Expires = time.Now().Add(s.config.Expires)
+		}
+		cookie.MaxAge = int(cookie.Expires.Sub(time.Now()).Seconds())
+	}
+	return &cookie
+}
+
+const (
+	letterBytes   = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	letterIdxBits = 6                    // 6 bits to represent a letter index
+	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
+	letterIdxMax  = 63 / letterIdxBits   // # of letter indices fitting in 63 bits
+)
+
+// SessionIDGenerator generates a random string of size n
+func sessionIDGenerator(n int) string {
+	src := rand.NewSource(time.Now().UnixNano())
+	b := make([]byte, n)
+	// A src.Int63() generates 63 random bits, enough for letterIdxMax characters!
+	for i, cache, remain := n-1, src.Int63(), letterIdxMax; i >= 0; {
+		if remain == 0 {
+			cache, remain = src.Int63(), letterIdxMax
+		}
+		if idx := int(cache & letterIdxMask); idx < len(letterBytes) {
+			b[i] = letterBytes[idx]
+			i--
+		}
+		cache >>= letterIdxBits
+		remain--
+	}
+
+	return string(b)
 }
