@@ -120,6 +120,13 @@ type Framework struct {
 	closedManually bool // true if closed via .Shutdown, used to not throw a panic on s.handlePanic when closing the app's server
 
 	once sync.Once // used to 'Boot' once
+
+	beforeRenderer HandlerFuncMap
+}
+
+// BeforeRender registers a function which is called before every render
+func (f *Framework) BeforeRender(handlerFn HandlerFuncMap) {
+	f.beforeRenderer = handlerFn
 }
 
 var defaultGlobalLoggerOuput = log.New(os.Stdout, "[Iris] ", log.LstdFlags)
@@ -811,32 +818,3 @@ Edit your main .go source file to adapt one of these and restart your app.
 // I.e the "layout" or "gzip" option
 // same as iris2.Map but more specific name
 type RenderOptions map[string]interface{}
-
-// Render renders using the specific template or any other rich content renderer to the 'w'.
-//
-// Example of usage:
-// - send an e-mail using a template engine that you already
-//   adapted via: app.Adapt(view.HTML("./templates", ".html"))  or app.Adapt(iris2.RenderPolicy(mycustomRenderer)).
-//
-// It can also render json,xml,jsonp and markdown by-default before or after .Build too.
-func (s *Framework) Render(w io.Writer, name string, bind interface{}, options ...map[string]interface{}) error {
-	err, ok := s.policies.RenderPolicy(w, name, bind, options...)
-	if !ok {
-		// ok is false ONLY WHEN there is no registered render policy
-		// that is responsible for that 'name` (if contains dot '.' it's for templates).
-		// We don't use default template engines on the new version,
-		// so we should notice the user here, we could make it to panic but because that is on runtime
-		// we don't want to panic for that, let's give a message if the user adapted a logger for dev.
-		// And return that error in the case the user wasn't in dev mode, she/he can catch this error.
-
-		// Also on the README we will add the .Adapt(iris2.DevLogger()) to mention that
-		// logging for any runtime info(except http server's panics and unexpected serious errors) is not enabled by-default.
-		if strings.Contains(name, ".") {
-			err = errTemplateRendererIsMissing.Format(name, s.Config.VHost)
-			s.Log(DevMode, err.Error())
-			return err
-		}
-
-	}
-	return err
-}

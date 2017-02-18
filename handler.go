@@ -27,6 +27,9 @@ type (
 	// with the appropriate signature, HandlerFunc(f) is a
 	// Handler that calls f.
 	HandlerFunc func(*Context)
+	// HandlerFuncMap type is an function prototype used for
+	// before-renderer callbacks
+	HandlerFuncMap func(*Context, Map) Map
 	// Middleware is just a slice of Handler []func(c *Context)
 	Middleware []Handler
 )

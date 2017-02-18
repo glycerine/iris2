@@ -168,6 +168,11 @@ type Configuration struct {
 	// Defaults to false.
 	Gzip bool `yaml:"Gzip"`
 
+	// AutoFlashMessage adds the flash-message "msg" automatically to the parameters
+	// for each Render, side-effect is that when render is performed, the flash-message
+	// shall be garbage-collected!
+	AutoFlashMessage bool `yaml:"AutoFlashMessage"`
+
 	// Other are the custom, dynamic options, can be empty.
 	// This field used only by you to set any app's options you want
 	// or by custom adaptors, it's a way to simple communicate between your adaptors (if any)
@@ -313,6 +318,12 @@ var (
 		}
 	}
 
+	OptionAutoFlashMessage = func(val bool) OptionSet {
+		return func(c *Configuration) {
+			c.AutoFlashMessage = val
+		}
+	}
+
 	// Other are the custom, dynamic options, can be empty.
 	// This field used only by you to set any app's options you want
 	// or by custom adaptors, it's a way to simple communicate between your adaptors (if any)
@@ -369,6 +380,7 @@ func DefaultConfiguration() Configuration {
 		TimeFormat:                        DefaultTimeFormat,
 		Charset:                           DefaultCharset,
 		Gzip:                              false,
+		AutoFlashMessage:                  true,
 		Other:                             make(map[string]interface{}, 0),
 	}
 }
