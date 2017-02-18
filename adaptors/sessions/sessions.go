@@ -72,13 +72,20 @@ func (s *sessions) Adapt(frame *iris2.Policies) {
 func (s *sessions) Start(res http.ResponseWriter, req *http.Request) iris2.Session {
 	var sess iris2.Session
 
+	clientIP := req.RemoteAddr
+	idx := strings.IndexByte(clientIP, ',')
+	if idx > 0 {
+		clientIP = clientIP[0:idx]
+	}
+
 	cookieName := GetCookie(s.config.Cookie, req)
-	sessionID := req.RemoteAddr + "_" + cookieName
+	sessionID := clientIP + "_" + cookieName
 	if cookieName != "" && s.provider.Exist(sessionID) {
 		sess = s.provider.Read(sessionID, s.config.Expires)
 	} else {
 		for {
-			sessionID = req.RemoteAddr + "_" + sessionIDGenerator(s.config.CookieLength)
+			cookieName = sessionIDGenerator(s.config.CookieLength)
+			sessionID = clientIP + "_" + cookieName
 			if !s.provider.Exist(sessionID) {
 				break
 			}
@@ -98,7 +105,12 @@ func (s *sessions) Destroy(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	RemoveCookie(s.config.Cookie, res, req)
-	s.provider.Destroy(req.RemoteAddr + "_" + cookieName)
+	clientIP := req.RemoteAddr
+	idx := strings.IndexByte(clientIP, ',')
+	if idx > 0 {
+		clientIP = clientIP[0:idx]
+	}
+	s.provider.Destroy(clientIP + "_" + cookieName)
 }
 
 // DestroyByID removes the session entry
