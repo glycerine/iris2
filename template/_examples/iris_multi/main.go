@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/go-iris2/iris2/template/amber"
 	"github.com/go-iris2/iris2/template/html"
-	"github.com/kataras/iris"
+	"github.com/go-iris2/iris2"
 )
 
 type mypage struct {
