@@ -12,6 +12,6 @@ package sessions
 // synchronization are made automatically, you can register more than one session database
 // but the first non-empty Load return data will be used as the session values.
 type Database interface {
-	Load(string) map[string]interface{}
+	Load(string) (map[string]interface{}, error)
 	Update(string, map[string]interface{})
 }

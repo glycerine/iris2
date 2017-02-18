@@ -45,6 +45,10 @@ type (
 		// javascript. Defaults to false.
 		HTTPOnly bool
 
+		// SessionStorage is the database engine for the sessions, by default sessions
+		// are stored in RAM, and not saved anywhere
+		SessionStorage Database
+
 		// DisableSubdomainPersistence set it to true in order dissallow your q subdomains to have access to the session cookie
 		//
 		// Defaults to false

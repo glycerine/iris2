@@ -14,31 +14,22 @@ type (
 		// we don't use RWMutex because all actions have read and write at the same action function.
 		// (or write to a *session's value which is race if we don't lock)
 		// narrow locks are fasters but are useless here.
-		mu        sync.Mutex
-		sessions  map[string]*session
-		databases []Database
+		mu       sync.Mutex
+		sessions map[string]*session
+		database Database
 	}
 )
 
 // newProvider returns a new sessions provider
-func newProvider() *provider {
+func newProvider(db Database) *provider {
 	return &provider{
-		sessions:  make(map[string]*session, 0),
-		databases: make([]Database, 0),
+		sessions: make(map[string]*session, 0),
+		database: db,
 	}
-}
-
-// RegisterDatabase adds a session database
-// a session db doesn't have write access
-func (p *provider) RegisterDatabase(db Database) {
-	p.mu.Lock() // for any case
-	p.databases = append(p.databases, db)
-	p.mu.Unlock()
 }
 
 // newSession returns a new session from sessionid
 func (p *provider) newSession(sid string, expires time.Duration) *session {
-
 	sess := &session{
 		sid:      sid,
 		provider: p,
@@ -47,10 +38,7 @@ func (p *provider) newSession(sid string, expires time.Duration) *session {
 	}
 
 	if expires > 0 { // if not unlimited life duration and no -1 (cookie remove action is based on browser's session)
-		time.AfterFunc(expires, func() {
-			// the destroy makes the check if this session is exists then or not,
-			// this is used to destroy the session from the server-side also
-			// it's good to have here for security reasons, I didn't add it on the gc function to separate its action
+		sess.timeout = time.AfterFunc(expires, func() {
 			p.Destroy(sid)
 		})
 	}
@@ -59,20 +47,14 @@ func (p *provider) newSession(sid string, expires time.Duration) *session {
 }
 
 func (p *provider) loadSessionValues(sid string) map[string]interface{} {
-
-	for i, n := 0, len(p.databases); i < n; i++ {
-		if dbValues := p.databases[i].Load(sid); dbValues != nil && len(dbValues) > 0 {
-			return dbValues // return the first non-empty from the registered stores.
+	if p.database != nil {
+		dbValues, err := p.database.Load(sid)
+		if dbValues != nil && err == nil {
+			return dbValues
 		}
 	}
-	values := make(map[string]interface{})
-	return values
-}
 
-func (p *provider) updateDatabases(sid string, newValues map[string]interface{}) {
-	for i, n := 0, len(p.databases); i < n; i++ {
-		p.databases[i].Update(sid, newValues)
-	}
+	return make(map[string]interface{})
 }
 
 // Init creates the session  and returns it
@@ -87,14 +69,30 @@ func (p *provider) Init(sid string, expires time.Duration) iris2.Session {
 // Read returns the store which sid parameter belongs
 func (p *provider) Read(sid string, expires time.Duration) iris2.Session {
 	p.mu.Lock()
-	if sess, found := p.sessions[sid]; found {
-		sess.runFlashGC() // run the flash messages GC, new request here of existing session
-		p.mu.Unlock()
+	sess, found := p.sessions[sid]
+	p.mu.Unlock()
+	if found {
+		p.sessions[sid].timeout.Reset(expires)
+		sess.runFlashGC()
 		return sess
 	}
-	p.mu.Unlock()
-	return p.Init(sid, expires) // if not found create new
 
+	// When it is not in p.sessions it must be in de database
+	// p.Init loads it from there
+	return p.Init(sid, expires)
+}
+
+func (p *provider) Exist(sid string) bool {
+	p.mu.Lock()
+	_, found := p.sessions[sid]
+	p.mu.Unlock()
+	if !found && p.database != nil {
+		_, err := p.database.Load(sid)
+		if err == nil {
+			found = true
+		}
+	}
+	return found
 }
 
 // Destroy destroys the session, removes all sessions and flash values,
@@ -106,10 +104,9 @@ func (p *provider) Destroy(sid string) {
 		sess.values = nil
 		sess.flashes = nil
 		delete(p.sessions, sid)
-		p.updateDatabases(sid, nil)
+		p.updateDb(sid, nil)
 	}
 	p.mu.Unlock()
-
 }
 
 // DestroyAll removes all sessions
@@ -119,8 +116,13 @@ func (p *provider) DestroyAll() {
 	p.mu.Lock()
 	for _, sess := range p.sessions {
 		delete(p.sessions, sess.ID())
-		p.updateDatabases(sess.ID(), nil)
+		p.updateDb(sess.ID(), nil)
 	}
 	p.mu.Unlock()
+}
 
+func (p *provider) updateDb(sid string, values map[string]interface{}) {
+	if p.database != nil {
+		p.database.Update(sid, values)
+	}
 }

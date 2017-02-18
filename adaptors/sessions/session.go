@@ -22,10 +22,10 @@ type (
 		// but without temp values (flash messages) which are removed after fetching.
 		// so introduce a new field here.
 		// NOTE: flashes are not managed by third-party, only inside session struct.
-		flashes   map[string]*flashMessage
-		mu        sync.RWMutex
-		createdAt time.Time
-		provider  *provider
+		flashes  map[string]*flashMessage
+		mu       sync.RWMutex
+		timeout  *time.Timer
+		provider *provider
 	}
 
 	flashMessage struct {
@@ -224,7 +224,7 @@ func (s *session) Set(key string, value interface{}) {
 	s.values[key] = value
 	s.mu.Unlock()
 
-	s.updateDatabases()
+	s.provider.updateDb(s.sid, s.values)
 }
 
 // SetFlash sets a flash message by its key.
@@ -259,11 +259,7 @@ func (s *session) Delete(key string) {
 	delete(s.values, key)
 	s.mu.Unlock()
 
-	s.updateDatabases()
-}
-
-func (s *session) updateDatabases() {
-	s.provider.updateDatabases(s.sid, s.values)
+	s.provider.updateDb(s.sid, s.values)
 }
 
 // DeleteFlash removes a flash message by its key
@@ -281,7 +277,7 @@ func (s *session) Clear() {
 	}
 	s.mu.Unlock()
 
-	s.updateDatabases()
+	s.provider.updateDb(s.sid, s.values)
 }
 
 // Clear removes all flash messages

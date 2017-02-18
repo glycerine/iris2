@@ -21,11 +21,6 @@ type (
 		// It's being used by the framework, developers should not actually call this function.
 		Adapt(*iris2.Policies)
 
-		// UseDatabase ,optionally, adds a session database to the manager's provider,
-		// a session db doesn't have write access
-		// see https://github.com/go-iris2/iris2/sessions/tree/master/sessiondb
-		UseDatabase(Database)
-
 		// Start starts the session for the particular net/http request
 		Start(http.ResponseWriter, *http.Request) iris2.Session
 
@@ -56,7 +51,7 @@ type (
 func New(cfg Config) Sessions {
 	return &sessions{
 		config:   cfg.Validate(),
-		provider: newProvider(),
+		provider: newProvider(cfg.SessionStorage),
 	}
 }
 
@@ -73,22 +68,21 @@ func (s *sessions) Adapt(frame *iris2.Policies) {
 	policy.Adapt(frame)
 }
 
-// UseDatabase adds a session database to the manager's provider,
-// a session db doesn't have write access
-func (s *sessions) UseDatabase(db Database) {
-	s.provider.RegisterDatabase(db)
-}
-
 // Start starts the session for the particular net/http request
 func (s *sessions) Start(res http.ResponseWriter, req *http.Request) iris2.Session {
 	var sess iris2.Session
 
 	sessionID := GetCookie(s.config.Cookie, req)
-	if sessionID == "" {
-		sessionID = sessionIDGenerator(s.config.CookieLength)
-		sess = s.provider.Init(sessionID, s.config.Expires)
-	} else {
+	if sessionID != "" && s.provider.Exist(sessionID) {
 		sess = s.provider.Read(sessionID, s.config.Expires)
+	} else {
+		for {
+			sessionID = sessionIDGenerator(s.config.CookieLength)
+			if !s.provider.Exist(sessionID) {
+				break
+			}
+		}
+		sess = s.provider.Init(sessionID, s.config.Expires)
 	}
 	// We always use AddCookie
 	SetCookie(s.buildCookie(sessionID, req.URL.Host), res)
@@ -98,12 +92,12 @@ func (s *sessions) Start(res http.ResponseWriter, req *http.Request) iris2.Sessi
 
 // Destroy kills the net/http session and remove the associated cookie
 func (s *sessions) Destroy(res http.ResponseWriter, req *http.Request) {
-	cookieValue := GetCookie(s.config.Cookie, req)
-	if cookieValue == "" { // nothing to destroy
+	sessionID := GetCookie(s.config.Cookie, req)
+	if sessionID == "" { // nothing to destroy
 		return
 	}
 	RemoveCookie(s.config.Cookie, res, req)
-	s.provider.Destroy(cookieValue)
+	s.provider.Destroy(sessionID)
 }
 
 // DestroyByID removes the session entry
@@ -121,7 +115,7 @@ func (s *sessions) DestroyByID(sid string) {
 // Client's session cookie will still exist but it will be reseted on the next request.
 // Works for both net/http
 func (s *sessions) DestroyAll() {
-	s.provider.DestroyAll()
+	//s.provider.DestroyAll()
 }
 
 func (s *sessions) buildCookie(sid, host string) *http.Cookie {

@@ -13,14 +13,6 @@ const (
 	_DefaultMaxAge       = time.Second * 31556926
 )
 
-// Interface is an interface
-type Interface interface {
-	// Load loads the values
-	Load(string) map[string]interface{}
-	// Update updates the store
-	Update(string, map[string]interface{})
-}
-
 // impl is an implementation
 type impl struct {
 	DB          *leveldb.DB

@@ -1,11 +1,13 @@
 package leveldb
 
 import (
+	"fmt"
 	"runtime"
 	"time"
 
 	"github.com/go-iris2/iris2/adaptors/sessions/sessiondb/leveldb/record"
 
+	"github.com/go-iris2/iris2/adaptors/sessions"
 	"github.com/syndtr/goleveldb/leveldb"
 	"github.com/syndtr/goleveldb/leveldb/iterator"
 	"github.com/syndtr/goleveldb/leveldb/opt"
@@ -14,7 +16,7 @@ import (
 )
 
 // New returns a database interface
-func New(cfg ...Config) Interface {
+func New(cfg ...Config) sessions.Database {
 	var ldb = new(impl)
 	ldb.doCloseUp = make(chan bool)
 	for i := range cfg {
@@ -95,7 +97,7 @@ func (ldb *impl) clean(key, value []byte) {
 	var err error
 	var rec record.Record
 	var kill bool
-	if err = DeserializeBytes(value, &rec); err != nil {
+	if err = msgpack.Unmarshal(value, &rec); err != nil {
 		kill = true // Cleaning erroneous entries
 	}
 	if time.Since(rec.DeathTime) > 0 {
@@ -126,24 +128,30 @@ func (ldb *impl) OpenDB() {
 func (ldb *impl) Config() *Config { return &ldb.Cfg }
 
 // Load loads the values to the underline
-func (ldb *impl) Load(id string) (ret map[string]interface{}) {
-	var ok bool
-	var val []byte
+func (ldb *impl) Load(id string) (map[string]interface{}, error) {
 	var rec record.Record
-	ret = make(map[string]interface{})
-	ok, ldb.Err = ldb.DB.Has([]byte(id), (*opt.ReadOptions)(ldb.Cfg.ReadOptions))
+
+	ret := make(map[string]interface{})
+
+	ok, err := ldb.DB.Has([]byte(id), (*opt.ReadOptions)(ldb.Cfg.ReadOptions))
 	if !ok {
-		return
+		return nil, fmt.Errorf("could not read session: %v", err)
 	}
-	val, ldb.Err = ldb.DB.Get([]byte(id), (*opt.ReadOptions)(ldb.Cfg.ReadOptions))
-	if ldb.Err != nil {
-		return
+
+	val, err := ldb.DB.Get([]byte(id), (*opt.ReadOptions)(ldb.Cfg.ReadOptions))
+	if err != nil {
+		return nil, fmt.Errorf("could not read session: %v", err)
 	}
-	if ldb.Err = DeserializeBytes(val, &rec); ldb.Err != nil {
-		return
+
+	if err = msgpack.Unmarshal(val, &rec); err != nil {
+		return nil, fmt.Errorf("could not read session: %v", err)
 	}
-	ldb.Err = DeserializeBytes(rec.Data, &ret)
-	return
+
+	err = msgpack.Unmarshal(rec.Data, &ret)
+	if err != nil {
+		return nil, fmt.Errorf("could not deserialize session: %v", err)
+	}
+	return ret, nil
 }
 
 // Update updates the store
@@ -176,9 +184,4 @@ func (ldb *impl) Update(id string, values map[string]interface{}) {
 // SerializeBytes serializa bytes using gob encoder and returns them
 func SerializeBytes(m interface{}) ([]byte, error) {
 	return msgpack.Marshal(m)
-}
-
-// DeserializeBytes converts the bytes to an object using gob decoder
-func DeserializeBytes(b []byte, m interface{}) error {
-	return msgpack.Unmarshal(b, m)
 }
