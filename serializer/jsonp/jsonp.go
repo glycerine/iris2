@@ -48,7 +48,7 @@ func (e *Serializer) Serialize(val interface{}, options ...map[string]interface{
 		return nil, err
 	}
 
-	// the config's callback can be overriden with the options
+	// the config's callback can be overridden with the options
 	callback := e.config.Callback
 	if len(options) > 0 {
 		callback = e.getCallbackOption(options[0])

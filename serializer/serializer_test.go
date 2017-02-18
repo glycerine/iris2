@@ -30,7 +30,7 @@ func TestSerializerFull(t *testing.T) {
 	// will be putted
 	For("markdown", myMarkdownSerializer)
 
-	// will not be putted becuase of dot on the key which is not allowed.
+	// will not be putted because of dot on the key which is not allowed.
 	For("markdown2.", myMarkdownSerializer)
 	if l := Len(); l != originalLen+1 {
 		t.Fatalf("Expecting serializers length: %d but got %d", originalLen+1, l)
