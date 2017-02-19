@@ -1278,7 +1278,7 @@ func (ctx *Context) GetString(key string) string {
 var errIntParse = errors.New("Unable to find or parse the integer, found: %#v")
 
 // GetInt same as Get but tries to convert the return value as integer
-// if nothing found or canno be parsed to integer it returns an error
+// if nothing found or cannot be parsed to integer it returns an error
 func (ctx *Context) GetInt(key string) (int, error) {
 	v := ctx.Get(key)
 	if vint, ok := v.(int); ok {
