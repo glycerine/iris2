@@ -26,6 +26,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/rs/xhandler"
+	"golang.org/x/net/context"
 )
 
 // Options is a configuration container to setup the CORS middleware.
@@ -125,7 +128,7 @@ func New(options Options) *Cors {
 				break
 			} else if i := strings.IndexByte(origin, '*'); i >= 0 {
 				// Split the origin in two: start and end string without the *
-				w := wildcard{origin[0:i], origin[i+1:]}
+				w := wildcard{origin[0:i], origin[i+1 : len(origin)]}
 				c.allowedWOrigins = append(c.allowedWOrigins, w)
 			} else {
 				c.allowedOrigins = append(c.allowedOrigins, origin)
@@ -185,6 +188,29 @@ func (c *Cors) Handler(h http.Handler) http.Handler {
 			c.logf("Handler: Actual request")
 			c.handleActualRequest(w, r)
 			h.ServeHTTP(w, r)
+		}
+	})
+}
+
+// HandlerC is net/context aware handler
+func (c *Cors) HandlerC(h xhandler.HandlerC) xhandler.HandlerC {
+	return xhandler.HandlerFuncC(func(ctx context.Context, w http.ResponseWriter, r *http.Request) {
+		if r.Method == "OPTIONS" {
+			c.logf("Handler: Preflight request")
+			c.handlePreflight(w, r)
+			// Preflight requests are standalone and should stop the chain as some other
+			// middleware may not handle OPTIONS requests correctly. One typical example
+			// is authentication middleware ; OPTIONS requests won't carry authentication
+			// headers (see #1)
+			if c.optionPassthrough {
+				h.ServeHTTPC(ctx, w, r)
+			} else {
+				w.WriteHeader(http.StatusOK)
+			}
+		} else {
+			c.logf("Handler: Actual request")
+			c.handleActualRequest(w, r)
+			h.ServeHTTPC(ctx, w, r)
 		}
 	})
 }

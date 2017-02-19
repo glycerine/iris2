@@ -21,7 +21,7 @@ key = the full http url(scheme+host+query args/ all url encoded),
 key always sent by the consumer to the producer(client to server).
 
 Remote is based only on net/http,
-because it doesn't matters if the client is based on net/http.
+because it doesn't matters if the client is based on fasthttp or net/http.
 It will work the same exactly
 because remote service cache is based on http requests coming from the client side(the consumer).
 */

@@ -1,6 +1,6 @@
 package internal
 
-// The shared header-mostly rules for both nethttp
+// The shared header-mostly rules for both nethttp and fasthttp
 var (
 	AuthorizationRule = func(header GetHeader) bool {
 		return header("Authorization") == "" &&

@@ -1,9 +1,8 @@
 package rule
 
 import (
-	"net/http"
-
 	"github.com/geekypanda/httpcache/internal"
+	"net/http"
 )
 
 // The HeaderPredicate should be alived on each of $package/rule BUT GOLANG DOESN'T SUPPORT type alias and I don't want to have so many copies arround
