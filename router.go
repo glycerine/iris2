@@ -63,47 +63,6 @@ const (
 	slash = "/"
 )
 
-var errRouterIsMissing = errors.New(
-	`
-fatal error, router is missing!
-Please .Adapt one of the available routers inside 'kataras/iris/adaptors'.
-By-default Iris supports two routers, httprouter and gorillamux.
-Edit your main .go source file to adapt one of these routers and restart your app.
-	i.e: lines (<---) were missing.
-	----------------------------HTTPROUTER----------------------------------
-	import (
-		"github.com/go-iris2/iris2"
-		"github.com/go-iris2/iris2/adaptors/httprouter" // <--- this line
-	)
-
-	func main(){
-		app := iris2.New()
-		// right below the iris2.New()
-		app.Adapt(httprouter.New()) // <--- and this line were missing.
-
-		// the rest of your source code...
-		// ...
-
-		app.Listen("%s")
-	}
-
-
-	----------------------------OR GORILLA MUX-------------------------------
-
-	import (
-	    "github.com/go-iris2/iris2"
-	    "github.com/go-iris2/iris2/adaptors/gorillamux" // <--- or this line
-	)
-
-	func main(){
-		app := iris2.New()
-		// right below the iris2.New()
-		app.Adapt(gorillamux.New()) // <--- and this line were missing.
-
-		app.Listen("%s")
-	}
- `)
-
 // Router the visible api for RESTFUL
 type Router struct {
 

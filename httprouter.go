@@ -1,4 +1,4 @@
-package httprouter
+package iris2
 
 //  +------------------------------------------------------------+
 //  | Usage                                                      |
@@ -8,16 +8,13 @@ package httprouter
 // package main
 //
 // import (
-// 	"github.com/go-iris2/iris2/adaptors/httprouter"
 // 	"github.com/go-iris2/iris2"
 // )
 //
 // func main() {
-// 	app := iris2.New()
+// 	app := New()
 //
-// 	app.Adapt(httprouter.New()) // Add this line and you're ready.
-//
-// 	app.Get("/api/users/:userid", func(ctx *iris2.Context) {
+// 	app.Get("/api/users/:userid", func(ctx *Context) {
 // 		ctx.Writef("User with id: %s", ctx.Param("userid"))
 // 	})
 //
@@ -29,17 +26,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/go-iris2/iris2"
 	"github.com/go-iris2/iris2/errors"
 )
 
 const (
 	// parameterStartByte is very used on the node, it's just contains the byte for the ':' rune/char
 	parameterStartByte = byte(':')
-	// slashByte is just a byte of '/' rune/char
-	slashByte = byte('/')
-	// slash is just a string of "/"
-	slash = "/"
 	// matchEverythingByte is just a byte of '*" rune/char
 	matchEverythingByte = byte('*')
 
@@ -61,7 +53,7 @@ type (
 		hasWildNode bool
 		tokens      string
 		nodes       []*muxEntry
-		middleware  iris2.Middleware
+		middleware  Middleware
 		precedence  uint64
 		paramsLen   uint8
 	}
@@ -119,7 +111,7 @@ func findLower(a, b int) int {
 }
 
 // add adds a muxEntry to the existing muxEntry or to the tree if no muxEntry has the prefix of
-func (e *muxEntry) add(path string, middleware iris2.Middleware) error {
+func (e *muxEntry) add(path string, middleware Middleware) error {
 	fullPath := path
 	e.precedence++
 	numParams := getParamsLen(path)
@@ -231,7 +223,7 @@ func (e *muxEntry) add(path string, middleware iris2.Middleware) error {
 }
 
 // addNode adds a muxEntry as children to other muxEntry
-func (e *muxEntry) addNode(numParams uint8, path string, fullPath string, middleware iris2.Middleware) error {
+func (e *muxEntry) addNode(numParams uint8, path string, fullPath string, middleware Middleware) error {
 	var offset int
 
 	for i, max := 0, len(path); numParams > 0; i++ {
@@ -333,7 +325,7 @@ func (e *muxEntry) addNode(numParams uint8, path string, fullPath string, middle
 }
 
 // get is used by the Router, it finds and returns the correct muxEntry for a path
-func (e *muxEntry) get(path string, ctx *iris2.Context) (mustRedirect bool) {
+func (e *muxEntry) get(path string, ctx *Context) (mustRedirect bool) {
 loop:
 	for {
 		if len(path) > len(e.part) {
@@ -496,25 +488,25 @@ func formatPath(path string) string {
 	return path
 }
 
-// New returns a new iris' policy to create and attach the router.
+// NewRouter returns a new iris' policy to create and attach the router.
 // It's based on the julienschmidt/httprouter  with more features and some iris-relative performance tips:
 // subdomains(wildcard/dynamic and static) and faster parameters set (use of the already-created context's values)
 // and support for reverse routing.
-func New() iris2.Policies {
-	var logger func(iris2.LogMode, string)
+func newRouter() Policies {
+	var logger func(LogMode, string)
 	mux := &serveMux{
 		methodEqual: func(reqMethod string, treeMethod string) bool {
 			return reqMethod == treeMethod
 		},
 	}
 	matchEverythingString := string(matchEverythingByte)
-	return iris2.Policies{
-		EventPolicy: iris2.EventPolicy{
-			Boot: func(s *iris2.Framework) {
+	return Policies{
+		EventPolicy: EventPolicy{
+			Boot: func(s *Framework) {
 				logger = s.Log
 			},
 		},
-		RouterReversionPolicy: iris2.RouterReversionPolicy{
+		RouterReversionPolicy: RouterReversionPolicy{
 			// path normalization done on iris' side
 			StaticPath: func(path string) string {
 
@@ -542,8 +534,8 @@ func New() iris2.Policies {
 			// return "/kataras/messages/42"
 			//
 			// This policy is used for reverse routing,
-			// see iris2.Path/URL and ~/adaptors/view/ {{ url }} {{ urlpath }}
-			URLPath: func(r iris2.RouteInfo, args ...string) string {
+			// see Path/URL and ~/adaptors/view/ {{ url }} {{ urlpath }}
+			URLPath: func(r RouteInfo, args ...string) string {
 				rpath := r.Path()
 				formattedPath := formatPath(rpath)
 
@@ -564,11 +556,11 @@ func New() iris2.Policies {
 
 			},
 		},
-		RouterBuilderPolicy: func(repo iris2.RouteRepository, context iris2.ContextPool) http.Handler {
+		RouterBuilderPolicy: func(repo RouteRepository, context ContextPool) http.Handler {
 			fatalErr := false
 			mux.garden = mux.garden[0:0] // re-set the nodes
 			mux.hosts = false
-			repo.Visit(func(r iris2.RouteInfo) {
+			repo.Visit(func(r RouteInfo) {
 				if fatalErr {
 					return
 				}
@@ -589,7 +581,7 @@ func New() iris2.Policies {
 					// while ProdMode means that the iris should not continue running
 					// by-default it panics on these errors, but to make sure let's introduce the fatalErr to stop visiting
 					fatalErr = true
-					logger(iris2.ProdMode, err.Error())
+					logger(ProdMode, err.Error())
 					return
 				}
 
@@ -601,7 +593,7 @@ func New() iris2.Policies {
 				if r.HasCors() {
 					mux.methodEqual = func(reqMethod string, treeMethod string) bool {
 						// preflights
-						return reqMethod == iris2.MethodOptions || reqMethod == treeMethod
+						return reqMethod == MethodOptions || reqMethod == treeMethod
 					}
 				}
 
@@ -628,9 +620,9 @@ func (mux *serveMux) getTree(method string, subdomain string) *muxTree {
 	return nil
 }
 
-func (mux *serveMux) buildHandler(pool iris2.ContextPool) http.Handler {
+func (mux *serveMux) buildHandler(pool ContextPool) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		pool.Run(w, r, func(context *iris2.Context) {
+		pool.Run(w, r, func(context *Context) {
 			routePath := context.Path()
 			for i := range mux.garden {
 				tree := mux.garden[i]
@@ -645,7 +637,7 @@ func (mux *serveMux) buildHandler(pool iris2.ContextPool) http.Handler {
 					// println("mux are true and tree.subdomain= " + tree.subdomain + "and hostname = " + hostname + " host = " + requestHost)
 					if requestHost != hostname {
 						// we have a subdomain
-						if strings.Contains(tree.subdomain, iris2.DynamicSubdomainIndicator) {
+						if strings.Contains(tree.subdomain, DynamicSubdomainIndicator) {
 						} else {
 							if tree.subdomain+hostname != requestHost {
 								// go to the next tree, we have a subdomain but it is not the correct
@@ -678,18 +670,18 @@ func (mux *serveMux) buildHandler(pool iris2.ContextPool) http.Handler {
 
 						urlToRedirect := reqPath
 
-						statusForRedirect := iris2.StatusMovedPermanently //	StatusMovedPermanently, this document is obselte, clients caches this.
-						if tree.method == iris2.MethodPost ||
-							tree.method == iris2.MethodPut ||
-							tree.method == iris2.MethodDelete {
-							statusForRedirect = iris2.StatusTemporaryRedirect //	To maintain POST data
+						statusForRedirect := StatusMovedPermanently //	StatusMovedPermanently, this document is obselte, clients caches this.
+						if tree.method == MethodPost ||
+							tree.method == MethodPut ||
+							tree.method == MethodDelete {
+							statusForRedirect = StatusTemporaryRedirect //	To maintain POST data
 						}
 
 						context.Redirect(urlToRedirect, statusForRedirect)
 						// RFC2616 recommends that a short note "SHOULD" be included in the
 						// response because older user agents may not understand 301/307.
 						// Shouldn't send the response for POST or HEAD; that leaves GET.
-						if tree.method == iris2.MethodGet {
+						if tree.method == MethodGet {
 							note := "<a href=\"" + HTMLEscape(urlToRedirect) + "\">Moved Permanently</a>.\n"
 							// ignore error
 							context.WriteString(note)
@@ -708,10 +700,10 @@ func (mux *serveMux) buildHandler(pool iris2.ContextPool) http.Handler {
 						continue
 					}
 				}
-				context.EmitError(iris2.StatusMethodNotAllowed)
+				context.EmitError(StatusMethodNotAllowed)
 				return
 			}
-			context.EmitError(iris2.StatusNotFound)
+			context.EmitError(StatusNotFound)
 		})
 	})
 
@@ -731,4 +723,26 @@ var htmlReplacer = strings.NewReplacer(
 // HTMLEscape returns a string which has no valid html code
 func HTMLEscape(s string) string {
 	return htmlReplacer.Replace(s)
+}
+
+func joinPathArguments(args ...interface{}) []interface{} {
+	arguments := args[0:]
+	for i, v := range arguments {
+		if arr, ok := v.([]string); ok {
+			if len(arr) > 0 {
+				interfaceArr := make([]interface{}, len(arr))
+				for j, sv := range arr {
+					interfaceArr[j] = sv
+				}
+				// replace the current slice
+				// with the first string element (always as interface{})
+				arguments[i] = interfaceArr[0]
+				// append the rest of them to the slice itself
+				// the range is not affected by these things in go,
+				// so we are safe to do it.
+				arguments = append(args, interfaceArr[1:]...)
+			}
+		}
+	}
+	return arguments
 }

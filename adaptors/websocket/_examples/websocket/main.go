@@ -4,7 +4,6 @@ import (
 	"fmt" // optional
 
 	"github.com/go-iris2/iris2"
-	"github.com/go-iris2/iris2/adaptors/httprouter"
 	"github.com/go-iris2/iris2/adaptors/view"
 	"github.com/go-iris2/iris2/adaptors/websocket"
 )
@@ -17,7 +16,6 @@ type clientPage struct {
 func main() {
 	app := iris2.New()
 	app.Adapt(iris2.DevLogger())                 // enable all (error) logs
-	app.Adapt(httprouter.New())                  // select the httprouter as the servemux
 	app.Adapt(view.HTML("./templates", ".html")) // select the html engine to serve templates
 
 	ws := websocket.New(websocket.Config{

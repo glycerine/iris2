@@ -1,21 +1,13 @@
-package httprouter_test
+package iris2_test
 
 import (
-	"math/rand"
 	"strconv"
 	"testing"
-	"time"
 
 	"github.com/go-iris2/iris2"
-	"github.com/go-iris2/iris2/adaptors/httprouter"
 	"github.com/go-iris2/iris2/httptest"
 	"github.com/iris-contrib/httpexpect"
 )
-
-func getRandomNumber(min int, max int) int {
-	rand.Seed(time.Now().Unix())
-	return rand.Intn(max-min) + min
-}
 
 const (
 	testEnableSubdomain = true
@@ -58,7 +50,6 @@ type testRoute struct {
 
 func newApp() *iris2.Framework {
 	app := iris2.New()
-	app.Adapt(httprouter.New())
 
 	return app
 }
@@ -287,7 +278,6 @@ func TestMuxCustomErrors(t *testing.T) {
 
 func TestRouteURLPath(t *testing.T) {
 	app := iris2.New()
-	app.Adapt(httprouter.New())
 
 	app.None("/profile/:user_id/:ref/*anything", nil).ChangeName("profile")
 	app.Boot()
@@ -295,6 +285,6 @@ func TestRouteURLPath(t *testing.T) {
 	expected := "/profile/42/iris-go/something"
 
 	if got := app.Path("profile", 42, "iris-go", "something"); got != expected {
-		t.Fatalf("httprouter's reverse routing 'URLPath' error:  expected %s but got %s", expected, got)
+		t.Fatalf("iris2's reverse routing 'URLPath' error:  expected %s but got %s", expected, got)
 	}
 }

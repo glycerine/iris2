@@ -1539,14 +1539,11 @@ Edit your main .go source file to adapt one of these and restart your app.
 	-------------------------------------------------------------------
 	import (
 		"github.com/go-iris2/iris2"
-		"github.com/go-iris2/iris2/adaptors/httprouter" // or gorillamux
 		"github.com/go-iris2/iris2/adaptors/sessions" // <--- this line
 	)
 
 	func main(){
 		app := iris2.New()
-		// right below the iris2.New()
-		app.Adapt(httprouter.New()) // or gorillamux.New()
 
 		mySessions := sessions.New(sessions.Config{
 			// Cookie string, the session's client cookie name, for example: "mysessionid"

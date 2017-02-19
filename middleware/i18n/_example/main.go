@@ -2,13 +2,11 @@ package main
 
 import (
 	"github.com/go-iris2/iris2"
-	"github.com/go-iris2/iris2/adaptors/httprouter"
 	"github.com/go-iris2/iris2/middleware/i18n"
 )
 
 func main() {
 	app := iris2.New()
-	app.Adapt(httprouter.New()) // adapt a router first of all
 
 	app.Use(i18n.New(i18n.Config{
 		Default:      "en-US",

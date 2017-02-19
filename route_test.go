@@ -5,14 +5,13 @@ import (
 	"testing"
 
 	"github.com/go-iris2/iris2"
-	"github.com/go-iris2/iris2/adaptors/gorillamux"
-	"github.com/go-iris2/iris2/adaptors/httprouter"
 	"github.com/go-iris2/iris2/httptest"
 )
 
-func testRouteStateSimple(t *testing.T, router iris2.Policy, offlineRoutePath string) {
+func TestRouteStateSimple(t *testing.T) {
+	offlineRoutePath := "/api/user/:userid"
+
 	app := iris2.New()
-	app.Adapt(router)
 
 	offlineRouteRequestedTestPath := "/api/user/42"
 	offlineBody := "user with id: 42"
@@ -91,11 +90,4 @@ func testRouteStateSimple(t *testing.T, router iris2.Policy, offlineRoutePath st
 	e.GET(offlineRouteRequestedTestPath).Expect().Status(iris2.StatusNotFound)
 	e.GET("/execute_modified").Expect().Status(iris2.StatusUseProxy).Body().
 		Equal(offlineBody + "modified from status code: 200-original_middleware_here")
-}
-
-func TestRouteStateSimple(t *testing.T) {
-	// httprouter adaptor
-	testRouteStateSimple(t, httprouter.New(), "/api/user/:userid")
-	// gorillamux adaptor
-	testRouteStateSimple(t, gorillamux.New(), "/api/user/{userid}")
 }

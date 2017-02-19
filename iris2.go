@@ -23,6 +23,7 @@ import (
 	"sync"
 	"time"
 
+	"fmt"
 	"github.com/geekypanda/httpcache"
 	"github.com/go-iris2/iris2/errors"
 	"github.com/go-iris2/iris2/serializer"
@@ -156,33 +157,31 @@ func New(setters ...OptionSetter) *Framework {
 	//  | or use the default one                                     |
 	//  +------------------------------------------------------------+
 	s.Set(setters...)
-	{
-		//  +------------------------------------------------------------+
-		//  | Module Name: Logger                                        |
-		//  | On Init: If user didn't adapt a custom loggger then attach |
-		//  |           a new logger using log.Logger as printer with    |
-		//  |          some default options                              |
-		//  +------------------------------------------------------------+
 
-		// The logger policy is never nil and it doesn't defaults to an empty func,
-		// instead it defaults to a logger with os.Stdout as the print target which prints
-		// ONLY prodction level messages.
-		// While in ProdMode Iris logs only panics and fatal errors.
-		// You can override the default log policy with app.Adapt(iris2.DevLogger())
-		//                            or app.Adapt(iris2.LoggerPolicy(customLogger))
-		// to log both ProdMode and DevMode messages.
-		//
-		// Note:
-		// The decision to not log everything and use middleware for http requests instead of built'n
-		// is because I'm using Iris on production so I don't want many logs to my screens
-		// while server is running.
-		s.Adapt(LoggerPolicy(func(mode LogMode, logMessage string) {
-			if mode == ProdMode {
-				defaultGlobalLoggerOuput.Println(logMessage)
-			}
-		}))
+	//  +------------------------------------------------------------+
+	//  | Module Name: Logger                                        |
+	//  | On Init: If user didn't adapt a custom loggger then attach |
+	//  |           a new logger using log.Logger as printer with    |
+	//  |          some default options                              |
+	//  +------------------------------------------------------------+
 
-	}
+	// The logger policy is never nil and it doesn't defaults to an empty func,
+	// instead it defaults to a logger with os.Stdout as the print target which prints
+	// ONLY prodction level messages.
+	// While in ProdMode Iris logs only panics and fatal errors.
+	// You can override the default log policy with app.Adapt(iris2.DevLogger())
+	//                            or app.Adapt(iris2.LoggerPolicy(customLogger))
+	// to log both ProdMode and DevMode messages.
+	//
+	// Note:
+	// The decision to not log everything and use middleware for http requests instead of built'n
+	// is because I'm using Iris on production so I don't want many logs to my screens
+	// while server is running.
+	s.Adapt(LoggerPolicy(func(mode LogMode, logMessage string) {
+		if mode == ProdMode {
+			defaultGlobalLoggerOuput.Println(logMessage)
+		}
+	}))
 
 	//  +------------------------------------------------------------+
 	//  |                                                            |
@@ -215,166 +214,146 @@ func New(setters ...OptionSetter) *Framework {
 
 	}})
 
-	{
-		//  +------------------------------------------------------------+
-		//  | Module Name: Renderer                                      |
-		//  | On Init: set templates and serializers                     |
-		//  | and adapt the RenderPolicy for both                        |
-		//  | templates and content-type specific renderer (serializer)  |
-		//  | On Build: build the serializers and templates              |
-		//  | based on the user's calls                                  |
-		//  +------------------------------------------------------------+
+	//  +------------------------------------------------------------+
+	//  | Module Name: Renderer                                      |
+	//  | On Init: set templates and serializers                     |
+	//  | and adapt the RenderPolicy for both                        |
+	//  | templates and content-type specific renderer (serializer)  |
+	//  | On Build: build the serializers and templates              |
+	//  | based on the user's calls                                  |
+	//  +------------------------------------------------------------+
 
-		{
-			//  +------------------------------------------------------------+
-			//  | Module Name: Rich Content-Type Renderer                    |
-			//  | On Init: Attach a new empty content-type serializers.      |
-			//  | Adapt one RenderPolicy which is responsible                |
-			//  | for json,jsonp,xml and markdown rendering                  |
-			//  +------------------------------------------------------------+
+	//  +------------------------------------------------------------+
+	//  | Module Name: Rich Content-Type Renderer                    |
+	//  | On Init: Attach a new empty content-type serializers.      |
+	//  | Adapt one RenderPolicy which is responsible                |
+	//  | for json,jsonp,xml and markdown rendering                  |
+	//  +------------------------------------------------------------+
 
-			// prepare the serializers,
-			// serializer content-types(json,jsonp,xml,markdown) the defaults are setted:
-			serializers := serializer.Serializers{}
-			serializer.RegisterDefaults(serializers)
+	// prepare the serializers,
+	// serializer content-types(json,jsonp,xml,markdown) the defaults are setted:
+	serializers := serializer.Serializers{}
+	serializer.RegisterDefaults(serializers)
 
-			//
-			// notes for me: Why not at the build state? in order to be overridable and not only them,
-			// these are easy to be overridden by external adaptors too, no matter the order,
-			// this is why the RenderPolicy last registration executing first and the first last.
-			//
+	//
+	// notes for me: Why not at the build state? in order to be overridable and not only them,
+	// these are easy to be overridden by external adaptors too, no matter the order,
+	// this is why the RenderPolicy last registration executing first and the first last.
+	//
 
-			// Adapt the RenderPolicy on the Build in order to be the last
-			// render policy, so the users can adapt their own before the default(= to override json,xml,jsonp renderer).
-			//
-			// Notes: the Renderer of the view system is managed by the
-			// adaptors because they are optional.
-			// If templates are binded to the RenderPolicy then
-			// If a key contains a dot('.') then is a template file
-			// otherwise try to find a serializer, if contains error then we return false and the error
-			// in order the renderer to continue to search for any other custom registerer RenderPolicy
-			// if no error then check if it has written anything, if yes write the content
-			// to the writer(which is the context.ResponseWriter or the gzip version of it)
-			// if no error but nothing written then we return false and the error
-			s.Adapt(RenderPolicy(func(out io.Writer, name string, bind interface{}, options ...map[string]interface{}) (error, bool) {
-				b, err := serializers.Serialize(name, bind, options...)
-				if err != nil {
-					return err, false // errors should be wrapped
-				}
-				if len(b) > 0 {
-					_, err = out.Write(b)
-					return err, true
-				}
-				// continue to the next if any or notice there is no available renderer for that name
-				return nil, false
-			}))
+	// Adapt the RenderPolicy on the Build in order to be the last
+	// render policy, so the users can adapt their own before the default(= to override json,xml,jsonp renderer).
+	//
+	// Notes: the Renderer of the view system is managed by the
+	// adaptors because they are optional.
+	// If templates are binded to the RenderPolicy then
+	// If a key contains a dot('.') then is a template file
+	// otherwise try to find a serializer, if contains error then we return false and the error
+	// in order the renderer to continue to search for any other custom registerer RenderPolicy
+	// if no error then check if it has written anything, if yes write the content
+	// to the writer(which is the context.ResponseWriter or the gzip version of it)
+	// if no error but nothing written then we return false and the error
+	s.Adapt(RenderPolicy(func(out io.Writer, name string, bind interface{}, options ...map[string]interface{}) (error, bool) {
+		b, err := serializers.Serialize(name, bind, options...)
+		if err != nil {
+			return err, false // errors should be wrapped
 		}
-		{
-			//  +------------------------------------------------------------+
-			//  | Module Name: Template engine's funcs                       |
-			//  | On Init: Adapt the reverse routing tmpl funcs              |
-			//  |          for any template engine that will be registered   |
-			//  +------------------------------------------------------------+
-			s.Adapt(TemplateFuncsPolicy{
-				"url":     s.URL,
-				"urlpath": s.policies.RouterReversionPolicy.URLPath,
-			}) // the entire template registration logic lives inside the ./adaptors/view now.
-
+		if len(b) > 0 {
+			_, err = out.Write(b)
+			return err, true
 		}
+		// continue to the next if any or notice there is no available renderer for that name
+		return nil, false
+	}))
 
+	//  +------------------------------------------------------------+
+	//  | Module Name: Template engine's funcs                       |
+	//  | On Init: Adapt the reverse routing tmpl funcs              |
+	//  |          for any template engine that will be registered   |
+	//  +------------------------------------------------------------+
+	s.Adapt(TemplateFuncsPolicy{
+		"url":     s.URL,
+		"urlpath": s.policies.RouterReversionPolicy.URLPath,
+	}) // the entire template registration logic lives inside the ./adaptors/view now.
+
+	//  +------------------------------------------------------------+
+	//  | Module Name: Router                                        |
+	//  | On Init: Attach a new router, pass a new repository,       |
+	//  |    an empty error handlers list, the context pool binded   |
+	//  |    to the Framework and the root path "/"                  |
+	//  | On Build: Use the policies to build the router's handler   |
+	//  |            based on its route repository                   |
+	//  +------------------------------------------------------------+
+
+	s.Router = &Router{
+		repository: new(routeRepository),
+		Errors: &ErrorHandlers{
+			handlers: make(map[int]Handler, 0),
+		},
+		Context: &contextPool{
+			sync.Pool{New: func() interface{} { return &Context{framework: s} }},
+		},
+		relativePath: "/",
 	}
 
-	{
-		//  +------------------------------------------------------------+
-		//  | Module Name: Router                                        |
-		//  | On Init: Attach a new router, pass a new repository,       |
-		//  |    an empty error handlers list, the context pool binded   |
-		//  |    to the Framework and the root path "/"                  |
-		//  | On Build: Use the policies to build the router's handler   |
-		//  |            based on its route repository                   |
-		//  +------------------------------------------------------------+
+	s.Adapt(EventPolicy{Build: func(*Framework) {
+		// Author's notes:
+		// Proxy for example has 0 routes registered but still uses the RouterBuilderPolicy
+		// so we can't check only for it, we can check if it's nil and it has more than one registered
+		// routes, then panic, if has no registered routes the user don't want to get errors about the router.
 
-		s.Router = &Router{
-			repository: new(routeRepository),
-			Errors: &ErrorHandlers{
-				handlers: make(map[int]Handler, 0),
-			},
-			Context: &contextPool{
-				sync.Pool{New: func() interface{} { return &Context{framework: s} }},
-			},
-			relativePath: "/",
-		}
+		// first check if it's not setted already by any Boot event.
+		if s.Router.handler == nil {
+			hasRoutes := s.Router.repository.Len() > 0
+			routerBuilder := s.policies.RouterBuilderPolicy
 
-		s.Adapt(EventPolicy{Build: func(*Framework) {
-			// Author's notes:
-			// Proxy for example has 0 routes registered but still uses the RouterBuilderPolicy
-			// so we can't check only for it, we can check if it's nil and it has more than one registered
-			// routes, then panic, if has no registered routes the user don't want to get errors about the router.
-
-			// first check if it's not setted already by any Boot event.
-			if s.Router.handler == nil {
-				hasRoutes := s.Router.repository.Len() > 0
-				routerBuilder := s.policies.RouterBuilderPolicy
-				// and most importantly, check if the user has provided a router adaptor
-				//                    at the same time has registered at least one route,
-				// if not then it should panic here, iris can't run without a router attached to it
-				// and default router not any more, user should select one from ./adaptors or
-				// any other third-party adaptor may done by community.
-				// I was coding the new iris version for more than 20 days(~200+ hours of code)
-				// and I hope that once per application the addition of +1 line users have to put,
-				// is not a big deal.
-				if hasRoutes {
-					if routerBuilder == nil {
-						// this is important panic and app can't continue as we said.
-						s.handlePanic(errRouterIsMissing.Format(s.Config.VHost))
-						// don't trace anything else,
-						// the detailed errRouterIsMissing message will tell the user what to do to fix that.
-						os.Exit(0)
-					}
-				}
-
-				if routerBuilder != nil {
-					// buid the router using user's selection build policy
-					s.Router.build(routerBuilder)
-
-					s.Router.repository.OnMethodChanged(func(route RouteInfo, oldMethod string) {
-						// set service not available temporarily until the router completes the building
-						// this won't take more than 100ms, but we want to inform the user.
-						s.Router.handler = ToNativeHandler(s, HandlerFunc(func(ctx *Context) {
-							ctx.EmitError(StatusServiceUnavailable)
-						}))
-						// Re-build the whole router if state changed (from offline to online state mostly)
-						s.Router.build(routerBuilder)
-					})
-				}
+			if hasRoutes && routerBuilder == nil {
+				s.handlePanic(fmt.Errorf("We have routes and no router-builder"))
+				os.Exit(1)
 			}
-		}})
 
-	}
+			if routerBuilder != nil {
+				// buid the router using user's selection build policy
+				s.Router.build(routerBuilder)
+
+				s.Router.repository.OnMethodChanged(func(route RouteInfo, oldMethod string) {
+					// set service not available temporarily until the router completes the building
+					// this won't take more than 100ms, but we want to inform the user.
+					s.Router.handler = ToNativeHandler(s, HandlerFunc(func(ctx *Context) {
+						ctx.EmitError(StatusServiceUnavailable)
+					}))
+					// Re-build the whole router if state changed (from offline to online state mostly)
+					s.Router.build(routerBuilder)
+				})
+			}
+		}
+	}})
+
+	s.Adapt(newRouter())
 
 	return s
 }
 
 // Set sets an option, configuration field to its Config
-func (s *Framework) Set(setters ...OptionSetter) {
+func (f *Framework) Set(setters ...OptionSetter) {
 	for _, setter := range setters {
-		setter.Set(s.Config)
+		setter.Set(f.Config)
 	}
 }
 
 // Log logs to the defined logger policy.
 //
 // The default outputs to the os.Stdout when EnvMode is 'ProductionEnv'
-func (s *Framework) Log(mode LogMode, log string) {
-	s.policies.LoggerPolicy(mode, log)
+func (f *Framework) Log(mode LogMode, log string) {
+	f.policies.LoggerPolicy(mode, log)
 }
 
 // Must checks if the error is not nil, if it isn't
 // panics on registered iris' logger or
 // to a recovery event handler, otherwise does nothing.
-func (s *Framework) Must(err error) {
+func (f *Framework) Must(err error) {
 	if err != nil {
-		s.handlePanic(err)
+		f.handlePanic(err)
 	}
 }
 
@@ -625,9 +604,9 @@ func (s *Framework) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 //
 // With a Policy you can change the behavior of almost each of the existing Iris' features.
 // See policy.go for more.
-func (s *Framework) Adapt(policies ...Policy) {
+func (f *Framework) Adapt(policies ...Policy) {
 	for i := range policies {
-		policies[i].Adapt(&s.policies)
+		policies[i].Adapt(&f.policies)
 	}
 }
 
@@ -670,8 +649,7 @@ func (s *Framework) Cache(bodyHandler HandlerFunc, expiration time.Duration) Han
 // Used for reverse routing, depends on router adaptor.
 //
 // Examples:
-// https://github.com/kataras/iris/tree/v6/adaptors/view/_examples/template_html_3 (gorillamux)
-// https://github.com/kataras/iris/tree/v6/adaptors/view/_examples/template_html_4 (httprouter)
+// https://github.com/go-iris2/iris2/tree/master/adaptors/view/_examples/template_html_4
 func (s *Framework) Path(routeName string, args ...interface{}) string {
 	r := s.Router.Routes().Lookup(routeName)
 	if r == nil {
@@ -714,8 +692,7 @@ func (s *Framework) Path(routeName string, args ...interface{}) string {
 // Used for reverse routing, depends on router adaptor.
 //
 // Examples:
-// https://github.com/kataras/iris/tree/v6/adaptors/view/_examples/template_html_3 (gorillamux)
-// https://github.com/kataras/iris/tree/v6/adaptors/view/_examples/template_html_4 (httprouter)
+// https://github.com/go-iris2/iris2/tree/master/adaptors/view/_examples/template_html_4
 func (s *Framework) URL(routeName string, args ...interface{}) (url string) {
 	r := s.Router.Routes().Lookup(routeName)
 	if r == nil {
@@ -795,14 +772,11 @@ Edit your main .go source file to adapt one of these and restart your app.
 	-------------------------------------------------------------------
 	import (
 		"github.com/go-iris2/iris2"
-		"github.com/go-iris2/iris2/adaptors/httprouter" // or gorillamux
 		"github.com/go-iris2/iris2/adaptors/view" // <--- this line
 	)
 
 	func main(){
 		app := iris2.New()
-		// right below the iris2.New():
-		app.Adapt(httprouter.New()) // or gorillamux.New()
 
 		app.Adapt(view.HTML("./templates", ".html")) // <--- and this line were missing.
 

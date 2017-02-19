@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/go-iris2/iris2"
-	"github.com/go-iris2/iris2/adaptors/httprouter"
 	"github.com/go-iris2/iris2/adaptors/websocket"
 
 	xwebsocket "golang.org/x/net/websocket"
@@ -137,7 +136,6 @@ func OnConnect(c websocket.Connection) {
 func ServerLoop() {
 	app := iris2.New()
 	app.Adapt(iris2.DevLogger()) // enable all (error) logs
-	app.Adapt(httprouter.New())  // select the httprouter as the servemux
 
 	ws := websocket.New(websocket.Config{Endpoint: "/socket"})
 	app.Adapt(ws)

@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/go-iris2/iris2"
-	"github.com/go-iris2/iris2/adaptors/httprouter"
 	"github.com/go-iris2/iris2/adaptors/typescript" // optinally
 	"github.com/go-iris2/iris2/adaptors/typescript/editor"
 )
@@ -10,7 +9,6 @@ import (
 func main() {
 	app := iris2.New()
 	app.Adapt(iris2.DevLogger())
-	app.Adapt(httprouter.New()) // adapt a router, order doesn't matters
 
 	// optionally but good to have, I didn't put inside editor or the editor in the typescript compiler adaptors
 	// because you may use tools like gulp and you may use the editor without the typescript compiler adaptor.

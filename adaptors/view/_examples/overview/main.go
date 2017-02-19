@@ -4,7 +4,6 @@ import (
 	"encoding/xml"
 
 	"github.com/go-iris2/iris2"
-	"github.com/go-iris2/iris2/adaptors/gorillamux"
 	"github.com/go-iris2/iris2/adaptors/view"
 )
 
@@ -18,7 +17,6 @@ type ExampleXML struct {
 func main() {
 	app := iris2.New()
 	app.Adapt(iris2.DevLogger())
-	app.Adapt(gorillamux.New())
 
 	app.Get("/data", func(ctx *iris2.Context) {
 		ctx.Data(iris2.StatusOK, []byte("Some binary data here."))

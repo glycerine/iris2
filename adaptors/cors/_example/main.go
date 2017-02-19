@@ -3,14 +3,12 @@ package main
 import (
 	"github.com/go-iris2/iris2"
 	"github.com/go-iris2/iris2/adaptors/cors"
-	"github.com/go-iris2/iris2/adaptors/httprouter"
 )
 
 func main() {
 
 	app := iris2.New()
 	app.Adapt(iris2.DevLogger())
-	app.Adapt(httprouter.New())
 
 	crs := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},

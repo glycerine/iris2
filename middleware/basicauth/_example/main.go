@@ -4,13 +4,11 @@ import (
 	"time"
 
 	"github.com/go-iris2/iris2"
-	"github.com/go-iris2/iris2/adaptors/httprouter"
 	"github.com/go-iris2/iris2/middleware/basicauth"
 )
 
 func main() {
 	app := iris2.New()
-	app.Adapt(httprouter.New()) // adapt a router first of all
 
 	authConfig := basicauth.Config{
 		Users:      map[string]string{"myusername": "mypassword", "mySecondusername": "mySecondpassword"},

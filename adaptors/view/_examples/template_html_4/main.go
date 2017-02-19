@@ -3,26 +3,24 @@ package main
 
 import (
 	"github.com/go-iris2/iris2"
-	"github.com/go-iris2/iris2/adaptors/gorillamux"
 	"github.com/go-iris2/iris2/adaptors/view"
 )
 
 func main() {
 	app := iris2.New()
 	app.Adapt(iris2.DevLogger())
-	app.Adapt(gorillamux.New())
 
 	app.Adapt(view.HTML("./templates", ".html"))
 
 	app.Get("/mypath", emptyHandler).ChangeName("my-page1")
-	app.Get("/mypath2/{param1}/{param2}", emptyHandler).ChangeName("my-page2")
-	app.Get("/mypath3/{param1}/statichere/{param2}", emptyHandler).ChangeName("my-page3")
-	app.Get("/mypath4/{param1}/statichere/{param2}/{otherparam}/{something:.*}", emptyHandler).ChangeName("my-page4")
+	app.Get("/mypath2/:param1/:param2", emptyHandler).ChangeName("my-page2")
+	app.Get("/mypath3/:param1/statichere/:param2", emptyHandler).ChangeName("my-page3")
+	app.Get("/mypath4/:param1/statichere/:param2/:otherparam/:something", emptyHandler).ChangeName("my-page4")
 
 	// same with Handle/Func
-	app.HandleFunc("GET", "/mypath5/{param1}/statichere/{param2}/{otherparam}/anything/{something:.*}", emptyHandler).ChangeName("my-page5")
+	app.HandleFunc("GET", "/mypath5/:param1/statichere/:param2/:otherparam/anything/:something", emptyHandler).ChangeName("my-page5")
 
-	app.Get("/mypath6/{param1}/{param2}/staticParam/{param3AfterStatic}", emptyHandler).ChangeName("my-page6")
+	app.Get("/mypath6/:param1/:param2/staticParam/:param3AfterStatic", emptyHandler).ChangeName("my-page6")
 
 	app.Get("/", func(ctx *iris2.Context) {
 		// for /mypath6...
@@ -35,7 +33,7 @@ func main() {
 		}
 	})
 
-	app.Get("/redirect/{namedRoute}", func(ctx *iris2.Context) {
+	app.Get("/redirect/:namedRoute", func(ctx *iris2.Context) {
 		routeName := ctx.Param("namedRoute")
 
 		println("The full uri of " + routeName + "is: " + app.URL(routeName))

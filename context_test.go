@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/go-iris2/iris2"
-	"github.com/go-iris2/iris2/adaptors/httprouter"
 	"github.com/go-iris2/iris2/httptest"
 )
 
@@ -101,7 +100,6 @@ func TestContextParams(t *testing.T) {
 	// end-to-end test now, note that we will not test the whole mux here, this happens on http_test.go
 
 	app := iris2.New()
-	app.Adapt(httprouter.New())
 	expectedParamsStr := "param1=myparam1,param2=myparam2,param3=myparam3afterstatic,anything=/andhere/anything/you/like"
 	app.Get("/path/:param1/:param2/staticpath/:param3/*anything", func(ctx *iris2.Context) {
 		paramsStr := ctx.ParamsSentence()
@@ -165,7 +163,6 @@ func TestContextVirtualHostName(t *testing.T) {
 
 func TestContextFormValueString(t *testing.T) {
 	app := iris2.New()
-	app.Adapt(httprouter.New())
 	var k, v string
 	k = "postkey"
 	v = "postvalue"
@@ -179,7 +176,6 @@ func TestContextFormValueString(t *testing.T) {
 
 func TestContextSubdomain(t *testing.T) {
 	app := iris2.New(iris2.Configuration{VHost: "mydomain.com:9999"})
-	app.Adapt(httprouter.New())
 
 	//Default.Config.Tester.ListeningAddr = "mydomain.com:9999"
 	// Default.Config.Tester.ExplicitURL = true

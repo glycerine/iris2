@@ -2,13 +2,11 @@ package main
 
 import (
 	"github.com/go-iris2/iris2"
-	"github.com/go-iris2/iris2/adaptors/httprouter"
 	"github.com/go-iris2/iris2/middleware/recover"
 )
 
 func main() {
 	app := iris2.New()
-	app.Adapt(httprouter.New())
 
 	app.Adapt(iris2.DevLogger()) // fast way to enable non-fatal messages to be printed to the user
 	// (yes in iris even recover's errors are not fatal because it's restarting,

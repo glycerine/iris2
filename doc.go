@@ -36,56 +36,6 @@ Basic HTTP API
 Iris is a very pluggable ecosystem,
 router can be customized by adapting a 'RouterBuilderPolicy && RouterReversionPolicy'.
 
-With the power of Iris' router adaptors, developers are able to use any
-third-party router's path features without any implications to the rest
-of their API.
-
-A Developer is able to select between two out-of-the-box powerful routers:
-
-Httprouter, it's a custom version of https://github.comjulienschmidt/httprouter,
-which is edited to support iris' subdomains, reverse routing, custom http errors and a lot features,
-it should be a bit faster than the original too because of iris' Context.
-It uses `/mypath/:firstParameter/path/:secondParameter` and `/mypath/*wildcardParamName` .
-
-Gorilla Mux, it's the https://github.com/gorilla/mux which supports subdomains,
-custom http errors, reverse routing, pattern matching via regex and the rest of the iris' features.
-It uses `/mypath/{firstParameter:any-regex-valid-here}/path/{secondParameter}` and `/mypath/{wildcardParamName:.*}`
-
-
-Example code:
-
-
-      package main
-
-      import (
-      	"github.com/go-iris2/iris2"
-      	"github.com/go-iris2/iris2/adaptors/httprouter" // <--- or adaptors/gorillamux
-      )
-
-      func main() {
-      	app := iris2.New()
-      	app.Adapt(httprouter.New()) // <--- or gorillamux.New()
-
-      	// HTTP Method: GET
-      	// PATH: http://127.0.0.1/
-      	// Handler(s): index
-      	app.Get("/", index)
-
-      	app.Listen(":80")
-      }
-
-      func index(ctx *iris2.Context) {
-      	ctx.HTML(iris2.StatusOK, "<h1> Welcome to my page!</h1>")
-      }
-
-
-Run
-
-  $ go run main.go
-
-  $ iris run main.go ## enables reload on source code changes.
-
-
 All HTTP methods are supported, users can register handlers for same paths on different methods.
 The first parameter is the HTTP Method,
 second parameter is the request path of the route,
@@ -160,84 +110,15 @@ Parameterized Path
 Path Parameters' syntax depends on the selected router.
 This is the only difference between the routers, the registered path form, the API remains the same for both.
 
-Example `gorillamux` code:
-
-
-      package main
-
-      import (
-      	"github.com/go-iris2/iris2"
-      	"github.com/go-iris2/iris2/adaptors/gorillamux"
-      )
-
-      func main() {
-      	app := iris2.New()
-      	app.Adapt(iris2.DevLogger())
-      	app.Adapt(gorillamux.New())
-
-      	app.OnError(iris2.StatusNotFound, func(ctx *iris2.Context) {
-      		ctx.HTML(iris2.StatusNotFound, "<h1> custom http error page </h1>")
-      	})
-
-      	app.Get("/healthcheck", h)
-
-      	gamesMiddleware := func(ctx *iris2.Context) {
-      		println(ctx.Method() + ": " + ctx.Path())
-      		ctx.Next()
-      	}
-
-      	games := app.Party("/games", gamesMiddleware)
-      	{ // braces are optional of course, it's just a style of code
-      		games.Get("/{gameID:[0-9]+}/clans", h)
-      		games.Get("/{gameID:[0-9]+}/clans/clan/{publicID:[0-9]+}", h)
-      		games.Get("/{gameID:[0-9]+}/clans/search", h)
-
-      		games.Put("/{gameID:[0-9]+}/players/{publicID:[0-9]+}", h)
-      		games.Put("/{gameID:[0-9]+}/clans/clan/{publicID:[0-9]+}", h)
-
-      		games.Post("/{gameID:[0-9]+}/clans", h)
-      		games.Post("/{gameID:[0-9]+}/players", h)
-      		games.Post("/{gameID:[0-9]+}/clans/{publicID:[0-9]+}/leave", h)
-      		games.Post("/{gameID:[0-9]+}/clans/{clanPublicID:[0-9]+}/memberships/application", h)
-      		games.Post("/{gameID:[0-9]+}/clans/{clanPublicID:[0-9]+}/memberships/application/:action", h)
-      		games.Post("/{gameID:[0-9]+}/clans/{clanPublicID:[0-9]+}/memberships/invitation", h)
-      		games.Post("/{gameID:[0-9]+}/clans/{clanPublicID:[0-9]+}/memberships/invitation/:action", h)
-      		games.Post("/{gameID:[0-9]+}/clans/{clanPublicID:[0-9]+}/memberships/delete", h)
-      		games.Post("/{gameID:[0-9]+}/clans/{clanPublicID:[0-9]+}/memberships/promote", h)
-      		games.Post("/{gameID:[0-9]+}/clans/{clanPublicID:[0-9]+}/memberships/demote", h)
-      	}
-
-      	app.Get("/anything/{anythingparameter:.*}", func(ctx *iris2.Context) {
-      		s := ctx.Param("anythingparameter")
-      		ctx.Writef("The path after /anything is: %s", s)
-      	})
-
-      	p := app.Party("mysubdomain.")
-      	// http://mysubdomain.myhost.com/
-      	p.Get("/", h)
-
-      	app.Listen("myhost.com:80")
-      }
-
-      func h(ctx *iris2.Context) {
-      	ctx.HTML(iris2.StatusOK, "<h1>Path<h1/>"+ctx.Path())
-      }
-
-
-Example `httprouter` code:
-
-
       package main
 
       import (
         "github.com/go-iris2/iris2"
-        "github.com/go-iris2/iris2/adaptors/httprouter" // <---- NEW
       )
 
       func main() {
         app := iris2.New()
         app.Adapt(iris2.DevLogger())
-        app.Adapt(httprouter.New()) // <---- NEW
 
 
         app.OnError(iris2.StatusNotFound, func(ctx *iris2.Context){
@@ -305,7 +186,7 @@ Example code:
       users:= app.Party("/users", myAuthHandler)
 
       // http://myhost.com/users/42/profile
-      users.Get("/:userid/profile", userProfileHandler) // httprouter path parameters
+      users.Get("/:userid/profile", userProfileHandler)
       // http://myhost.com/users/messages/1
       users.Get("/inbox/:messageid", userMessageHandler)
 
@@ -332,20 +213,6 @@ Example code:
 
 
 Custom http errors can be also be registered to a specific group of routes.
-
-Example code:
-
-
-      games:= app.Party("/games", gamesMiddleware)
-      {
-          games.Get("/{gameID:[0-9]+}/clans", h) // gorillamux path parameters
-          games.Get("/{gameID:[0-9]+}/clans/clan/{publicID:[0-9]+}", h)
-          games.Get("/{gameID:[0-9]+}/clans/search", h)
-      }
-
-      games.OnError(iris2.StatusNotFound, gamesNotFoundHandler)
-
-
 
 Static Files
 
@@ -400,14 +267,12 @@ Example code:
 
       import (
       	"github.com/go-iris2/iris2"
-      	"github.com/go-iris2/iris2/adaptors/httprouter"
       )
 
       func main() {
 
       	app := iris2.New()
       	app.Adapt(iris2.DevLogger())
-      	app.Adapt(httprouter.New())
 
       	app.Favicon("./static/favicons/iris_favicon_32_32.ico")
       	// This will serve the ./static/favicons/iris_favicon_32_32.ico to: 127.0.0.1:8080/favicon.ico
@@ -480,7 +345,6 @@ Example code:
       import (
       	"github.com/rs/cors"
       	"github.com/go-iris2/iris2"
-      	"github.com/go-iris2/iris2/adaptors/gorillamux"
       )
 
       // newCorsMiddleware returns a new cors middleware
@@ -499,7 +363,6 @@ Example code:
 
       func main() {
       	app := iris2.New()
-      	app.Adapt(gorillamux.New())
 
       	// Any registers a route to all http methods.
       	app.Any("/user", newCorsMiddleware(), func(ctx *iris2.Context) {
@@ -542,7 +405,6 @@ Example code:
 
       import (
       	"github.com/go-iris2/iris2"
-      	"github.com/go-iris2/iris2/adaptors/gorillamux"
       	"github.com/go-iris2/iris2/adaptors/view" // <--- it contains all the template engines
       )
 
@@ -550,7 +412,6 @@ Example code:
       	app := iris2.New(iris2.Configuration{Gzip: false, Charset: "UTF-8"}) // defaults to these
 
       	app.Adapt(iris2.DevLogger())
-      	app.Adapt(gorillamux.New())
 
       	// - standard html  | view.HTML(...)
       	// - django         | view.Django(...)

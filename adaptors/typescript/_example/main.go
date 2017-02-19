@@ -2,14 +2,12 @@ package main
 
 import (
 	"github.com/go-iris2/iris2"
-	"github.com/go-iris2/iris2/adaptors/httprouter"
 	"github.com/go-iris2/iris2/adaptors/typescript"
 )
 
 func main() {
 	app := iris2.New()
 	app.Adapt(iris2.DevLogger())
-	app.Adapt(httprouter.New()) // adapt a router, order doesn't matters but before Listen.
 
 	ts := typescript.New()
 	ts.Config.Dir = "./www/scripts"

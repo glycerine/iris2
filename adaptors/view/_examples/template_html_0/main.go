@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/go-iris2/iris2"
-	"github.com/go-iris2/iris2/adaptors/httprouter"
 	"github.com/go-iris2/iris2/adaptors/view"
 )
 
@@ -10,7 +9,6 @@ func main() {
 	app := iris2.New(iris2.Configuration{Gzip: false, Charset: "UTF-8"}) // defaults to these
 
 	app.Adapt(iris2.DevLogger())
-	app.Adapt(httprouter.New())
 
 	app.Adapt(view.HTML("./templates", ".html"))
 

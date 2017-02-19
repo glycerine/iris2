@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/go-iris2/iris2"
-	"github.com/go-iris2/iris2/adaptors/httprouter"
 	"github.com/go-iris2/iris2/middleware/logger"
 )
 
@@ -10,7 +9,6 @@ func main() {
 	app := iris2.New()
 
 	app.Adapt(iris2.DevLogger()) // it just enables the print of the iris2.DevMode logs. Enable it to view the middleware's messages.
-	app.Adapt(httprouter.New())
 
 	customLogger := logger.New(logger.Config{
 		// Status displays status code

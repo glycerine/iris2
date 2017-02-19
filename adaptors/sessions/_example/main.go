@@ -4,14 +4,12 @@ import (
 	"time"
 
 	"github.com/go-iris2/iris2"
-	"github.com/go-iris2/iris2/adaptors/httprouter"
 	"github.com/go-iris2/iris2/adaptors/sessions"
 )
 
 func main() {
 	app := iris2.New()
 	app.Adapt(iris2.DevLogger()) // enable all (error) logs
-	app.Adapt(httprouter.New())  // select the httprouter as the servemux
 
 	mySessions := sessions.New(sessions.Config{
 		// Cookie string, the session's client cookie name, for example: "mysessionid"

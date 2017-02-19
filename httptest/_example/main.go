@@ -2,13 +2,11 @@ package main
 
 import (
 	"github.com/go-iris2/iris2"
-	"github.com/go-iris2/iris2/adaptors/httprouter"
 	"github.com/go-iris2/iris2/adaptors/sessions"
 )
 
 func newApp() *iris2.Framework {
 	app := iris2.New()
-	app.Adapt(httprouter.New())
 	app.Adapt(sessions.New(sessions.Config{Cookie: "mysessionid"}))
 
 	app.Get("/hello", func(ctx *iris2.Context) {

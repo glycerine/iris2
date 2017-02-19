@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/go-iris2/iris2"
-	"github.com/go-iris2/iris2/adaptors/httprouter"
 	"github.com/go-iris2/iris2/adaptors/view"
 )
 
@@ -14,7 +13,6 @@ type mypage struct {
 func main() {
 	app := iris2.New()
 	app.Adapt(iris2.DevLogger())
-	app.Adapt(httprouter.New())
 
 	tmpl := view.HTML("./templates", ".html")
 	tmpl.Layout("layout.html")
