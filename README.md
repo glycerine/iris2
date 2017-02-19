@@ -33,8 +33,8 @@ import (
 )
 
 func main() {
-	app := iris.New()
-	app.Adapt(iris.Devlogger())
+	app := iris2.New()
+	app.Adapt(iris2.Devlogger())
 
 	// 5 template engines are supported out-of-the-box:
 	//
@@ -51,7 +51,7 @@ func main() {
 	// http://localhost:6200
 	// Method: "GET"
 	// Render ./views/index.html
-	app.Get("/", func(ctx *iris.Context) {
+	app.Get("/", func(ctx *iris2.Context) {
 		ctx.Render("index.html", nil)
 	})
 
@@ -80,7 +80,7 @@ func main() {
 	app.Listen(":6200")
 }
 
-func getByIDHandler(ctx *iris.Context) {
+func getByIDHandler(ctx *iris2.Context) {
 	// take the :id from the path, parse to integer
 	// and set it to the new userID local variable.
 	userID, _ := ctx.ParamInt("id")
@@ -90,11 +90,11 @@ func getByIDHandler(ctx *iris.Context) {
 
 	// send back a response to the client,
 	// .JSON: content type as application/json; charset="utf-8"
-	// iris.StatusOK: with 200 http status code.
+	// iris2.StatusOK: with 200 http status code.
 	//
 	// send user as it is or make use of any json valid golang type,
-	// like the iris.Map{"username" : user.Username}.
-	ctx.JSON(iris.StatusOK, user)
+	// like the iris2.Map{"username" : user.Username}.
+	ctx.JSON(iris2.StatusOK, user)
 }
 ```
 
