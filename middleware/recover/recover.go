@@ -2,6 +2,7 @@ package recover
 
 import (
 	"fmt"
+	"net/http"
 	"runtime"
 	"strconv"
 
@@ -48,7 +49,7 @@ func New() iris2.HandlerFunc {
 				ctx.Log(logMessage)
 
 				ctx.StopExecution()
-				ctx.EmitError(iris2.StatusInternalServerError)
+				ctx.EmitError(http.StatusInternalServerError)
 
 			}
 		}()

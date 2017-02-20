@@ -127,7 +127,7 @@ func (w *ResponseRecorder) ResetHeaders() {
 // Reset resets the response body, headers and the status code header
 func (w *ResponseRecorder) Reset() {
 	w.ResetHeaders()
-	w.statusCode = StatusOK
+	w.statusCode = http.StatusOK
 	w.ResetBody()
 }
 
@@ -205,7 +205,7 @@ func (w *ResponseRecorder) writeTo(res ResponseWriter) {
 	if to, ok := res.(*ResponseRecorder); ok {
 
 		// set the status code, to is first ( probably an error >=400)
-		if w.statusCode == StatusOK {
+		if w.statusCode == http.StatusOK {
 			to.statusCode = w.statusCode
 		}
 

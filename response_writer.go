@@ -35,7 +35,7 @@ func (w *gzipResponseWriter) Write(contents []byte) (int, error) {
 	return w.gzipWriter.Write(contents)
 }
 
-var rpool = sync.Pool{New: func() interface{} { return &responseWriter{statusCode: StatusOK} }}
+var rpool = sync.Pool{New: func() interface{} { return &responseWriter{statusCode: http.StatusOK} }}
 
 func acquireResponseWriter(underline http.ResponseWriter) *responseWriter {
 	w := rpool.Get().(*responseWriter)
@@ -46,7 +46,7 @@ func acquireResponseWriter(underline http.ResponseWriter) *responseWriter {
 func releaseResponseWriter(w *responseWriter) {
 	w.statusCodeSent = false
 	w.beforeFlush = nil
-	w.statusCode = StatusOK
+	w.statusCode = http.StatusOK
 	rpool.Put(w)
 }
 

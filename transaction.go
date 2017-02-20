@@ -1,5 +1,9 @@
 package iris2
 
+import (
+	"net/http"
+)
+
 // TransactionErrResult could be named also something like 'MaybeError',
 // it is useful to send it on transaction.Complete in order to execute a custom error mesasge to the user.
 //
@@ -76,7 +80,7 @@ func (t *Transaction) Complete(err error) {
 	if err != nil {
 		t.hasError = true
 
-		statusCode := StatusBadRequest
+		statusCode := http.StatusBadRequest
 		reason := err.Error()
 		cType := "text/plain; charset=" + t.Context.framework.Config.Charset
 

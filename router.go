@@ -358,7 +358,7 @@ func (router *Router) StaticServe(systemPath string, requestPath ...string) Rout
 		}
 
 		if err := ctx.ServeFile(spath, true); err != nil {
-			ctx.EmitError(StatusInternalServerError)
+			ctx.EmitError(http.StatusInternalServerError)
 		}
 	})
 }
@@ -368,7 +368,7 @@ func (router *Router) StaticServe(systemPath string, requestPath ...string) Rout
 func (router *Router) StaticContent(reqPath string, cType string, content []byte) RouteInfo {
 	modtime := time.Now()
 	h := func(ctx *Context) {
-		if err := ctx.SetClientCachedBody(StatusOK, content, cType, modtime); err != nil {
+		if err := ctx.SetClientCachedBody(http.StatusOK, content, cType, modtime); err != nil {
 			ctx.Log("error while serving []byte via StaticContent: ", err.Error())
 		}
 	}
@@ -438,15 +438,15 @@ func (router *Router) StaticEmbedded(requestPath string, vdir string, assetFn fu
 				continue
 			}
 
-			if err := ctx.SetClientCachedBody(StatusOK, buf, cType, modtime); err != nil {
-				ctx.EmitError(StatusInternalServerError)
+			if err := ctx.SetClientCachedBody(http.StatusOK, buf, cType, modtime); err != nil {
+				ctx.EmitError(http.StatusInternalServerError)
 				ctx.Log("error while serving via StaticEmbedded: ", err.Error())
 			}
 			return
 		}
 
 		// not found or error
-		ctx.EmitError(StatusNotFound)
+		ctx.EmitError(http.StatusNotFound)
 
 	}
 
@@ -507,13 +507,13 @@ func (router *Router) Favicon(favPath string, requestPath ...string) RouteInfo {
 
 			ctx.ResponseWriter.Header().Del(contentType)
 			ctx.ResponseWriter.Header().Del(contentLength)
-			ctx.SetStatusCode(StatusNotModified)
+			ctx.SetStatusCode(http.StatusNotModified)
 			return
 		}
 
 		ctx.ResponseWriter.Header().Set(contentType, cType)
 		ctx.ResponseWriter.Header().Set(lastModified, modtime)
-		ctx.SetStatusCode(StatusOK)
+		ctx.SetStatusCode(http.StatusOK)
 		if _, err := ctx.Write(cacheFav); err != nil {
 			ctx.Log("error while trying to serve the favicon: %s", err.Error())
 		}

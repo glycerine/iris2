@@ -670,11 +670,11 @@ func (mux *serveMux) buildHandler(pool ContextPool) http.Handler {
 
 						urlToRedirect := reqPath
 
-						statusForRedirect := StatusMovedPermanently //	StatusMovedPermanently, this document is obselte, clients caches this.
+						statusForRedirect := http.StatusMovedPermanently //	StatusMovedPermanently, this document is obselte, clients caches this.
 						if tree.method == MethodPost ||
 							tree.method == MethodPut ||
 							tree.method == MethodDelete {
-							statusForRedirect = StatusTemporaryRedirect //	To maintain POST data
+							statusForRedirect = http.StatusTemporaryRedirect //	To maintain POST data
 						}
 
 						context.Redirect(urlToRedirect, statusForRedirect)
@@ -700,10 +700,10 @@ func (mux *serveMux) buildHandler(pool ContextPool) http.Handler {
 						continue
 					}
 				}
-				context.EmitError(StatusMethodNotAllowed)
+				context.EmitError(http.StatusMethodNotAllowed)
 				return
 			}
-			context.EmitError(StatusNotFound)
+			context.EmitError(http.StatusNotFound)
 		})
 	})
 

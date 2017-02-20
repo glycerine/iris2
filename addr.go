@@ -260,7 +260,7 @@ var ProxyHandler = func(redirectSchemeAndHost string) http.HandlerFunc {
 					realHost := strings.Replace(redirectSchemeAndHost, redirectScheme, "", 1)
 					redirectHost := strings.Replace(fakehost, fakehost, realHost, 1)
 					redirectTo = redirectScheme + redirectHost + path
-					http.Redirect(w, r, redirectTo, StatusMovedPermanently)
+					http.Redirect(w, r, redirectTo, http.StatusMovedPermanently)
 					return
 				}
 			}
@@ -274,7 +274,7 @@ var ProxyHandler = func(redirectSchemeAndHost string) http.HandlerFunc {
 
 		//	redirectTo := redirectSchemeAndHost + r.RequestURI
 
-		http.Redirect(w, r, redirectTo, StatusMovedPermanently)
+		http.Redirect(w, r, redirectTo, http.StatusMovedPermanently)
 	}
 }
 

@@ -2,6 +2,7 @@ package basicauth
 
 import (
 	"encoding/base64"
+	"net/http"
 	"strconv"
 	"time"
 
@@ -100,7 +101,7 @@ func (b *basicAuthMiddleware) findAuth(headerValue string) (auth *encodedUser, f
 
 func (b *basicAuthMiddleware) askForCredentials(ctx *iris2.Context) {
 	ctx.SetHeader("WWW-Authenticate", b.realmHeaderValue)
-	ctx.SetStatusCode(iris2.StatusUnauthorized)
+	ctx.SetStatusCode(http.StatusUnauthorized)
 }
 
 // Serve the actual middleware

@@ -282,7 +282,7 @@ func New(setters ...OptionSetter) *Framework {
 					// set service not available temporarily until the router completes the building
 					// this won't take more than 100ms, but we want to inform the user.
 					s.Router.handler = ToNativeHandler(s, HandlerFunc(func(ctx *Context) {
-						ctx.EmitError(StatusServiceUnavailable)
+						ctx.EmitError(http.StatusServiceUnavailable)
 					}))
 					// Re-build the whole router if state changed (from offline to online state mostly)
 					s.Router.build(routerBuilder)
@@ -313,7 +313,7 @@ func (f *Framework) Must(err error) {
 }
 
 func (f *Framework) Log(msg string, v ...interface{}) {
-	f.logger.Printf(msg + "\n", v...)
+	f.logger.Printf(msg+"\n", v...)
 }
 
 func (f *Framework) handlePanic(err error) {

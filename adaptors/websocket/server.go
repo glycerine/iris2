@@ -1,6 +1,7 @@
 package websocket
 
 import (
+	"net/http"
 	"sync"
 
 	"github.com/go-iris2/iris2"
@@ -192,7 +193,7 @@ func (s *server) Handler() iris2.HandlerFunc {
 		conn, err := upgrader.Upgrade(ctx.ResponseWriter, ctx.Request, ctx.ResponseWriter.Header())
 		if err != nil {
 			ctx.Log("websocket error: %v", err)
-			ctx.EmitError(iris2.StatusServiceUnavailable)
+			ctx.EmitError(http.StatusServiceUnavailable)
 			return
 		}
 		s.handleConnection(ctx, conn)

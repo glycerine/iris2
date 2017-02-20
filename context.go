@@ -727,7 +727,7 @@ func (ctx *Context) SetStatusCode(statusCode int) {
 func (ctx *Context) Redirect(urlToRedirect string, statusHeader ...int) {
 	ctx.StopExecution()
 
-	httpStatus := StatusFound // a 'temporary-redirect-like' which works better than for our purpose
+	httpStatus := http.StatusFound // a 'temporary-redirect-like' which works better than for our purpose
 	if len(statusHeader) > 0 && statusHeader[0] > 0 {
 		httpStatus = statusHeader[0]
 	}
@@ -742,7 +742,7 @@ func (ctx *Context) Redirect(urlToRedirect string, statusHeader ...int) {
 func (ctx *Context) RedirectTo(routeName string, args ...interface{}) {
 	s := ctx.framework.URL(routeName, args...)
 	if s != "" {
-		ctx.Redirect(s, StatusFound)
+		ctx.Redirect(s, http.StatusFound)
 	}
 }
 
@@ -755,13 +755,13 @@ func (ctx *Context) RedirectTo(routeName string, args ...interface{}) {
 // NotFound emits an error 404 to the client, using the custom http errors
 // if no custom errors provided then it sends the default error message
 func (ctx *Context) NotFound() {
-	ctx.framework.EmitError(StatusNotFound, ctx)
+	ctx.framework.EmitError(http.StatusNotFound, ctx)
 }
 
 // Panic emits an error 500 to the client, using the custom http errors
 // if no custom errors rpovided then it sends the default error message
 func (ctx *Context) Panic() {
-	ctx.framework.EmitError(StatusInternalServerError, ctx)
+	ctx.framework.EmitError(http.StatusInternalServerError, ctx)
 }
 
 // EmitError executes the custom error by the http status code passed to the function
@@ -775,10 +775,6 @@ func (ctx *Context) EmitError(statusCode int) {
 // -------------------------Context's gzip inline response writer ----------------------
 // ---------------------Look template.go & iris2.go for more options---------------------
 // -------------------------------------------------------------------------------------
-
-var (
-	errClientDoesNotSupportGzip = errors.New("Client doesn't supports gzip compression")
-)
 
 func (ctx *Context) clientAllowsGzip() bool {
 	if h := ctx.RequestHeader(acceptEncodingHeader); h != "" {
@@ -794,20 +790,19 @@ func (ctx *Context) clientAllowsGzip() bool {
 // WriteGzip accepts bytes, which are compressed to gzip format and sent to the client.
 // returns the number of bytes written and an error ( if the client doesn' supports gzip compression)
 func (ctx *Context) WriteGzip(b []byte) (int, error) {
-	if ctx.clientAllowsGzip() {
-		ctx.ResponseWriter.Header().Add(varyHeader, acceptEncodingHeader)
-
-		gzipWriter := AcquireGzipWriter(ctx.ResponseWriter)
-		n, err := gzipWriter.Write(b)
-		defer ReleaseGzipWriter(gzipWriter)
-
-		if err == nil {
-			ctx.SetHeader(contentEncodingHeader, "gzip")
-		} // else write the contents as it is? no let's create a new func for this
-		return n, err
+	if !ctx.clientAllowsGzip() {
+		return 0, errors.New("Client doesn't supports gzip compression")
 	}
+	ctx.ResponseWriter.Header().Add(varyHeader, acceptEncodingHeader)
 
-	return 0, errClientDoesNotSupportGzip
+	gzipWriter := AcquireGzipWriter(ctx.ResponseWriter)
+	n, err := gzipWriter.Write(b)
+	defer ReleaseGzipWriter(gzipWriter)
+
+	if err == nil {
+		ctx.SetHeader(contentEncodingHeader, "gzip")
+	}
+	return n, err
 }
 
 // TryWriteGzip accepts bytes, which are compressed to gzip format and sent to the client.
@@ -1003,7 +998,7 @@ func (ctx *Context) RenderWithStatus(status int, name string, binding interface{
 func (ctx *Context) Render(name string, binding interface{}, options ...map[string]interface{}) error {
 	errCode := ctx.ResponseWriter.StatusCode()
 	if errCode <= 0 {
-		errCode = StatusOK
+		errCode = http.StatusOK
 	}
 	return ctx.RenderWithStatus(errCode, name, binding, options...)
 }
@@ -1012,7 +1007,7 @@ func (ctx *Context) Render(name string, binding interface{}, options ...map[stri
 // Note: the options: "gzip" and "charset" are built'n support by Iris, so you can pass these on any template engine or serialize engine
 func (ctx *Context) MustRender(name string, binding interface{}, options ...map[string]interface{}) {
 	if err := ctx.Render(name, binding, options...); err != nil {
-		htmlErr := ctx.HTML(StatusServiceUnavailable,
+		htmlErr := ctx.HTML(http.StatusServiceUnavailable,
 			fmt.Sprintf("<h2>Template: %s</h2><b>%s</b>", name, err.Error()))
 
 		ctx.Log("MustRender failed to render '%s', trace: %s\n",
@@ -1098,7 +1093,7 @@ func (ctx *Context) staticCachePassed(modtime time.Time) bool {
 	if t, err := time.Parse(ctx.framework.Config.TimeFormat, ctx.RequestHeader(ifModifiedSince)); err == nil && modtime.Before(t.Add(StaticCacheDuration)) {
 		ctx.ResponseWriter.Header().Del(contentType)
 		ctx.ResponseWriter.Header().Del(contentLength)
-		ctx.SetStatusCode(StatusNotModified)
+		ctx.SetStatusCode(http.StatusNotModified)
 		return true
 	}
 	return false
@@ -1130,13 +1125,13 @@ func (ctx *Context) ServeContent(content io.ReadSeeker, filename string, modtime
 	if t, err := time.Parse(ctx.framework.Config.TimeFormat, ctx.RequestHeader(ifModifiedSince)); err == nil && modtime.Before(t.Add(1*time.Second)) {
 		ctx.ResponseWriter.Header().Del(contentType)
 		ctx.ResponseWriter.Header().Del(contentLength)
-		ctx.SetStatusCode(StatusNotModified)
+		ctx.SetStatusCode(http.StatusNotModified)
 		return nil
 	}
 
 	ctx.ResponseWriter.Header().Set(contentType, TypeByExtension(filename))
 	ctx.ResponseWriter.Header().Set(lastModified, modtime.UTC().Format(ctx.framework.Config.TimeFormat))
-	ctx.SetStatusCode(StatusOK)
+	ctx.SetStatusCode(http.StatusOK)
 	var out io.Writer
 	if gzipCompression && ctx.clientAllowsGzip() {
 		ctx.ResponseWriter.Header().Add(varyHeader, acceptEncodingHeader)
