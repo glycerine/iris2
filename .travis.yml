@@ -2,7 +2,8 @@ language: go
 sudo: false
 
 go:
-    - go1.8
+  - go1.8
+  - tip
 
 before_install:
   - go get -t -v ./...
