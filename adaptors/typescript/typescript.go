@@ -21,7 +21,7 @@ type (
 	TsAdaptor struct {
 		Config *Config
 		// taken from framework
-		logger func(iris2.LogMode, string)
+		logger func(string, ...interface{})
 	}
 )
 
@@ -62,13 +62,13 @@ func (t *TsAdaptor) start() {
 		//Can't check if permission denied returns always exists = true....
 
 		if !npm.NodeModuleExists(t.Config.Bin) {
-			t.logger(iris2.DevMode, "Installing typescript, please wait...")
+			t.logger("Installing typescript, please wait...")
 			res := npm.NodeModuleInstall("typescript")
 			if res.Error != nil {
-				t.logger(iris2.ProdMode, res.Error.Error())
+				t.logger(res.Error.Error())
 				return
 			}
-			t.logger(iris2.DevMode, res.Message)
+			t.logger(res.Message)
 		}
 
 		projects := t.getTypescriptProjects()
@@ -79,7 +79,7 @@ func (t *TsAdaptor) start() {
 				cmd := npm.CommandBuilder("node", t.Config.Bin, "-p", project[0:strings.LastIndex(project, npm.PathSeparator)]) //remove the /tsconfig.json)
 				projectConfig, perr := FromFile(project)
 				if perr != nil {
-					t.logger(iris2.ProdMode, "error while trying to read tsconfig: "+perr.Error())
+					t.logger("error while trying to read tsconfig: "+perr.Error())
 					continue
 				}
 
@@ -89,7 +89,7 @@ func (t *TsAdaptor) start() {
 					go func() {
 						_, err := cmd.Output()
 						if err != nil {
-							t.logger(iris2.DevMode, err.Error())
+							t.logger(err.Error())
 							return
 						}
 					}()
@@ -97,14 +97,14 @@ func (t *TsAdaptor) start() {
 
 					_, err := cmd.Output()
 					if err != nil {
-						t.logger(iris2.DevMode, err.Error())
+						t.logger(err.Error())
 						return
 					}
 
 				}
 
 			}
-			t.logger(iris2.DevMode, fmt.Sprintf("%d Typescript project(s) compiled ( %d monitored by a background file watcher ) ", len(projects), watchedProjects))
+			t.logger(fmt.Sprintf("%d Typescript project(s) compiled ( %d monitored by a background file watcher ) ", len(projects), watchedProjects))
 		} else {
 			//search for standalone typescript (.ts) files and compile them
 			files := t.getTypescriptFiles()
@@ -136,13 +136,13 @@ func (t *TsAdaptor) start() {
 						cmd.Args = cmd.Args[0 : len(cmd.Args)-1] //remove the last, which is the file
 
 						if strings.Contains(compilerMsg, "error") {
-							t.logger(iris2.DevMode, compilerMsg)
+							t.logger(compilerMsg)
 						}
 
 					}()
 
 				}
-				t.logger(iris2.DevMode, fmt.Sprintf("%d Typescript file(s) compiled ( %d monitored by a background file watcher )", len(files), watchedFiles))
+				t.logger(fmt.Sprintf("%d Typescript file(s) compiled ( %d monitored by a background file watcher )", len(files), watchedFiles))
 			}
 
 		}
@@ -155,7 +155,7 @@ func (t *TsAdaptor) hasTypescriptFiles() bool {
 	ignoreFolders := strings.Split(t.Config.Ignore, ",")
 	hasTs := false
 	if !npm.Exists(root) {
-		t.logger(iris2.ProdMode, fmt.Sprintf("Typescript Adaptor Error: Directory '%s' couldn't be found,\nplease specify a valid path for your *.ts files", root))
+		t.logger(fmt.Sprintf("Typescript Adaptor Error: Directory '%s' couldn't be found,\nplease specify a valid path for your *.ts files", root))
 		return false
 	}
 	// ignore error

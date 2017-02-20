@@ -27,6 +27,7 @@ import (
 	"strings"
 
 	"github.com/go-iris2/iris2/errors"
+	"log"
 )
 
 const (
@@ -493,7 +494,7 @@ func formatPath(path string) string {
 // subdomains(wildcard/dynamic and static) and faster parameters set (use of the already-created context's values)
 // and support for reverse routing.
 func newRouter() Policies {
-	var logger func(LogMode, string)
+	var logger *log.Logger
 	mux := &serveMux{
 		methodEqual: func(reqMethod string, treeMethod string) bool {
 			return reqMethod == treeMethod
@@ -503,7 +504,7 @@ func newRouter() Policies {
 	return Policies{
 		EventPolicy: EventPolicy{
 			Boot: func(s *Framework) {
-				logger = s.Log
+				logger = s.logger
 			},
 		},
 		RouterReversionPolicy: RouterReversionPolicy{
@@ -578,10 +579,9 @@ func newRouter() Policies {
 				// I decide that it's better to explicit give subdomain and a path to it than registeredPath(mysubdomain./something) now its: subdomain: mysubdomain., path: /something
 				// we have different tree for each of subdomains, now you can use everything you can use with the normal paths ( before you couldn't set /any/*path)
 				if err := tree.entry.add(path, middleware); err != nil {
-					// while ProdMode means that the iris should not continue running
 					// by-default it panics on these errors, but to make sure let's introduce the fatalErr to stop visiting
 					fatalErr = true
-					logger(ProdMode, err.Error())
+					logger.Println(err.Error())
 					return
 				}
 

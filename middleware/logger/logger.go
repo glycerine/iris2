@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
@@ -46,7 +45,7 @@ func (l *loggerMiddleware) Serve(ctx *iris2.Context) {
 	}
 
 	//finally print the logs
-	ctx.Log(iris2.DevMode, fmt.Sprintf("%s %v %4v %s %s %s \n", date, status, latency, ip, method, path))
+	ctx.Log("%s %v %4v %s %s %s", date, status, latency, ip, method, path)
 }
 
 // New returns the logger middleware

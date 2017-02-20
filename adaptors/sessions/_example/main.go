@@ -74,7 +74,7 @@ func main() {
 		msg := "You have to refresh the page to completely remove the session (browsers works this way, it's not iris-specific.)"
 
 		ctx.Writef(msg)
-		ctx.Log(iris2.DevMode, msg)
+		ctx.Log(msg)
 	}) // Note about destroy:
 	//
 	// You can destroy a session outside of a handler too, using the:

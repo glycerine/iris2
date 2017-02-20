@@ -2,7 +2,6 @@ package iris2
 
 import (
 	"io"
-	"log"
 	"net/http"
 	"strings"
 
@@ -24,7 +23,6 @@ type (
 	// Policies can have nested policies behaviors too.
 	// See iris2.go field: 'policies' and function 'Adapt' for more.
 	Policies struct {
-		LoggerPolicy
 		EventPolicy
 		RouterReversionPolicy
 		RouterBuilderPolicy
@@ -38,11 +36,6 @@ type (
 // Adapt implements the behavior in order to be valid to pass Policies as one
 // useful for third-party libraries which can provide more tools in one registration.
 func (p Policies) Adapt(frame *Policies) {
-
-	// Adapt the logger (optionally, it defaults to a log.New(...).Printf)
-	if p.LoggerPolicy != nil {
-		p.LoggerPolicy.Adapt(frame)
-	}
 
 	// Adapt the flow callbacks (optionally)
 	p.EventPolicy.Adapt(frame)
@@ -74,89 +67,6 @@ func (p Policies) Adapt(frame *Policies) {
 
 	p.SessionsPolicy.Adapt(frame)
 
-}
-
-// LogMode is the type for the LoggerPolicy write mode.
-// Two modes available:
-// - ProdMode (production level mode)
-// - DevMode (development level mode)
-//
-// The ProdMode should output only fatal errors
-// The DevMode ouputs the rest of the errors
-//
-// Iris logs ONLY errors at both cases.
-// By-default ONLY ProdMode level messages are printed to the os.Stdout.
-type LogMode uint8
-
-const (
-	// ProdMode the production level logger write mode,
-	// responsible to fatal errors, errors that happen which
-	// your app can't continue running.
-	ProdMode LogMode = iota
-	// DevMode is the development level logger write mode,
-	// responsible to the rest of the errors, for example
-	// if you set a app.Favicon("myfav.ico"..) and that fav doesn't exists
-	// in your system, then it printed by DevMode and app.Favicon simple doesn't works.
-	// But the rest of the app can continue running, so it's not 'Fatal error'
-	DevMode
-)
-
-// LoggerPolicy is a simple interface which is used to log mostly system panics
-// exception for general debugging messages is when the `Framework.Config.IsDevelopment = true`.
-// It should prints to the logger.
-// Arguments should be handled in the manner of fmt.Printf.
-type LoggerPolicy func(mode LogMode, log string)
-
-// Adapt addapts a Logger to the main policies.
-func (l LoggerPolicy) Adapt(frame *Policies) {
-	if l != nil {
-		// notes for me: comment these in order to remember
-		//                     why I choose not to do that:
-		// It wraps the loggers, so you can use more than one
-		// when you have multiple print targets.
-		// No this is not a good idea for loggers
-		// the user may not expecting this behavior,
-		// if the user wants multiple targets she/he
-		// can wrap their loggers or use one logger to print on all targets.
-		// COMMENT:
-		// logger := l
-		// if frame.LoggerPolicy != nil {
-		// 	prevLogger := frame.LoggerPolicy
-		// 	nextLogger := l
-		// 	logger = func(mode LogMode, log string) {
-		// 		prevLogger(mode, log)
-		// 		nextLogger(mode, log)
-		// 	}
-		// }
-		frame.LoggerPolicy = l
-	}
-}
-
-// The write method exists to LoggerPolicy to be able to passed
-// as a valid an io.Writer when you need it.
-//
-// Write writes len(p) bytes from p to the underlying data stream.
-// It returns the number of bytes written from p (0 <= n <= len(p))
-// and any error encountered that caused the write to stop early.
-// Write must return a non-nil error if it returns n < len(p).
-// Write must not modify the slice data, even temporarily.
-//
-// Implementations must not retain p.
-//
-// Note: this Write writes as the DevMode.
-func (l LoggerPolicy) Write(p []byte) (n int, err error) {
-	log := string(p)
-	l(DevMode, log)
-	return len(log), nil
-}
-
-// ToLogger returns a new *log.Logger
-// which prints to the the LoggerPolicy function
-// this is used when your packages needs explicit an *log.Logger.
-//
-// Note: Each time you call it, it returns a new *log.Logger.
-func (l LoggerPolicy) ToLogger(flag int) *log.Logger {
-	return log.New(l, "", flag)
 }
 
 type (

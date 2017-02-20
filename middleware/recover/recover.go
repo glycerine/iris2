@@ -44,8 +44,8 @@ func New() iris2.HandlerFunc {
 				logMessage := fmt.Sprintf("Recovered from a route's Handler('%s')\n", ctx.GetHandlerName())
 				logMessage += fmt.Sprintf("At Request: %s\n", getRequestLogs(ctx))
 				logMessage += fmt.Sprintf("Trace: %s\n", err)
-				logMessage += fmt.Sprintf("\n%s\n", stacktrace)
-				ctx.Log(iris2.DevMode, logMessage)
+				logMessage += fmt.Sprintf("\n%s", stacktrace)
+				ctx.Log(logMessage)
 
 				ctx.StopExecution()
 				ctx.EmitError(iris2.StatusInternalServerError)

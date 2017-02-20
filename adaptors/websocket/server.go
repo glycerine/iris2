@@ -191,7 +191,7 @@ func (s *server) Handler() iris2.HandlerFunc {
 		// response.
 		conn, err := upgrader.Upgrade(ctx.ResponseWriter, ctx.Request, ctx.ResponseWriter.Header())
 		if err != nil {
-			ctx.Log(iris2.DevMode, "websocket error: "+err.Error())
+			ctx.Log("websocket error: %v", err)
 			ctx.EmitError(iris2.StatusServiceUnavailable)
 			return
 		}

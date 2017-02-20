@@ -118,7 +118,7 @@ func (h *Adaptor) Adapt(frame *iris2.Policies) {
 			}
 
 			if err := mux.Load(); err != nil {
-				s.Log(iris2.ProdMode, err.Error())
+				s.Log(err.Error())
 			}
 		},
 	}

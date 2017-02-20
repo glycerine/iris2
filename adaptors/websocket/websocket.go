@@ -37,13 +37,13 @@ func (s *server) Adapt(frame *iris2.Policies) {
 		Boot: func(f *iris2.Framework) {
 			wsPath := fixPath(s.config.Endpoint)
 			if wsPath == "" {
-				f.Log(iris2.DevMode, "websocket's configuration field 'Endpoint' cannot be empty, websocket server stops")
+				f.Log("websocket's configuration field 'Endpoint' cannot be empty, websocket server stops")
 				return
 			}
 
 			wsClientSidePath := fixPath(s.config.ClientSourcePath)
 			if wsClientSidePath == "" {
-				f.Log(iris2.DevMode, "websocket's configuration field 'ClientSourcePath' cannot be empty, websocket server stops")
+				f.Log("websocket's configuration field 'ClientSourcePath' cannot be empty, websocket server stops")
 				return
 			}
 

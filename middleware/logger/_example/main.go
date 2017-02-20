@@ -8,8 +8,6 @@ import (
 func main() {
 	app := iris2.New()
 
-	app.Adapt(iris2.DevLogger()) // it just enables the print of the iris2.DevMode logs. Enable it to view the middleware's messages.
-
 	customLogger := logger.New(logger.Config{
 		// Status displays status code
 		Status: true,

@@ -188,23 +188,23 @@ func (e *ErrorHandlers) Get(statusCode int) Handler {
 // a new one, registers that to the error list and returns that.
 func (e *ErrorHandlers) GetOrRegister(statusCode int) Handler {
 	h := e.Get(statusCode)
-	if h == nil {
-		// create a new one
-		h = HandlerFunc(func(ctx *Context) {
-			if w, ok := ctx.IsRecording(); ok {
-				w.Reset()
-			}
-			ctx.SetStatusCode(statusCode)
-			if _, err := ctx.WriteString(statusText[statusCode]); err != nil {
-				ctx.Log(DevMode, "error from a pre-defined error handler while trying to send an http error: %s",
-					err.Error())
-			}
-		})
-		e.mu.Lock()
-		e.handlers[statusCode] = h
-		e.mu.Unlock()
+	if h != nil {
+		return h
 	}
-
+	// create a new one
+	h = HandlerFunc(func(ctx *Context) {
+		if w, ok := ctx.IsRecording(); ok {
+			w.Reset()
+		}
+		ctx.SetStatusCode(statusCode)
+		if _, err := ctx.WriteString(statusText[statusCode]); err != nil {
+			ctx.Log("error from a pre-defined error handler while trying to send an http error: %s",
+				err.Error())
+		}
+	})
+	e.mu.Lock()
+	e.handlers[statusCode] = h
+	e.mu.Unlock()
 	return h
 }
 

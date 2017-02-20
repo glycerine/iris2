@@ -42,7 +42,7 @@ type (
 	// and a host which is listening for
 	Editor struct {
 		config  *Config
-		logger  func(iris2.LogMode, string)
+		logger  func(string, ...interface{})
 		enabled bool // default true
 		// after alm started
 		process     *os.Process
@@ -146,7 +146,7 @@ func (e *Editor) close(s *iris2.Framework) {
 	if e.process != nil {
 		err := e.process.Kill()
 		if err != nil {
-			e.logger(iris2.DevMode, fmt.Sprintf(`Error while trying to terminate the Editor,
+			e.logger(fmt.Sprintf(`Error while trying to terminate the Editor,
 				 please kill this process by yourself, process id: %d`, e.process.Pid))
 		}
 	}
@@ -155,19 +155,19 @@ func (e *Editor) close(s *iris2.Framework) {
 // start starts the job
 func (e *Editor) start() {
 	if e.config.Username == "" || e.config.Password == "" {
-		e.logger(iris2.ProdMode, `Error before running alm-tools.
+		e.logger(`Error before running alm-tools.
 			You have to set username & password for security reasons, otherwise this adaptor won't run.`)
 		return
 	}
 
 	if !npm.NodeModuleExists("alm/bin/alm") {
-		e.logger(iris2.DevMode, "Installing alm-tools, please wait...")
+		e.logger("Installing alm-tools, please wait...")
 		res := npm.NodeModuleInstall("alm")
 		if res.Error != nil {
-			e.logger(iris2.ProdMode, res.Error.Error())
+			e.logger(res.Error.Error())
 			return
 		}
-		e.logger(iris2.DevMode, res.Message)
+		e.logger(res.Message)
 	}
 
 	cmd := npm.CommandBuilder("node", npm.NodeModuleAbs("alm/src/server.js"))
@@ -189,7 +189,7 @@ func (e *Editor) start() {
 
 			go func() {
 				for outputScanner.Scan() {
-					e.logger(iris2.DevMode, "Editor: "+outputScanner.Text())
+					e.logger("Editor: "+outputScanner.Text())
 				}
 			}()
 
@@ -198,7 +198,7 @@ func (e *Editor) start() {
 				errScanner := bufio.NewScanner(errReader)
 				go func() {
 					for errScanner.Scan() {
-						e.logger(iris2.DevMode, "Editor: "+errScanner.Text())
+						e.logger("Editor: "+errScanner.Text())
 					}
 				}()
 			}
@@ -207,7 +207,7 @@ func (e *Editor) start() {
 
 	err := cmd.Start()
 	if err != nil {
-		e.logger(iris2.ProdMode, "Error while running alm-tools. Trace: "+err.Error())
+		e.logger("Error while running alm-tools. Trace: "+err.Error())
 		return
 	}
 

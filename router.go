@@ -369,7 +369,7 @@ func (router *Router) StaticContent(reqPath string, cType string, content []byte
 	modtime := time.Now()
 	h := func(ctx *Context) {
 		if err := ctx.SetClientCachedBody(StatusOK, content, cType, modtime); err != nil {
-			ctx.Log(DevMode, "error while serving []byte via StaticContent: ", err.Error())
+			ctx.Log("error while serving []byte via StaticContent: ", err.Error())
 		}
 	}
 
@@ -440,7 +440,7 @@ func (router *Router) StaticEmbedded(requestPath string, vdir string, assetFn fu
 
 			if err := ctx.SetClientCachedBody(StatusOK, buf, cType, modtime); err != nil {
 				ctx.EmitError(StatusInternalServerError)
-				ctx.Log(DevMode, "error while serving via StaticEmbedded: ", err.Error())
+				ctx.Log("error while serving via StaticEmbedded: ", err.Error())
 			}
 			return
 		}
@@ -493,10 +493,9 @@ func (router *Router) Favicon(favPath string, requestPath ...string) RouteInfo {
 		// So we could panic but we don't,
 		// we just interrupt with a message
 		// to the (user-defined) logger.
-		router.Context.Framework().Log(DevMode,
-			errDirectoryFileNotFound.
-				Format(favPath, "favicon: couldn't read the data bytes for file: "+err.Error()).
-				Error())
+		router.Context.Framework().Log(errDirectoryFileNotFound.
+			Format(favPath, "favicon: couldn't read the data bytes for file: "+err.Error()).
+			Error())
 		return nil
 	}
 	modtime := ""
@@ -516,7 +515,7 @@ func (router *Router) Favicon(favPath string, requestPath ...string) RouteInfo {
 		ctx.ResponseWriter.Header().Set(lastModified, modtime)
 		ctx.SetStatusCode(StatusOK)
 		if _, err := ctx.Write(cacheFav); err != nil {
-			ctx.Log(DevMode, "error while trying to serve the favicon: %s", err.Error())
+			ctx.Log("error while trying to serve the favicon: %s", err.Error())
 		}
 	}
 

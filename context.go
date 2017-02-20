@@ -733,7 +733,7 @@ func (ctx *Context) Redirect(urlToRedirect string, statusHeader ...int) {
 	}
 
 	if urlToRedirect == ctx.Path() {
-		ctx.Log(DevMode, "trying to redirect to itself. FROM: %s TO: %s", ctx.Path(), urlToRedirect)
+		ctx.Log("trying to redirect to itself. FROM: %s TO: %s", ctx.Path(), urlToRedirect)
 	}
 	http.Redirect(ctx.ResponseWriter, ctx.Request, urlToRedirect, httpStatus)
 }
@@ -983,7 +983,7 @@ func (ctx *Context) RenderWithStatus(status int, name string, binding interface{
 		// logging for any runtime info(except http server's panics and unexpected serious errors) is not enabled by-default.
 		if strings.Contains(name, ".") {
 			err = errTemplateRendererIsMissing.Format(name, ctx.framework.Config.VHost)
-			ctx.framework.Log(DevMode, err.Error())
+			ctx.Log(err.Error())
 			return
 		}
 
@@ -1015,11 +1015,11 @@ func (ctx *Context) MustRender(name string, binding interface{}, options ...map[
 		htmlErr := ctx.HTML(StatusServiceUnavailable,
 			fmt.Sprintf("<h2>Template: %s</h2><b>%s</b>", name, err.Error()))
 
-		ctx.Log(DevMode, "MustRender failed to render '%s', trace: %s\n",
+		ctx.Log("MustRender failed to render '%s', trace: %s\n",
 			name, err)
 
 		if htmlErr != nil {
-			ctx.Log(DevMode, "MustRender also failed to render the html fallback: %s",
+			ctx.Log("MustRender also failed to render the html fallback: %s",
 				htmlErr.Error())
 		}
 
@@ -1581,13 +1581,12 @@ Edit your main .go source file to adapt one of these and restart your app.
 // Session returns the current Session.
 //
 // if SessionsPolicy is missing then a detailed how-to-fix message
-// will be visible to the user (DevMode)
+// will be visible to the user
 // and the return value will be NILL.
 func (ctx *Context) Session() Session {
 	policy := ctx.framework.policies.SessionsPolicy
 	if policy.Start == nil {
-		ctx.framework.Log(DevMode,
-			errSessionsPolicyIsMissing.Format(ctx.RemoteAddr(), ctx.framework.Config.VHost).Error())
+		ctx.Log(errSessionsPolicyIsMissing.Format(ctx.RemoteAddr(), ctx.framework.Config.VHost).Error())
 		return nil
 	}
 
@@ -1709,7 +1708,7 @@ func (ctx *Context) BeginTransaction(pipe func(transaction *Transaction)) {
 	t := newTransaction(ctx)
 	defer func() {
 		if err := recover(); err != nil {
-			ctx.Log(DevMode, errTransactionInterrupted.Format(err).Error())
+			ctx.Log(errTransactionInterrupted.Format(err).Error())
 			// complete (again or not , doesn't matters) the scope without loud
 			t.Complete(nil)
 			// we continue as normal, no need to return here*
@@ -1728,8 +1727,8 @@ func (ctx *Context) BeginTransaction(pipe func(transaction *Transaction)) {
 }
 
 // Log logs to the iris defined logger
-func (ctx *Context) Log(mode LogMode, format string, a ...interface{}) {
-	ctx.framework.Log(mode, fmt.Sprintf(format, a...))
+func (ctx *Context) Log(format string, a ...interface{}) {
+	ctx.framework.Log(format, a...)
 }
 
 // Framework returns the Iris instance, containing the configuration and all other fields

@@ -70,7 +70,6 @@ type Framework struct {
 	Config *Configuration
 
 	// policies contains the necessary information about the application's components.
-	// - LoggerPolicy
 	// - EventPolicy
 	//      - Boot
 	//      - Build
@@ -123,6 +122,7 @@ type Framework struct {
 	once sync.Once // used to 'Boot' once
 
 	beforeRenderer HandlerFuncMap
+	logger         *log.Logger
 }
 
 // BeforeRender registers a function which is called before every render
@@ -130,58 +130,20 @@ func (f *Framework) BeforeRender(handlerFn HandlerFuncMap) {
 	f.beforeRenderer = handlerFn
 }
 
-var defaultGlobalLoggerOuput = log.New(os.Stdout, "[Iris] ", log.LstdFlags)
-
-// DevLogger returns a new Logger which prints both ProdMode and DevMode messages
-// to the default global logger printer.
-//
-// Usage: app := iris2.New()
-//        app.Adapt(iris2.DevLogger())
-//
-// Users can always ignore that and adapt a custom LoggerPolicy,
-// which will use your custom printer instead.
-func DevLogger() LoggerPolicy {
-	return func(mode LogMode, logMessage string) {
-		defaultGlobalLoggerOuput.Println(logMessage)
-	}
-}
-
 // New creates and returns a fresh Iris *Framework instance
 // with the default configuration if no 'setters' parameters passed.
 func New(setters ...OptionSetter) *Framework {
 	cfg := DefaultConfiguration()
-	s := &Framework{Config: &cfg}
+	s := &Framework{
+		Config: &cfg,
+		logger: log.New(os.Stdout, "[iris2] ", log.LstdFlags),
+	}
 
 	//  +------------------------------------------------------------+
 	//  | Set the config passed from setters                         |
 	//  | or use the default one                                     |
 	//  +------------------------------------------------------------+
 	s.Set(setters...)
-
-	//  +------------------------------------------------------------+
-	//  | Module Name: Logger                                        |
-	//  | On Init: If user didn't adapt a custom loggger then attach |
-	//  |           a new logger using log.Logger as printer with    |
-	//  |          some default options                              |
-	//  +------------------------------------------------------------+
-
-	// The logger policy is never nil and it doesn't defaults to an empty func,
-	// instead it defaults to a logger with os.Stdout as the print target which prints
-	// ONLY prodction level messages.
-	// While in ProdMode Iris logs only panics and fatal errors.
-	// You can override the default log policy with app.Adapt(iris2.DevLogger())
-	//                            or app.Adapt(iris2.LoggerPolicy(customLogger))
-	// to log both ProdMode and DevMode messages.
-	//
-	// Note:
-	// The decision to not log everything and use middleware for http requests instead of built'n
-	// is because I'm using Iris on production so I don't want many logs to my screens
-	// while server is running.
-	s.Adapt(LoggerPolicy(func(mode LogMode, logMessage string) {
-		if mode == ProdMode {
-			defaultGlobalLoggerOuput.Println(logMessage)
-		}
-	}))
 
 	//  +------------------------------------------------------------+
 	//  |                                                            |
@@ -341,13 +303,6 @@ func (f *Framework) Set(setters ...OptionSetter) {
 	}
 }
 
-// Log logs to the defined logger policy.
-//
-// The default outputs to the os.Stdout when EnvMode is 'ProductionEnv'
-func (f *Framework) Log(mode LogMode, log string) {
-	f.policies.LoggerPolicy(mode, log)
-}
-
 // Must checks if the error is not nil, if it isn't
 // panics on registered iris' logger or
 // to a recovery event handler, otherwise does nothing.
@@ -357,25 +312,29 @@ func (f *Framework) Must(err error) {
 	}
 }
 
-func (s *Framework) handlePanic(err error) {
+func (f *Framework) Log(msg string, v ...interface{}) {
+	f.logger.Printf(msg + "\n", v...)
+}
+
+func (f *Framework) handlePanic(err error) {
 	// if x, ok := err.(*net.OpError); ok && x.Op == "accept" {
 	// 	return
 	// }
 
-	if err.Error() == http.ErrServerClosed.Error() && s.closedManually {
+	if err.Error() == http.ErrServerClosed.Error() && f.closedManually {
 		//.Shutdown was called, log to dev not in prod (prod is only for critical errors.)
 		// also do not try to recover from this error, remember, Shutdown was called manually here.
-		s.Log(DevMode, "HTTP Server closed manually")
+		f.Log("HTTP Server closed manually")
 		return
 	}
 
-	if recoveryHandler := s.policies.EventPolicy.Recover; recoveryHandler != nil {
-		recoveryHandler(s, err)
+	if recoveryHandler := f.policies.EventPolicy.Recover; recoveryHandler != nil {
+		recoveryHandler(f, err)
 		return
 	}
 	// if not a registered recovery event handler found
 	// then call the logger's Panic.
-	s.Log(ProdMode, err.Error())
+	f.Log("panic: %v", err)
 }
 
 // Boot runs only once, automatically
@@ -384,17 +343,17 @@ func (s *Framework) handlePanic(err error) {
 //  and its components but not run the server.
 //
 // See ./httptest/httptest.go to understand its usage.
-func (s *Framework) Boot() (firstTime bool) {
-	s.once.Do(func() {
+func (f *Framework) Boot() (firstTime bool) {
+	f.once.Do(func() {
 		// here execute the boot events, before build events, if exists, here is
 		// where the user can make an event module to adapt custom routers and other things
 		// fire the before build event
-		s.policies.EventPolicy.Fire(s.policies.EventPolicy.Boot, s)
+		f.policies.EventPolicy.Fire(f.policies.EventPolicy.Boot, f)
 
 		// here execute the build events if exists
 		// right before the Listen, all methods have been setted
 		// usually is used to adapt third-party servers or proxies or load balancer(s)
-		s.policies.EventPolicy.Fire(s.policies.EventPolicy.Build, s)
+		f.policies.EventPolicy.Fire(f.policies.EventPolicy.Build, f)
 
 		firstTime = true
 	})
@@ -422,7 +381,7 @@ func (s *Framework) setupServe() (srv *http.Server, deferFn func()) {
 		TLSNextProto:   s.TLSNextProto,
 		ConnState:      s.ConnState,
 		Addr:           s.Config.VHost,
-		ErrorLog:       s.policies.LoggerPolicy.ToLogger(log.LstdFlags),
+		ErrorLog:       s.logger,
 		Handler:        s.Router,
 	}
 
