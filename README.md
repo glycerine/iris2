@@ -5,7 +5,7 @@ Iris2
 [![Go Report Card](https://goreportcard.com/badge/github.com/go-iris2/iris2)](https://goreportcard.com/report/github.com/go-iris2/iris2)
 [![GoDoc](https://godoc.org/github.com/go-iris2/iris2?status.svg)](https://godoc.org/github.com/go-iris2/iris2)
 [![codecov](https://codecov.io/gh/go-iris2/iris2/branch/master/graph/badge.svg)](https://codecov.io/gh/go-iris2/iris2)
-
+[![codebeat badge](https://codebeat.co/badges/75a18e68-c2da-4ec0-a15d-335ab6836efc)](https://codebeat.co/projects/github-com-go-iris2-iris2)
 
 Iris2 is a fork of the original [Iris](https://github.com/kataras/iris) framework. As Iris, Iris2 is an efficient and complete toolbox with robust set of features.<br/>Write <b>your own</b>
 <b>perfect high-performance web applications</b> <br/>with unlimited potentials and <b>portability</b>.<br/>
