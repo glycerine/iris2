@@ -28,6 +28,8 @@ Overview
 package main
 
 import (
+	"net/http"
+
 	"github.com/go-iris2/iris2"
 	"github.com/go-iris2/iris2/adaptors/view"
 )
@@ -90,11 +92,11 @@ func getByIDHandler(ctx *iris2.Context) {
 
 	// send back a response to the client,
 	// .JSON: content type as application/json; charset="utf-8"
-	// iris2.StatusOK: with 200 http status code.
+	// http.StatusOK: with 200 http status code.
 	//
 	// send user as it is or make use of any json valid golang type,
 	// like the iris2.Map{"username" : user.Username}.
-	ctx.JSON(iris2.StatusOK, user)
+	ctx.JSON(http.StatusOK, user)
 }
 ```
 

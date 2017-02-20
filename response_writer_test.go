@@ -2,6 +2,7 @@ package iris2_test
 
 import (
 	"fmt"
+	"net/http"
 	"testing"
 
 	"github.com/go-iris2/iris2"
@@ -33,17 +34,17 @@ func TestResponseWriterBeforeFlush(t *testing.T) {
 
 		w.SetBeforeFlush(func() {
 			w.SetBodyString(beforeFlushBody)
-			w.WriteHeader(iris2.StatusForbidden)
+			w.WriteHeader(http.StatusForbidden)
 		})
 
-		w.WriteHeader(iris2.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		w.WriteString(body)
 	})
 
 	e := httptest.New(app, t)
 
-	e.GET("/").Expect().Status(iris2.StatusOK).Body().Equal(body + beforeFlushBody)
-	e.GET("/recorder").Expect().Status(iris2.StatusForbidden).Body().Equal(beforeFlushBody)
+	e.GET("/").Expect().Status(http.StatusOK).Body().Equal(body + beforeFlushBody)
+	e.GET("/recorder").Expect().Status(http.StatusForbidden).Body().Equal(beforeFlushBody)
 }
 
 func TestResponseWriterToRecorderMiddleware(t *testing.T) {
@@ -58,23 +59,23 @@ func TestResponseWriterToRecorderMiddleware(t *testing.T) {
 
 		w.SetBeforeFlush(func() {
 			w.SetBodyString(beforeFlushBody)
-			w.WriteHeader(iris2.StatusForbidden)
+			w.WriteHeader(http.StatusForbidden)
 		})
 
-		w.WriteHeader(iris2.StatusOK)
+		w.WriteHeader(http.StatusOK)
 		w.WriteString("this will not be sent at all because of SetBodyString")
 	})
 
 	e := httptest.New(app, t)
 
-	e.GET("/").Expect().Status(iris2.StatusForbidden).Body().Equal(beforeFlushBody)
+	e.GET("/").Expect().Status(http.StatusForbidden).Body().Equal(beforeFlushBody)
 }
 
 func TestResponseRecorderStatusCodeContentTypeBody(t *testing.T) {
 	app := iris2.New()
 	app.Adapt(newTestNativeRouter())
 
-	firstStatusCode := iris2.StatusOK
+	firstStatusCode := http.StatusOK
 	contentType := "text/html; charset=" + app.Config.Charset
 	firstBodyPart := "first"
 	secondBodyPart := "second"
@@ -115,7 +116,7 @@ func TestResponseRecorderStatusCodeContentTypeBody(t *testing.T) {
 			t.Fatalf("First content type should be %s but got %s", contentType, previousContentType)
 		}
 		// change the status code, this will tested later on (httptest)
-		ctx.SetStatusCode(iris2.StatusForbidden)
+		ctx.SetStatusCode(http.StatusForbidden)
 		prevBody := string(ctx.Recorder().Body())
 		if prevBody != firstBodyPart+secondBodyPart {
 			t.Fatalf("Previous body (first handler + second handler's writes) expected to be: %s but got: %s", firstBodyPart+secondBodyPart, prevBody)
@@ -126,7 +127,7 @@ func TestResponseRecorderStatusCodeContentTypeBody(t *testing.T) {
 
 	e := httptest.New(app, t)
 
-	et := e.GET("/").Expect().Status(iris2.StatusForbidden)
+	et := e.GET("/").Expect().Status(http.StatusForbidden)
 	et.Header("Content-Type").Equal(contentType)
 	et.Body().Equal(expectedBody)
 }
@@ -140,7 +141,7 @@ func ExampleResponseWriter_WriteHeader() {
 
 		// here
 		for i := 0; i < 10; i++ {
-			ctx.ResponseWriter.WriteHeader(iris2.StatusOK)
+			ctx.ResponseWriter.WriteHeader(http.StatusOK)
 		}
 
 		ctx.Writef(expectedOutput)
@@ -150,12 +151,12 @@ func ExampleResponseWriter_WriteHeader() {
 
 		// here
 		for i := 0; i < 10; i++ {
-			ctx.SetStatusCode(iris2.StatusOK)
+			ctx.SetStatusCode(http.StatusOK)
 		}
 	})
 
 	e := httptest.New(app, nil)
-	e.GET("/").Expect().Status(iris2.StatusOK).Body().Equal(expectedOutput)
+	e.GET("/").Expect().Status(http.StatusOK).Body().Equal(expectedOutput)
 	// here it shouldn't log an error that status code write multiple times (by the net/http package.)
 
 	// Output:

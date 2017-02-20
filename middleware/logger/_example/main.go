@@ -36,7 +36,7 @@ func main() {
 	// log http errors
 	errorLogger := logger.New()
 
-	app.OnError(iris2.StatusNotFound, func(ctx *iris2.Context) {
+	app.OnError(http.StatusNotFound, func(ctx *iris2.Context) {
 		errorLogger.Serve(ctx)
 		ctx.Writef("My Custom 404 error page ")
 	})

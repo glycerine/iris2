@@ -198,7 +198,7 @@ func TestMultiRunningServers_v1_PROXY(t *testing.T) {
 	defer listenTLS(app, hostTLS)()
 
 	e := httptest.New(app, t, httptest.ExplicitURL(true))
-	e.Request("GET", "/").Expect().Status(iris2.StatusOK).Body().Equal("Hello from " + hostTLS)
+	e.Request("GET", "/").Expect().Status(http.StatusOK).Body().Equal("Hello from " + hostTLS)
 
 	// proxy http to https
 	proxyHost := host + ":" + strconv.Itoa(getRandomNumber(3300, 3340))
@@ -211,7 +211,7 @@ func TestMultiRunningServers_v1_PROXY(t *testing.T) {
 	//	time.Sleep(3 * time.Second)
 
 	eproxy := httptest.NewInsecure("http://"+proxyHost, t, httptest.ExplicitURL(true))
-	eproxy.Request("GET", "/").Expect().Status(iris2.StatusOK).Body().Equal("Hello from " + hostTLS)
+	eproxy.Request("GET", "/").Expect().Status(http.StatusOK).Body().Equal("Hello from " + hostTLS)
 }
 
 // Contains the server test for multi running servers
@@ -240,12 +240,12 @@ func TestMultiRunningServers_v2(t *testing.T) {
 	time.Sleep(200 * time.Millisecond) // wait a little for the http servers
 
 	e := httptest.New(app, t, httptest.ExplicitURL(true))
-	e.Request("GET", "/").Expect().Status(iris2.StatusOK).Body().Equal("Hello from " + hostTLS)
+	e.Request("GET", "/").Expect().Status(http.StatusOK).Body().Equal("Hello from " + hostTLS)
 
 	eproxy1 := httptest.NewInsecure("http://"+srv1Host, t, httptest.ExplicitURL(true))
-	eproxy1.Request("GET", "/").Expect().Status(iris2.StatusOK).Body().Equal("Hello from " + hostTLS)
+	eproxy1.Request("GET", "/").Expect().Status(http.StatusOK).Body().Equal("Hello from " + hostTLS)
 
 	eproxy2 := httptest.NewInsecure("http://"+srv2Host, t)
-	eproxy2.Request("GET", "/").Expect().Status(iris2.StatusOK).Body().Equal("Hello from " + hostTLS)
+	eproxy2.Request("GET", "/").Expect().Status(http.StatusOK).Body().Equal("Hello from " + hostTLS)
 
 }

@@ -2,6 +2,7 @@ package iris2_test
 
 import (
 	"strconv"
+	"net/http"
 	"testing"
 
 	"github.com/go-iris2/iris2"
@@ -49,7 +50,7 @@ func TestRouteStateSimple(t *testing.T) {
 		ctx.Record() // if we want to control the response
 		ctx.ExecRouteAgainst(offlineRoute, "/api/user/42")
 		ctx.Write([]byte("modified from status code: " + strconv.Itoa(ctx.StatusCode())))
-		ctx.SetStatusCode(iris2.StatusUseProxy)
+		ctx.SetStatusCode(http.StatusUseProxy)
 
 		if ctx.Path() != "/execute_modified" {
 			t.Fatalf("Expected Request Path of this context  NOT to change but got: '%s' ", ctx.Path())
@@ -70,24 +71,24 @@ func TestRouteStateSimple(t *testing.T) {
 
 	e := httptest.New(app, t)
 
-	e.GET("/").Expect().Status(iris2.StatusOK).Body().Equal(hello)
+	e.GET("/").Expect().Status(http.StatusOK).Body().Equal(hello)
 	// here
 	// the status should be not found, the route is invisible from outside world
-	e.GET(offlineRouteRequestedTestPath).Expect().Status(iris2.StatusNotFound)
+	e.GET(offlineRouteRequestedTestPath).Expect().Status(http.StatusNotFound)
 
 	// set the route online with the /change
-	e.GET("/change").Expect().Status(iris2.StatusOK)
+	e.GET("/change").Expect().Status(http.StatusOK)
 	// try again, it should be online now
-	e.GET(offlineRouteRequestedTestPath).Expect().Status(iris2.StatusOK).Body().Equal(offlineBody)
+	e.GET(offlineRouteRequestedTestPath).Expect().Status(http.StatusOK).Body().Equal(offlineBody)
 	// change to offline again
-	e.GET("/change").Expect().Status(iris2.StatusOK)
+	e.GET("/change").Expect().Status(http.StatusOK)
 	// and test again, it should be offline now
-	e.GET(offlineRouteRequestedTestPath).Expect().Status(iris2.StatusNotFound)
+	e.GET(offlineRouteRequestedTestPath).Expect().Status(http.StatusNotFound)
 
 	// finally test the execute on the offline route
 	// it should be remains offline but execute the route like it is from client request.
-	e.GET("/execute").Expect().Status(iris2.StatusOK).Body().Equal(offlineBody)
-	e.GET(offlineRouteRequestedTestPath).Expect().Status(iris2.StatusNotFound)
-	e.GET("/execute_modified").Expect().Status(iris2.StatusUseProxy).Body().
+	e.GET("/execute").Expect().Status(http.StatusOK).Body().Equal(offlineBody)
+	e.GET(offlineRouteRequestedTestPath).Expect().Status(http.StatusNotFound)
+	e.GET("/execute_modified").Expect().Status(http.StatusUseProxy).Body().
 		Equal(offlineBody + "modified from status code: 200-original_middleware_here")
 }

@@ -2,6 +2,7 @@ package iris2_test
 
 import (
 	"strconv"
+	"net/http"
 	"testing"
 
 	"github.com/go-iris2/iris2"
@@ -163,7 +164,7 @@ func TestMuxSimpleParty(t *testing.T) {
 
 		e.Request("GET", reqPath).
 			Expect().
-			Status(iris2.StatusOK).Body().Equal(app.Config.VHost + reqPath)
+			Status(http.StatusOK).Body().Equal(app.Config.VHost + reqPath)
 	}
 
 	// run the tests
@@ -178,7 +179,7 @@ func TestMuxSimpleParty(t *testing.T) {
 		subdomainRequest := func(reqPath string) {
 			es.Request("GET", reqPath).
 				Expect().
-				Status(iris2.StatusOK).Body().Equal(testSubdomainHost(app.Config.VHost) + reqPath)
+				Status(http.StatusOK).Body().Equal(testSubdomainHost(app.Config.VHost) + reqPath)
 		}
 
 		subdomainRequest("/")
@@ -202,7 +203,7 @@ func TestMuxPathEscape(t *testing.T) {
 
 	e.GET("/details/Sakamoto desu ga").
 		WithQuery("highlight", "text").
-		Expect().Status(iris2.StatusOK).Body().Equal("name=Sakamoto desu ga,highlight=text")
+		Expect().Status(http.StatusOK).Body().Equal("name=Sakamoto desu ga,highlight=text")
 }
 
 func TestMuxParamDecodedDecodeURL(t *testing.T) {
@@ -210,13 +211,13 @@ func TestMuxParamDecodedDecodeURL(t *testing.T) {
 
 	app.Get("/encoding/:url", func(ctx *iris2.Context) {
 		url := iris2.DecodeURL(ctx.ParamDecoded("url"))
-		ctx.SetStatusCode(iris2.StatusOK)
+		ctx.SetStatusCode(http.StatusOK)
 		ctx.WriteString(url)
 	})
 
 	e := httptest.New(app, t)
 
-	e.GET("/encoding/http%3A%2F%2Fsome-url.com").Expect().Status(iris2.StatusOK).Body().Equal("http://some-url.com")
+	e.GET("/encoding/http%3A%2F%2Fsome-url.com").Expect().Status(http.StatusOK).Body().Equal("http://some-url.com")
 }
 
 func TestMuxCustomErrors(t *testing.T) {
@@ -257,11 +258,11 @@ func TestMuxCustomErrors(t *testing.T) {
 	}
 
 	// register the custom errors
-	app.OnError(iris2.StatusNotFound, func(ctx *iris2.Context) {
+	app.OnError(http.StatusNotFound, func(ctx *iris2.Context) {
 		ctx.Writef("%s", notFoundMessage)
 	})
 
-	app.OnError(iris2.StatusInternalServerError, func(ctx *iris2.Context) {
+	app.OnError(http.StatusInternalServerError, func(ctx *iris2.Context) {
 		ctx.Writef("%s", internalServerMessage)
 	})
 

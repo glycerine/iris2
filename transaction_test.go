@@ -4,6 +4,7 @@ import (
 	"github.com/go-iris2/iris2"
 	"github.com/go-iris2/iris2/httptest"
 
+	"net/http"
 	"testing"
 )
 
@@ -26,12 +27,12 @@ func TestTransaction(t *testing.T) {
 			// create a new custom type of error here to keep track of the status code and reason message
 			err := iris2.NewTransactionErrResult()
 
-			t.Context.Text(iris2.StatusOK, "Blablabla this should not be sent to the client because we will fill the err with a message and status")
+			t.Context.Text(http.StatusOK, "Blablabla this should not be sent to the client because we will fill the err with a message and status")
 
 			fail := shouldFail
 
 			if fail {
-				err.StatusCode = iris2.StatusInternalServerError
+				err.StatusCode = http.StatusInternalServerError
 				err.Reason = firstTransactionFailureMessage
 			}
 
@@ -47,7 +48,7 @@ func TestTransaction(t *testing.T) {
 		if scope.Context.Request.RequestURI == "/failAllBecauseOfRequestScopeAndFailure" {
 			t.Fatalf("We are inside successTransaction but the previous REQUEST SCOPED TRANSACTION HAS FAILED SO THiS SHOULD NOT BE RAN AT ALL")
 		}
-		scope.Context.HTML(iris2.StatusOK,
+		scope.Context.HTML(http.StatusOK,
 			secondTransactionSuccessHTMLMessage)
 		// * if we don't have any 'throw error' logic then no need of scope.Complete()
 	}
@@ -55,7 +56,7 @@ func TestTransaction(t *testing.T) {
 	persistMessageHandler := func(ctx *iris2.Context) {
 		// OPTIONAL, depends on the usage:
 		// at any case, what ever happens inside the context's transactions send this to the client
-		ctx.HTML(iris2.StatusOK, persistMessage)
+		ctx.HTML(http.StatusOK, persistMessage)
 	}
 
 	app.Get("/failFirsTransactionButSuccessSecondWithPersistMessage", func(ctx *iris2.Context) {
@@ -75,19 +76,19 @@ func TestTransaction(t *testing.T) {
 	})
 
 	customErrorTemplateText := "<h1>custom error</h1>"
-	app.OnError(iris2.StatusInternalServerError, func(ctx *iris2.Context) {
-		ctx.Text(iris2.StatusInternalServerError, customErrorTemplateText)
+	app.OnError(http.StatusInternalServerError, func(ctx *iris2.Context) {
+		ctx.Text(http.StatusInternalServerError, customErrorTemplateText)
 	})
 
 	failureWithRegisteredErrorHandler := func(ctx *iris2.Context) {
 		ctx.BeginTransaction(func(transaction *iris2.Transaction) {
 			transaction.SetScope(iris2.RequestTransactionScope)
 			err := iris2.NewTransactionErrResult()
-			err.StatusCode = iris2.StatusInternalServerError // set only the status code in order to execute the registered template
+			err.StatusCode = http.StatusInternalServerError // set only the status code in order to execute the registered template
 			transaction.Complete(err)
 		})
 
-		ctx.Text(iris2.StatusOK, "this will not be sent to the client because first is requested scope and it's failed")
+		ctx.Text(http.StatusOK, "this will not be sent to the client because first is requested scope and it's failed")
 	}
 
 	app.Get("/failAllBecauseFirstTransactionFailedWithRegisteredErrorTemplate", failureWithRegisteredErrorHandler)
@@ -96,27 +97,27 @@ func TestTransaction(t *testing.T) {
 
 	e.GET("/failFirsTransactionButSuccessSecondWithPersistMessage").
 		Expect().
-		Status(iris2.StatusOK).
+		Status(http.StatusOK).
 		ContentType("text/html", app.Config.Charset).
 		Body().
 		Equal(secondTransactionSuccessHTMLMessage + persistMessage)
 
 	e.GET("/failFirsTransactionButSuccessSecond").
 		Expect().
-		Status(iris2.StatusOK).
+		Status(http.StatusOK).
 		ContentType("text/html", app.Config.Charset).
 		Body().
 		Equal(secondTransactionSuccessHTMLMessage)
 
 	e.GET("/failAllBecauseOfRequestScopeAndFailure").
 		Expect().
-		Status(iris2.StatusInternalServerError).
+		Status(http.StatusInternalServerError).
 		Body().
 		Equal(firstTransactionFailureMessage)
 
 	e.GET("/failAllBecauseFirstTransactionFailedWithRegisteredErrorTemplate").
 		Expect().
-		Status(iris2.StatusInternalServerError).
+		Status(http.StatusInternalServerError).
 		Body().
 		Equal(customErrorTemplateText)
 }

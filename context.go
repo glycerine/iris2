@@ -992,7 +992,7 @@ func (ctx *Context) RenderWithStatus(status int, name string, binding interface{
 	return
 }
 
-// Render same as .RenderWithStatus but with status to iris2.StatusOK (200) if no previous status exists
+// Render same as .RenderWithStatus but with status to http.StatusOK (200) if no previous status exists
 // builds up the response from the specified template or a serialize engine.
 // Note: the options: "gzip" and "charset" are built'n support by Iris, so you can pass these on any template engine or serialize engine
 func (ctx *Context) Render(name string, binding interface{}, options ...map[string]interface{}) error {

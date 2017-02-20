@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/go-iris2/iris2"
 	"github.com/go-iris2/iris2/adaptors/sessions"
 )
@@ -12,11 +14,11 @@ func newApp() *iris2.Framework {
 	app.Get("/hello", func(ctx *iris2.Context) {
 		sess := ctx.Session()
 		if !sess.HasFlash() /* or sess.GetFlash("name") == "", same thing here */ {
-			ctx.HTML(iris2.StatusUnauthorized, "<h1> Unauthorized Page! </h1>")
+			ctx.HTML(http.StatusUnauthorized, "<h1> Unauthorized Page! </h1>")
 			return
 		}
 
-		ctx.JSON(iris2.StatusOK, iris2.Map{
+		ctx.JSON(http.StatusOK, iris2.Map{
 			"Message": "Hello",
 			"From":    sess.GetFlash("name"),
 		})

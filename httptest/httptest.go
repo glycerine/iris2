@@ -69,7 +69,7 @@ func DefaultConfiguration() *Configuration {
 // iris2.Default.Get("/mypath", func(ctx *iris2.Context){ctx.Write("my body")})
 // ...
 // e := httptest.New(iris2.Default, t)
-// e.GET("/mypath").Expect().Status(iris2.StatusOK).Body().Equal("my body")
+// e.GET("/mypath").Expect().Status(http.StatusOK).Body().Equal("my body")
 //
 // You can find example on the https://github.com/kataras/iris/glob/master/context_test.go
 func New(app *iris2.Framework, t *testing.T, setters ...OptionSetter) *httpexpect.Expect {

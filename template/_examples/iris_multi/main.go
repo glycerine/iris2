@@ -1,6 +1,8 @@
 package main
 
 import (
+	"net/http"
+
 	"github.com/go-iris2/iris2"
 	"github.com/go-iris2/iris2/template/amber"
 	"github.com/go-iris2/iris2/template/html"
@@ -22,7 +24,7 @@ func main() {
 	iris2.UseTemplate(amber.New(amber.Config{})).Directory("./templates", ".amber")
 
 	iris2.Get("/render_html", func(ctx *iris2.Context) {
-		ctx.RenderWithStatus(iris2.StatusOK, "hiHTML.html", map[string]interface{}{"Name": "You!"})
+		ctx.RenderWithStatus(http.StatusOK, "hiHTML.html", map[string]interface{}{"Name": "You!"})
 	})
 
 	iris2.Get("/render_amber", func(ctx *iris2.Context) {

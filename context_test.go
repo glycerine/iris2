@@ -2,6 +2,7 @@ package iris2_test
 
 import (
 	"io/ioutil"
+	"net/http"
 	"testing"
 
 	"github.com/go-iris2/iris2"
@@ -106,7 +107,7 @@ func TestContextParams(t *testing.T) {
 		ctx.WriteString(paramsStr)
 	})
 
-	httptest.New(app, t).GET("/path/myparam1/myparam2/staticpath/myparam3afterstatic/andhere/anything/you/like").Expect().Status(iris2.StatusOK).Body().Equal(expectedParamsStr)
+	httptest.New(app, t).GET("/path/myparam1/myparam2/staticpath/myparam3afterstatic/andhere/anything/you/like").Expect().Status(http.StatusOK).Body().Equal(expectedParamsStr)
 
 }
 
@@ -116,11 +117,11 @@ func TestContextURLParams(t *testing.T) {
 	passedParams := map[string]string{"param1": "value1", "param2": "value2"}
 	app.Get("/", func(ctx *iris2.Context) {
 		params := ctx.URLParams()
-		ctx.JSON(iris2.StatusOK, params)
+		ctx.JSON(http.StatusOK, params)
 	})
 	e := httptest.New(app, t)
 
-	e.GET("/").WithQueryObject(passedParams).Expect().Status(iris2.StatusOK).JSON().Equal(passedParams)
+	e.GET("/").WithQueryObject(passedParams).Expect().Status(http.StatusOK).JSON().Equal(passedParams)
 }
 
 // hoststring returns the full host, will return the HOST:IP
@@ -137,7 +138,7 @@ func TestContextHostString(t *testing.T) {
 	})
 
 	e := httptest.New(app, t)
-	e.GET("/").Expect().Status(iris2.StatusOK).Body().Equal(app.Config.VHost)
+	e.GET("/").Expect().Status(http.StatusOK).Body().Equal(app.Config.VHost)
 	e.GET("/wrong").Expect().Body().NotEqual(app.Config.VHost)
 }
 
@@ -157,7 +158,7 @@ func TestContextVirtualHostName(t *testing.T) {
 	})
 
 	e := httptest.New(app, t)
-	e.GET("/").Expect().Status(iris2.StatusOK).Body().Equal(vhost)
+	e.GET("/").Expect().Status(http.StatusOK).Body().Equal(vhost)
 	e.GET("/wrong").Expect().Body().NotEqual(vhost)
 }
 
@@ -171,7 +172,7 @@ func TestContextFormValueString(t *testing.T) {
 	})
 	e := httptest.New(app, t)
 
-	e.POST("/").WithFormField(k, v).Expect().Status(iris2.StatusOK).Body().Equal(k + "=" + v)
+	e.POST("/").WithFormField(k, v).Expect().Status(http.StatusOK).Body().Equal(k + "=" + v)
 }
 
 func TestContextSubdomain(t *testing.T) {
@@ -185,11 +186,11 @@ func TestContextSubdomain(t *testing.T) {
 
 	e := httptest.New(app, t)
 
-	e.GET("/").WithURL("http://mysubdomain.mydomain.com:9999").Expect().Status(iris2.StatusNotFound)
-	e.GET("/mypath").WithURL("http://mysubdomain.mydomain.com:9999").Expect().Status(iris2.StatusOK).Body().Equal("mysubdomain")
+	e.GET("/").WithURL("http://mysubdomain.mydomain.com:9999").Expect().Status(http.StatusNotFound)
+	e.GET("/mypath").WithURL("http://mysubdomain.mydomain.com:9999").Expect().Status(http.StatusOK).Body().Equal("mysubdomain")
 
-	// e.GET("http://mysubdomain.mydomain.com:9999").Expect().Status(iris2.StatusNotFound)
-	// e.GET("http://mysubdomain.mydomain.com:9999/mypath").Expect().Status(iris2.StatusOK).Body().Equal("mysubdomain")
+	// e.GET("http://mysubdomain.mydomain.com:9999").Expect().Status(http.StatusNotFound)
+	// e.GET("http://mysubdomain.mydomain.com:9999/mypath").Expect().Status(http.StatusOK).Body().Equal("mysubdomain")
 }
 
 func TestLimitRequestBodySizeMiddleware(t *testing.T) {
@@ -208,7 +209,7 @@ func TestLimitRequestBodySizeMiddleware(t *testing.T) {
 		}
 		// if is larger then send a bad request status
 		if err != nil {
-			ctx.WriteHeader(iris2.StatusBadRequest)
+			ctx.WriteHeader(http.StatusBadRequest)
 			ctx.Writef(err.Error())
 			return
 		}
@@ -222,12 +223,12 @@ func TestLimitRequestBodySizeMiddleware(t *testing.T) {
 	e := httptest.New(app, t)
 
 	// test with small body
-	e.POST("/").WithBytes([]byte("ok")).Expect().Status(iris2.StatusOK).Body().Equal("ok")
+	e.POST("/").WithBytes([]byte("ok")).Expect().Status(http.StatusOK).Body().Equal("ok")
 	// test with equal to max body size limit
 	bsent := make([]byte, maxBodySize, maxBodySize)
-	e.POST("/").WithBytes(bsent).Expect().Status(iris2.StatusOK).Body().Length().Equal(len(bsent))
+	e.POST("/").WithBytes(bsent).Expect().Status(http.StatusOK).Body().Length().Equal(len(bsent))
 	// test with larger body sent and wait for the custom response
 	largerBSent := make([]byte, maxBodySize+1, maxBodySize+1)
-	e.POST("/").WithBytes(largerBSent).Expect().Status(iris2.StatusBadRequest).Body().Equal("http: request body too large")
+	e.POST("/").WithBytes(largerBSent).Expect().Status(http.StatusBadRequest).Body().Equal("http: request body too large")
 
 }

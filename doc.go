@@ -55,7 +55,7 @@ Example code:
         }
 
         app.HandleFunc("GET", "/contact", func(ctx *iris2.Context){
-          ctx.HTML(iris2.StatusOK, "Hello from /contact, executed from an iris2.HandlerFunc")
+          ctx.HTML(http.StatusOK, "Hello from /contact, executed from an iris2.HandlerFunc")
         })
 
 
@@ -118,11 +118,9 @@ This is the only difference between the routers, the registered path form, the A
 
       func main() {
         app := iris2.New()
-        app.Adapt(iris2.DevLogger())
 
-
-        app.OnError(iris2.StatusNotFound, func(ctx *iris2.Context){
-          ctx.HTML(iris2.StatusNotFound, "<h1> custom http error page </h1>")
+        app.OnError(http.StatusNotFound, func(ctx *iris2.Context){
+          ctx.HTML(http.StatusNotFound, "<h1> custom http error page </h1>")
         })
 
 
@@ -167,7 +165,7 @@ This is the only difference between the routers, the registered path form, the A
       }
 
       func h(ctx *iris2.Context) {
-      	ctx.HTML(iris2.StatusOK, "<h1>Path<h1/>"+ctx.Path())
+      	ctx.HTML(http.StatusOK, "<h1>Path<h1/>"+ctx.Path())
       }
 
 
@@ -203,8 +201,8 @@ Example code:
 
       // when 404 then render the template $templatedir/errors/404.html
       // *read below for information about the view engine.*
-      app.OnError(iris2.StatusNotFound, func(ctx *iris2.Context){
-        ctx.RenderWithstatus(iris2.StatusNotFound, "errors/404.html", nil)
+      app.OnError(http.StatusNotFound, func(ctx *iris2.Context){
+        ctx.RenderWithstatus(http.StatusNotFound, "errors/404.html", nil)
       })
 
       app.OnError(500, func(ctx *iris2.Context){
@@ -272,7 +270,6 @@ Example code:
       func main() {
 
       	app := iris2.New()
-      	app.Adapt(iris2.DevLogger())
 
       	app.Favicon("./static/favicons/iris_favicon_32_32.ico")
       	// This will serve the ./static/favicons/iris_favicon_32_32.ico to: 127.0.0.1:8080/favicon.ico
@@ -281,7 +278,7 @@ Example code:
       	// This will serve the ./static/favicons/iris_favicon_32_32.ico to: 127.0.0.1:8080/favicon_32_32.ico
 
       	app.Get("/", func(ctx *iris2.Context) {
-      		ctx.HTML(iris2.StatusOK, "You should see the favicon now at the side of your browser.")
+      		ctx.HTML(http.StatusOK, "You should see the favicon now at the side of your browser.")
       	})
 
       	app.Listen(":8080")
@@ -410,8 +407,6 @@ Example code:
 
       func main() {
       	app := iris2.New(iris2.Configuration{Gzip: false, Charset: "UTF-8"}) // defaults to these
-
-      	app.Adapt(iris2.DevLogger())
 
       	// - standard html  | view.HTML(...)
       	// - django         | view.Django(...)

@@ -16,30 +16,29 @@ type ExampleXML struct {
 
 func main() {
 	app := iris2.New()
-	app.Adapt(iris2.DevLogger())
 
 	app.Get("/data", func(ctx *iris2.Context) {
-		ctx.Data(iris2.StatusOK, []byte("Some binary data here."))
+		ctx.Data(http.StatusOK, []byte("Some binary data here."))
 	})
 
 	app.Get("/text", func(ctx *iris2.Context) {
-		ctx.Text(iris2.StatusOK, "Plain text here")
+		ctx.Text(http.StatusOK, "Plain text here")
 	})
 
 	app.Get("/json", func(ctx *iris2.Context) {
-		ctx.JSON(iris2.StatusOK, map[string]string{"hello": "json"}) // or myjsonStruct{hello:"json}
+		ctx.JSON(http.StatusOK, map[string]string{"hello": "json"}) // or myjsonStruct{hello:"json}
 	})
 
 	app.Get("/jsonp", func(ctx *iris2.Context) {
-		ctx.JSONP(iris2.StatusOK, "callbackName", map[string]string{"hello": "jsonp"})
+		ctx.JSONP(http.StatusOK, "callbackName", map[string]string{"hello": "jsonp"})
 	})
 
 	app.Get("/xml", func(ctx *iris2.Context) {
-		ctx.XML(iris2.StatusOK, ExampleXML{One: "hello", Two: "xml"}) // or iris2.Map{"One":"hello"...}
+		ctx.XML(http.StatusOK, ExampleXML{One: "hello", Two: "xml"}) // or iris2.Map{"One":"hello"...}
 	})
 
 	app.Get("/markdown", func(ctx *iris2.Context) {
-		ctx.Markdown(iris2.StatusOK, "# Hello Dynamic Markdown Iris")
+		ctx.Markdown(http.StatusOK, "# Hello Dynamic Markdown Iris")
 	})
 
 	app.Adapt(view.HTML("./templates", ".html"))
@@ -67,7 +66,7 @@ func main() {
 	//	}))
 	//
 	//	app.Get("/custom", func(ctx *iris2.Context) {
-	//		ctx.RenderWithStatus(iris2.StatusOK, // or MustRender
+	//		ctx.RenderWithStatus(http.StatusOK, // or MustRender
 	//			"customcontent-type",
 	//			"my custom content here!",
 	//		)

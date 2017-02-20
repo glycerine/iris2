@@ -82,9 +82,9 @@ func newTestNativeRouter() Policies {
 							}
 						}
 					} else if fireMethodNotAllowed {
-						ctx.EmitError(StatusMethodNotAllowed) // fire method not allowed if enabled
+						ctx.EmitError(http.StatusMethodNotAllowed) // fire method not allowed if enabled
 					} else { // else fire not found
-						ctx.EmitError(StatusNotFound)
+						ctx.EmitError(http.StatusNotFound)
 					}
 
 					context.Release(ctx)
@@ -102,7 +102,7 @@ func newTestNativeRouter() Policies {
 			if noIndexRegistered {
 				servemux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 					context.Run(w, r, func(ctx *Context) {
-						ctx.EmitError(StatusNotFound)
+						ctx.EmitError(http.StatusNotFound)
 					})
 				})
 			}
@@ -121,21 +121,21 @@ type testNativeRoute struct {
 }
 
 func TestNativeRouterPolicyAdaptor(t *testing.T) {
-	expectedWrongMethodStatus := StatusNotFound
+	expectedWrongMethodStatus := http.StatusNotFound
 	app := New(Configuration{FireMethodNotAllowed: true})
 	app.Adapt(newTestNativeRouter())
 	// 404 or 405
 	if app.Config.FireMethodNotAllowed {
-		expectedWrongMethodStatus = StatusMethodNotAllowed
+		expectedWrongMethodStatus = http.StatusMethodNotAllowed
 	}
 
 	var testRoutes = []testNativeRoute{
-		{"GET", "/hi", "Should be /hi/ \nhello from /hi/", StatusOK},
-		{"GET", "/other", "Should be /other/ \nhello from /other/", StatusOK},
-		{"GET", "/hi/you", "Should be /hi/you/ \nhello from /hi/you/", StatusOK},
-		{"POST", "/hey", "hello from /hey/", StatusOK},
+		{"GET", "/hi", "Should be /hi/ \nhello from /hi/", http.StatusOK},
+		{"GET", "/other", "Should be /other/ \nhello from /other/", http.StatusOK},
+		{"GET", "/hi/you", "Should be /hi/you/ \nhello from /hi/you/", http.StatusOK},
+		{"POST", "/hey", "hello from /hey/", http.StatusOK},
 		{"GET", "/hey", "Method Not Allowed", expectedWrongMethodStatus},
-		{"GET", "/doesntexists", "<b>Custom 404 page</b>", StatusNotFound},
+		{"GET", "/doesntexists", "<b>Custom 404 page</b>", http.StatusNotFound},
 	}
 	app.OnError(404, func(ctx *Context) {
 		ctx.HTML(404, "<b>Custom 404 page</b>")
