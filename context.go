@@ -961,7 +961,7 @@ func (ctx *Context) RenderWithStatus(status int, name string, binding interface{
 		m, ok = binding.(Map)
 	}
 	if ok {
-		if ctx.framework.Config.AutoFlashMessage {
+		if ctx.framework.Config.AutoFlashMessage && ctx.framework.policies.SessionsPolicy.Start != nil {
 			m["FlashMessage"] = ctx.Session().GetFlashString("msg")
 		}
 		if ctx.framework.beforeRenderer != nil {
