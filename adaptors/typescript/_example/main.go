@@ -7,7 +7,6 @@ import (
 
 func main() {
 	app := iris2.New()
-	app.Adapt(iris2.DevLogger())
 
 	ts := typescript.New()
 	ts.Config.Dir = "./www/scripts"

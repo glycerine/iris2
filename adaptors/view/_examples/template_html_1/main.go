@@ -12,7 +12,6 @@ type mypage struct {
 
 func main() {
 	app := iris2.New()
-	app.Adapt(iris2.DevLogger())
 
 	tmpl := view.HTML("./templates", ".html")
 	tmpl.Layout("layout.html")

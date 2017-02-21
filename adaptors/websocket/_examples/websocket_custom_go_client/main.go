@@ -135,7 +135,6 @@ func OnConnect(c websocket.Connection) {
 // ServerLoop listen and serve websocket requests
 func ServerLoop() {
 	app := iris2.New()
-	app.Adapt(iris2.DevLogger()) // enable all (error) logs
 
 	ws := websocket.New(websocket.Config{Endpoint: "/socket"})
 	app.Adapt(ws)

@@ -973,9 +973,6 @@ func (ctx *Context) RenderWithStatus(status int, name string, binding interface{
 		// so we should notice the user here, we could make it to panic but because that is on runtime
 		// we don't want to panic for that, let's give a message if the user adapted a logger for dev.
 		// And return that error in the case the user wasn't in dev mode, she/he can catch this error.
-
-		// Also on the README we will add the .Adapt(iris2.DevLogger()) to mention that
-		// logging for any runtime info(except http server's panics and unexpected serious errors) is not enabled by-default.
 		if strings.Contains(name, ".") {
 			err = errTemplateRendererIsMissing.Format(name, ctx.framework.Config.VHost)
 			ctx.Log(err.Error())

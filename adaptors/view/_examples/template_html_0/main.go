@@ -8,8 +8,6 @@ import (
 func main() {
 	app := iris2.New(iris2.Configuration{Gzip: false, Charset: "UTF-8"}) // defaults to these
 
-	app.Adapt(iris2.DevLogger())
-
 	app.Adapt(view.HTML("./templates", ".html"))
 
 	app.Get("/hi", hi)

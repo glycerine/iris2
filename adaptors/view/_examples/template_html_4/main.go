@@ -8,7 +8,6 @@ import (
 
 func main() {
 	app := iris2.New()
-	app.Adapt(iris2.DevLogger())
 
 	app.Adapt(view.HTML("./templates", ".html"))
 

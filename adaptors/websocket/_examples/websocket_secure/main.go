@@ -18,7 +18,6 @@ type clientPage struct {
 
 func main() {
 	app := iris2.New()
-	app.Adapt(iris2.DevLogger())                 // enable all (error) logs
 	app.Adapt(view.HTML("./templates", ".html")) // select the html engine to serve templates
 
 	ws := websocket.New(websocket.Config{

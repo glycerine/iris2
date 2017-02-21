@@ -8,7 +8,6 @@ import (
 
 func main() {
 	app := iris2.New()
-	app.Adapt(iris2.DevLogger())
 
 	// optionally but good to have, I didn't put inside editor or the editor in the typescript compiler adaptors
 	// because you may use tools like gulp and you may use the editor without the typescript compiler adaptor.

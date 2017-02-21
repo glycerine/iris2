@@ -7,7 +7,6 @@ import (
 
 func main() {
 	app := iris2.New()
-	app.Adapt(iris2.DevLogger())
 
 	//$ go-bindata ./templates/...
 	// templates are not used, you can delete the folder and run the example

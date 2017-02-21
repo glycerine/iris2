@@ -8,7 +8,6 @@ import (
 func main() {
 
 	app := iris2.New()
-	app.Adapt(iris2.DevLogger())
 
 	crs := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},

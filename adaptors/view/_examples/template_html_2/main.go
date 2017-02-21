@@ -7,7 +7,6 @@ import (
 
 func main() {
 	app := iris2.New()
-	app.Adapt(iris2.DevLogger())
 
 	tmpl := view.HTML("./templates", ".html")
 	tmpl.Layout("layouts/layout.html")

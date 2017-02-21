@@ -9,7 +9,6 @@ import (
 
 func main() {
 	app := iris2.New()
-	app.Adapt(iris2.DevLogger()) // enable all (error) logs
 
 	mySessions := sessions.New(sessions.Config{
 		// Cookie string, the session's client cookie name, for example: "mysessionid"
