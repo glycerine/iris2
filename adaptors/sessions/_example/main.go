@@ -15,9 +15,6 @@ func main() {
 		//
 		// Defaults to "irissessionid"
 		Cookie: "mysessionid",
-		// base64 urlencoding,
-		// if you have strange name cookie name enable this
-		DecodeCookie: false,
 		// it's time.Duration, from the time cookie is created, how long it can be alive?
 		// 0 means no expire.
 		// -1 means expire when browser closes
