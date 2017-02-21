@@ -66,7 +66,7 @@ type Framework struct {
 	// Config contains the configuration fields
 	// all fields defaults to something that is working, developers don't have to set it.
 	//
-	// can be setted via .New, .Set and .New(.YAML)
+	// can be setted via .New and .Set
 	Config *Configuration
 
 	// policies contains the necessary information about the application's components.

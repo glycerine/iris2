@@ -2,11 +2,8 @@
 package iris2_test
 
 import (
-	"io/ioutil"
-	"os"
 	"reflect"
 	"testing"
-	"time"
 
 	. "github.com/go-iris2/iris2"
 )
@@ -86,89 +83,4 @@ func TestConfigurationOptionsDeep(t *testing.T) {
 	if !reflect.DeepEqual(has, expected) {
 		t.Fatalf("DEEP configuration is not the same after New expected:\n %#v \ngot:\n %#v", expected, has)
 	}
-}
-
-func TestConfigurationYAML(t *testing.T) {
-	// create the key and cert files on the fly, and delete them when this test finished
-	yamlFile, ferr := ioutil.TempFile("", "configuration.yml")
-
-	if ferr != nil {
-		t.Fatal(ferr)
-	}
-
-	defer func() {
-		yamlFile.Close()
-		time.Sleep(50 * time.Millisecond)
-		os.Remove(yamlFile.Name())
-	}()
-
-	yamlConfigurationContents := `
-  VHost: iris-go.com
-  VScheme: https://
-  ReadTimeout: 0
-  WriteTimeout: 5s
-  MaxHeaderBytes: 8096
-  DisablePathCorrection: false
-  EnablePathEscape: false
-  FireMethodNotAllowed: true
-  DisableBodyConsumptionOnUnmarshal: true
-  TimeFormat: Mon, 01 Jan 2006 15:04:05 GMT
-  Charset: UTF-8
-  Gzip: true
-
-  `
-	yamlFile.WriteString(yamlConfigurationContents)
-	filename := yamlFile.Name()
-	app := New(YAML(filename))
-
-	c := app.Config
-
-	if expected := "iris-go.com"; c.VHost != expected {
-		t.Fatalf("error on TestConfigurationYAML: Expected VHost %s but got %s", expected, c.VHost)
-	}
-
-	if expected := "https://"; c.VScheme != expected {
-		t.Fatalf("error on TestConfigurationYAML: Expected VScheme %s but got %s", expected, c.VScheme)
-	}
-
-	if expected := 0; c.ReadTimeout != time.Duration(expected) {
-		t.Fatalf("error on TestConfigurationYAML: Expected ReadTimeout %d but got %s", expected, c.ReadTimeout)
-	}
-
-	if expected := time.Duration(5 * time.Second); c.WriteTimeout != expected {
-		t.Fatalf("error on TestConfigurationYAML: Expected WriteTimeout %s but got %s", expected, c.WriteTimeout)
-	}
-
-	if expected := 8096; c.MaxHeaderBytes != expected {
-		t.Fatalf("error on TestConfigurationYAML: Expected MaxHeaderBytes %d but got %d", expected, c.MaxHeaderBytes)
-	}
-
-	if expected := false; c.DisablePathCorrection != expected {
-		t.Fatalf("error on TestConfigurationYAML: Expected DisablePathCorrection %v but got %v", expected, c.DisablePathCorrection)
-	}
-
-	if expected := false; c.EnablePathEscape != expected {
-		t.Fatalf("error on TestConfigurationYAML: Expected EnablePathEscape %v but got %v", expected, c.EnablePathEscape)
-	}
-
-	if expected := true; c.FireMethodNotAllowed != expected {
-		t.Fatalf("error on TestConfigurationYAML: Expected FireMethodNotAllowed %v but got %v", expected, c.FireMethodNotAllowed)
-	}
-
-	if expected := true; c.DisableBodyConsumptionOnUnmarshal != expected {
-		t.Fatalf("error on TestConfigurationYAML: Expected DisableBodyConsumptionOnUnmarshal %v but got %v", expected, c.DisableBodyConsumptionOnUnmarshal)
-	}
-
-	if expected := "Mon, 01 Jan 2006 15:04:05 GMT"; c.TimeFormat != expected {
-		t.Fatalf("error on TestConfigurationYAML: Expected TimeFormat %s but got %s", expected, c.TimeFormat)
-	}
-
-	if expected := "UTF-8"; c.Charset != expected {
-		t.Fatalf("error on TestConfigurationYAML: Expected Charset %s but got %s", expected, c.Charset)
-	}
-
-	if expected := true; c.Gzip != expected {
-		t.Fatalf("error on TestConfigurationYAML: Expected != %v but got %v", expected, c.Gzip)
-	}
-
 }

@@ -1,13 +1,10 @@
 package iris2
 
 import (
-	"io/ioutil"
-	"path/filepath"
 	"strconv"
 	"time"
 
 	"github.com/imdario/mergo"
-	"gopkg.in/yaml.v2"
 )
 
 type (
@@ -39,39 +36,6 @@ func (o OptionSet) Set(c *Configuration) {
 	o(c)
 }
 
-// YAML reads Configuration from a file.yml.
-//
-// Accepts the absolute path of the file.yml.
-// An error will be shown to the user via panic with the error message.
-// Error may occur when the file.yml doesn't exists or is not formatted correctly.
-//
-// Usage:
-// 1. `app := iris2.New(YAML("myfile.yml"))`
-// 2. `app.Set(YAML("myfile.yml"))`
-func YAML(filename string) Configuration {
-	c := DefaultConfiguration()
-
-	// get the abs
-	// which will try to find the 'filename' from current workind dir too.
-	yamlAbsPath, err := filepath.Abs(filename)
-	if err != nil {
-		panic("FATAL ERROR .yml.filename to absolute: " + err.Error())
-	}
-
-	// read the raw contents of the file
-	data, err := ioutil.ReadFile(yamlAbsPath)
-	if err != nil {
-		panic("FATAL ERROR .yml.ReadFile: " + err.Error())
-	}
-
-	// put the file's contents as yaml to the default configuration(c)
-	if err := yaml.Unmarshal(data, &c); err != nil {
-		panic("FATAL ERROR .yml.Unmarshal: " + err.Error())
-	}
-
-	return c
-}
-
 // Configuration the whole configuration for an Iris station instance
 // these can be passed via options also, look at the top of this file(configuration.go).
 // Configuration is a valid OptionSetter.
@@ -90,7 +54,7 @@ type Configuration struct {
 	// listening to the $instance.Handler after the manually-called $instance.Build
 	//
 	// Default comes from iris2.Default.Listen/.Serve with iris' listeners (iris2.TCP4/UNIX/TLS/LETSENCRYPT).
-	VHost string `yaml:"VHost"`
+	VHost string
 
 	// VScheme is the scheme (http:// or https://) putted at the template function '{{url }}'
 	// It's an optional field,
@@ -101,20 +65,20 @@ type Configuration struct {
 	//   addr only(http://) but the nginx mapper is listening to https://
 	//
 	// Default comes from iris2.Default.Listen/.Serve with iris' listeners (TCP4,UNIX,TLS,LETSENCRYPT).
-	VScheme string `yaml:"VScheme"`
+	VScheme string
 
 	// ReadTimeout is the maximum duration before timing out read of the request.
-	ReadTimeout time.Duration `yaml:"ReadTimeout"`
+	ReadTimeout time.Duration
 
 	// WriteTimeout is the maximum duration before timing out write of the response.
-	WriteTimeout time.Duration `yaml:"WriteTimeout"`
+	WriteTimeout time.Duration
 
 	// MaxHeaderBytes controls the maximum number of bytes the
 	// server will read parsing the request header's keys and
 	// values, including the request line. It does not limit the
 	// size of the request body.
 	// If zero, DefaultMaxHeaderBytes is used.
-	MaxHeaderBytes int `yaml:"MaxHeaderBytes"`
+	MaxHeaderBytes int
 
 	// DisablePathCorrection corrects and redirects the requested path to the registered path
 	// for example, if /home/ path is requested but no handler for this Route found,
@@ -122,7 +86,7 @@ type Configuration struct {
 	// (permant)redirects the client to the correct path /home
 	//
 	// Defaults to false.
-	DisablePathCorrection bool `yaml:"disablePathCorrection"`
+	DisablePathCorrection bool
 
 	// EnablePathEscape when is true then its escapes the path, the named parameters (if any).
 	// Change to false it if you want something like this https://github.com/kataras/iris/issues/135 to work
@@ -135,12 +99,12 @@ type Configuration struct {
 	// projectName, _ := url.QueryUnescape(c.Param("project").
 	//
 	// Defaults to false.
-	EnablePathEscape bool `yaml:"EnablePathEscape"`
+	EnablePathEscape bool
 
 	// FireMethodNotAllowed if it's true router checks for StatusMethodNotAllowed(405) and
 	//  fires the 405 error instead of 404
 	// Defaults to false.
-	FireMethodNotAllowed bool `yaml:"FireMethodNotAllowed"`
+	FireMethodNotAllowed bool
 
 	// DisableBodyConsumptionOnUnmarshal manages the reading behavior of the context's body readers/binders.
 	// If setted to true then it
@@ -150,34 +114,34 @@ type Configuration struct {
 	// if this field setted to true then a new buffer will be created to read from and the request body.
 	// The body will not be changed and existing data before the
 	// context.UnmarshalBody/ReadJSON/ReadXML will be not consumed.
-	DisableBodyConsumptionOnUnmarshal bool `yaml:"DisableBodyConsumptionOnUnmarshal"`
+	DisableBodyConsumptionOnUnmarshal bool
 
 	// TimeFormat time format for any kind of datetime parsing
 	// Defaults to  "Mon, 02 Jan 2006 15:04:05 GMT".
-	TimeFormat string `yaml:"TimeFormat"`
+	TimeFormat string
 
 	// Charset character encoding for various rendering
 	// used for templates and the rest of the responses
 	// Defaults to "UTF-8".
-	Charset string `yaml:"Charset"`
+	Charset string
 
 	// Gzip enables gzip compression on your Render actions, this includes any type of render,
 	// templates and pure/raw content
 	// If you don't want to enable it globally, you could just use the third parameter
 	// on context.Render("myfileOrResponse", structBinding{}, iris2.RenderOptions{"gzip": true})
 	// Defaults to false.
-	Gzip bool `yaml:"Gzip"`
+	Gzip bool
 
 	// AutoFlashMessage adds the flash-message "msg" automatically to the parameters
 	// for each Render, side-effect is that when render is performed, the flash-message
 	// shall be garbage-collected!
-	AutoFlashMessage bool `yaml:"AutoFlashMessage"`
+	AutoFlashMessage bool
 
 	// Other are the custom, dynamic options, can be empty.
 	// This field used only by you to set any app's options you want
 	// or by custom adaptors, it's a way to simple communicate between your adaptors (if any)
 	// Defaults to a non-nil empty map.
-	Other map[string]interface{} `yaml:"Other"`
+	Other map[string]interface{}
 }
 
 // Set implements the OptionSetter
