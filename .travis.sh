@@ -8,6 +8,7 @@ echo "-----------------------"
 find -name main.go | grep -v 'vendor' | while read example; do
 	pushd `dirname $example` > /dev/null 2>&1
 	echo "== Building $example"
+	go get -t -v ./...
 	go build
 	popd > /dev/null 2>&1
 done
