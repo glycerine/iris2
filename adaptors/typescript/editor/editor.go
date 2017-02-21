@@ -189,7 +189,7 @@ func (e *Editor) start() {
 
 			go func() {
 				for outputScanner.Scan() {
-					e.logger("Editor: "+outputScanner.Text())
+					e.logger("Editor: " + outputScanner.Text())
 				}
 			}()
 
@@ -198,7 +198,7 @@ func (e *Editor) start() {
 				errScanner := bufio.NewScanner(errReader)
 				go func() {
 					for errScanner.Scan() {
-						e.logger("Editor: "+errScanner.Text())
+						e.logger("Editor: " + errScanner.Text())
 					}
 				}()
 			}
@@ -207,7 +207,7 @@ func (e *Editor) start() {
 
 	err := cmd.Start()
 	if err != nil {
-		e.logger("Error while running alm-tools. Trace: "+err.Error())
+		e.logger("Error while running alm-tools. Trace: " + err.Error())
 		return
 	}
 

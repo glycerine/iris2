@@ -79,7 +79,7 @@ func (t *TsAdaptor) start() {
 				cmd := npm.CommandBuilder("node", t.Config.Bin, "-p", project[0:strings.LastIndex(project, npm.PathSeparator)]) //remove the /tsconfig.json)
 				projectConfig, perr := FromFile(project)
 				if perr != nil {
-					t.logger("error while trying to read tsconfig: "+perr.Error())
+					t.logger("error while trying to read tsconfig: " + perr.Error())
 					continue
 				}
 
