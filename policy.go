@@ -366,20 +366,24 @@ type (
 	Session interface {
 		ID() string
 		Get(string) interface{}
-		HasFlash() bool
-		GetFlash(string) interface{}
 		GetString(key string) string
-		GetFlashString(string) string
+		GetStructure(key string, value interface{}) error
 		GetInt(key string) (int, error)
+		GetUint(key string) (uint, error)
 		GetInt64(key string) (int64, error)
 		GetFloat32(key string) (float32, error)
 		GetFloat64(key string) (float64, error)
 		GetBoolean(key string) (bool, error)
 		GetAll() map[string]interface{}
-		GetFlashes() map[string]interface{}
 		VisitAll(cb func(k string, v interface{}))
 		Set(string, interface{})
+
+		HasFlash() bool
+		GetFlash(string) interface{}
+		GetFlashString(string) string
+		GetFlashes() map[string]interface{}
 		SetFlash(string, interface{})
+
 		Delete(string)
 		DeleteFlash(string)
 		Clear()

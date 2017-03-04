@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-iris2/iris2"
 	"github.com/go-iris2/iris2/errors"
+	"github.com/mitchellh/mapstructure"
 )
 
 type (
@@ -51,6 +52,166 @@ func (s *session) Get(key string) interface{} {
 	return value
 }
 
+var errFindParse = errors.New("Unable to find the %s with key: %s, found: %T")
+
+// GetStructure retrieves a structure, if the key is not found or other errors
+// ocuured during conversion an error is returned. The value must be a pointer
+// to a struct.
+func (s *session) GetStructure(key string, value interface{}) error {
+	v := s.Get(key)
+	if v == nil {
+		return errors.New("key %s does not exist")
+	}
+	return mapstructure.Decode(v, value)
+}
+
+// GetString same as Get but returns as string, if nil then returns an empty string
+func (s *session) GetString(key string) string {
+	if value := s.Get(key); value != nil {
+		if v, ok := value.(string); ok {
+			return v
+		}
+	}
+
+	return ""
+}
+
+// GetInt same as Get but returns as int, if not found then returns -1 and an error
+func (s *session) GetInt(key string) (int, error) {
+	switch v := s.Get(key).(type) {
+	case int:
+		return int(v), nil
+	case int64:
+		return int(v), nil
+	case uint:
+		return int(v), nil
+	case uint64:
+		return int(v), nil
+	case float32:
+		return int(v), nil
+	case float64:
+		return int(v), nil
+	case string:
+		return strconv.Atoi(v)
+	default:
+		return -1, errFindParse.Format("int", key, v)
+	}
+}
+
+// GetInt same as Get but returns as uint, if not found then returns 0 and an error
+func (s *session) GetUint(key string) (uint, error) {
+	switch v := s.Get(key).(type) {
+	case int:
+		return uint(v), nil
+	case int64:
+		return uint(v), nil
+	case uint:
+		return uint(v), nil
+	case uint64:
+		return uint(v), nil
+	case float32:
+		return uint(v), nil
+	case float64:
+		return uint(v), nil
+	case string:
+		s, err := strconv.ParseInt(v, 10, 64)
+		return uint(s), err
+	default:
+		return 0, errFindParse.Format("uint", key, v)
+	}
+}
+
+// GetInt64 same as Get but returns as int64, if not found then returns -1 and an error
+func (s *session) GetInt64(key string) (int64, error) {
+	switch v := s.Get(key).(type) {
+	case int:
+		return int64(v), nil
+	case int64:
+		return int64(v), nil
+	case uint:
+		return int64(v), nil
+	case uint64:
+		return int64(v), nil
+	case float32:
+		return int64(v), nil
+	case float64:
+		return int64(v), nil
+	case string:
+		return strconv.ParseInt(v, 10, 64)
+	default:
+		return -1, errFindParse.Format("int64", key, v)
+	}
+}
+
+// GetFloat32 same as Get but returns as float32, if not found then returns -1 and an error
+func (s *session) GetFloat32(key string) (float32, error) {
+	switch v := s.Get(key).(type) {
+	case int:
+		return float32(v), nil
+	case int64:
+		return float32(v), nil
+	case uint:
+		return float32(v), nil
+	case uint64:
+		return float32(v), nil
+	case float32:
+		return float32(v), nil
+	case float64:
+		return float32(v), nil
+	case string:
+		r, err := strconv.ParseFloat(v, 32)
+		return float32(r), err
+	default:
+		return -1, errFindParse.Format("float32", key, v)
+	}
+}
+
+// GetFloat64 same as Get but returns as float64, if not found then returns -1 and an error
+func (s *session) GetFloat64(key string) (float64, error) {
+	switch v := s.Get(key).(type) {
+	case int:
+		return float64(v), nil
+	case int64:
+		return float64(v), nil
+	case uint:
+		return float64(v), nil
+	case uint64:
+		return float64(v), nil
+	case float32:
+		return float64(v), nil
+	case float64:
+		return float64(v), nil
+	case string:
+		return strconv.ParseFloat(v, 64)
+	default:
+		return -1, errFindParse.Format("float64", key, v)
+	}
+}
+
+// GetBoolean same as Get but returns as boolean, if not found then returns -1 and an error
+func (s *session) GetBoolean(key string) (bool, error) {
+	v := s.Get(key)
+	// here we could check for "true", "false" and 0 for false and 1 for true
+	// but this may cause unexpected behavior from the developer if they expecting an error
+	// so we just check if bool, if yes then return that bool, otherwise return false and an error
+	if vb, ok := v.(bool); ok {
+		return vb, nil
+	}
+
+	return false, errFindParse.Format("bool", key, v)
+}
+
+// GetAll returns a copy of all session's values
+func (s *session) GetAll() map[string]interface{} {
+	items := make(map[string]interface{}, len(s.values))
+	s.mu.RLock()
+	for key, v := range s.values {
+		items[key] = v
+	}
+	s.mu.RUnlock()
+	return items
+}
+
 // when running on the session manager removes any 'old' flash messages
 func (s *session) runFlashGC() {
 	s.mu.Lock()
@@ -86,17 +247,6 @@ func (s *session) GetFlash(key string) (v interface{}) {
 	return
 }
 
-// GetString same as Get but returns as string, if nil then returns an empty string
-func (s *session) GetString(key string) string {
-	if value := s.Get(key); value != nil {
-		if v, ok := value.(string); ok {
-			return v
-		}
-	}
-
-	return ""
-}
-
 // GetFlashString same as GetFlash but returns as string, if nil then returns an empty string
 func (s *session) GetFlashString(key string) string {
 	if value := s.GetFlash(key); value != nil {
@@ -106,95 +256,6 @@ func (s *session) GetFlashString(key string) string {
 	}
 
 	return ""
-}
-
-var errFindParse = errors.New("Unable to find the %s with key: %s. Found? %#v")
-
-// GetInt same as Get but returns as int, if not found then returns -1 and an error
-func (s *session) GetInt(key string) (int, error) {
-	v := s.Get(key)
-	if vint, ok := v.(int); ok {
-		return vint, nil
-	} else if vstring, sok := v.(string); sok {
-		return strconv.Atoi(vstring)
-	}
-
-	return -1, errFindParse.Format("int", key, v)
-}
-
-// GetInt64 same as Get but returns as int64, if not found then returns -1 and an error
-func (s *session) GetInt64(key string) (int64, error) {
-	v := s.Get(key)
-	if vint64, ok := v.(int64); ok {
-		return vint64, nil
-	} else if vint, ok := v.(int); ok {
-		return int64(vint), nil
-	} else if vstring, sok := v.(string); sok {
-		return strconv.ParseInt(vstring, 10, 64)
-	}
-
-	return -1, errFindParse.Format("int64", key, v)
-
-}
-
-// GetFloat32 same as Get but returns as float32, if not found then returns -1 and an error
-func (s *session) GetFloat32(key string) (float32, error) {
-	v := s.Get(key)
-	if vfloat32, ok := v.(float32); ok {
-		return vfloat32, nil
-	} else if vfloat64, ok := v.(float64); ok {
-		return float32(vfloat64), nil
-	} else if vint, ok := v.(int); ok {
-		return float32(vint), nil
-	} else if vstring, sok := v.(string); sok {
-		vfloat64, err := strconv.ParseFloat(vstring, 32)
-		if err != nil {
-			return -1, err
-		}
-		return float32(vfloat64), nil
-	}
-
-	return -1, errFindParse.Format("float32", key, v)
-}
-
-// GetFloat64 same as Get but returns as float64, if not found then returns -1 and an error
-func (s *session) GetFloat64(key string) (float64, error) {
-	v := s.Get(key)
-	if vfloat32, ok := v.(float32); ok {
-		return float64(vfloat32), nil
-	} else if vfloat64, ok := v.(float64); ok {
-		return vfloat64, nil
-	} else if vint, ok := v.(int); ok {
-		return float64(vint), nil
-	} else if vstring, sok := v.(string); sok {
-		return strconv.ParseFloat(vstring, 32)
-	}
-
-	return -1, errFindParse.Format("float64", key, v)
-}
-
-// GetBoolean same as Get but returns as boolean, if not found then returns -1 and an error
-func (s *session) GetBoolean(key string) (bool, error) {
-	v := s.Get(key)
-	// here we could check for "true", "false" and 0 for false and 1 for true
-	// but this may cause unexpected behavior from the developer if they expecting an error
-	// so we just check if bool, if yes then return that bool, otherwise return false and an error
-	if vb, ok := v.(bool); ok {
-		return vb, nil
-	}
-
-	return false, errFindParse.Format("bool", key, v)
-}
-
-// GetAll returns a copy of all session's values
-func (s *session) GetAll() map[string]interface{} {
-	items := make(map[string]interface{}, len(s.values))
-	s.mu.RLock()
-	for key, v := range s.values {
-		items[key] = v
-	}
-	s.mu.RUnlock()
-	return items
 }
 
 // GetFlashes returns all flash messages as map[string](key) and interface{} value
