@@ -52,7 +52,7 @@ func (s *session) Get(key string) interface{} {
 	return value
 }
 
-var errFindParse = errors.New("Unable to find the %s with key: %s, found: %T")
+var errFindParse = errors.New("unable to find the %s with key: %s, found: %T")
 
 // GetStructure retrieves a structure, if the key is not found or other errors
 // ocuured during conversion an error is returned. The value must be a pointer
@@ -60,7 +60,7 @@ var errFindParse = errors.New("Unable to find the %s with key: %s, found: %T")
 func (s *session) GetStructure(key string, value interface{}) error {
 	v := s.Get(key)
 	if v == nil {
-		return errors.New("key %s does not exist")
+		return errors.New("key %s does not exist").Format(key)
 	}
 	return mapstructure.Decode(v, value)
 }
