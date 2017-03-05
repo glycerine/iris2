@@ -6,20 +6,6 @@ import (
 	"runtime"
 )
 
-const (
-	// Version current version number
-	Version = "0.0.3"
-)
-
-var (
-	// Prefix the error prefix, applies to each error's message
-	// defaults to Error:_
-	Prefix = "Error: "
-	// NewLine adds a new line to the end of each error's message
-	// defaults to true
-	NewLine = true
-)
-
 // Error holds the error message, this message never really changes
 type Error struct {
 	message  string
@@ -29,10 +15,7 @@ type Error struct {
 // New creates and returns an Error with a pre-defined user output message
 // all methods below that doesn't accept a pointer receiver because actually they are not changing the original message
 func New(errMsg string) *Error {
-	if NewLine {
-		errMsg += "\n"
-	}
-	return &Error{message: Prefix + errMsg}
+	return &Error{message: errMsg}
 }
 
 // String returns the error message
@@ -56,10 +39,6 @@ func (e Error) Format(a ...interface{}) Error {
 // Append adds a message to the predefined error message and returns a new error
 // it does NOT change the original error's message
 func (e Error) Append(format string, a ...interface{}) Error {
-	// eCp := *e
-	if NewLine {
-		format += "\n"
-	}
 	e.message += fmt.Sprintf(format, a...)
 	e.appended = true
 	return e
