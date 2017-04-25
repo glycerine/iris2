@@ -338,7 +338,7 @@ func (f *Framework) handlePanic(err error) {
 }
 
 // Boot runs only once, automatically
-//  when 'Serve/Listen/ListenTLS/ListenUNIX/ListenLETSENCRYPT' called.
+//  when 'Serve/Listen' called.
 // It's exported because you may want to build the router
 //  and its components but not run the server.
 //
@@ -453,93 +453,6 @@ func (s *Framework) Listen(addr string) {
 	}
 
 	ln, err := TCPKeepAlive(addr)
-	if err != nil {
-		s.handlePanic(err)
-	}
-
-	s.Must(s.Serve(ln))
-}
-
-// ListenTLS Starts a https server with certificates,
-// if you use this method the requests of the form of 'http://' will fail
-// only https:// connections are allowed
-// which listens to the addr parameter which as the form of
-// host:port
-//
-//
-// If you need to manually monitor any error please use `.Serve` instead.
-func (s *Framework) ListenTLS(addr string, certFile, keyFile string) {
-	addr = ParseHost(addr)
-
-	{
-		// set it before Boot, be-careful VHost and VScheme are used by nginx users too
-		// we don't want to alt them.
-		if s.Config.VHost == "" {
-			s.Config.VHost = addr
-			// this will be set as the front-end listening addr
-		}
-		if s.Config.VScheme == "" {
-			s.Config.VScheme = SchemeHTTPS
-		}
-	}
-
-	srv, fn := s.setupServe()
-	// We are doing the same parts as .Serve does but instead we run srv.ListenAndServeTLS
-	// because of un-exported net/http.server.go:setupHTTP2_ListenAndServeTLS function which
-	// broke our previous flow but no problem :)
-	defer fn()
-	// print the banner and wait for system channel interrupt
-	go s.postServe()
-	s.Must(srv.ListenAndServeTLS(certFile, keyFile))
-}
-
-// ListenLETSENCRYPT starts a server listening at the specific nat address
-// using key & certification taken from the letsencrypt.org 's servers
-// it's also starts a second 'http' server to redirect all 'http://$ADDR_HOSTNAME:80' to the' https://$ADDR'
-// it creates a cache file to store the certifications, for performance reasons, this file by-default is "./letsencrypt.cache"
-// if you skip the second parameter then the cache file is "./letsencrypt.cache"
-// if you want to disable cache then simple pass as second argument an empty empty string ""
-//
-// Note: HTTP/2 Push is not working with LETSENCRYPT, you have to use ListenTLS to enable HTTP/2
-// Because net/http's author didn't exported the functions to tell the server that is using HTTP/2...
-//
-// example: https://github.com/iris-contrib/examples/blob/master/letsencrypt/main.go
-func (s *Framework) ListenLETSENCRYPT(addr string, cacheFileOptional ...string) {
-	addr = ParseHost(addr)
-
-	{
-		// set it before Boot, be-careful VHost and VScheme are used by nginx users too
-		// we don't want to alt them.
-		if s.Config.VHost == "" {
-			s.Config.VHost = addr
-			// this will be set as the front-end listening addr
-		}
-		if s.Config.VScheme == "" {
-			s.Config.VScheme = SchemeHTTPS
-		}
-	}
-
-	ln, err := LETSENCRYPT(addr, cacheFileOptional...)
-	if err != nil {
-		s.handlePanic(err)
-	}
-
-	// starts a second server which listening on HOST:80 to redirect all requests to the HTTPS://HOST:PORT
-	Proxy(ParseHostname(addr)+":80", "https://"+addr)
-	s.Must(s.Serve(ln))
-}
-
-// ListenUNIX starts the process of listening to the new requests using a 'socket file', this works only on unix
-//
-//
-// If you need to manually monitor any error please use `.Serve` instead.
-func (s *Framework) ListenUNIX(addr string, mode os.FileMode) {
-	// *on unix listen we don't parse the host, because sometimes it causes problems to the user
-	if s.Config.VHost == "" {
-		s.Config.VHost = addr
-		// this will be set as the front-end listening addr
-	}
-	ln, err := UNIX(addr, mode)
 	if err != nil {
 		s.handlePanic(err)
 	}

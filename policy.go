@@ -130,7 +130,7 @@ func (e EventPolicy) Adapt(frame *Policies) {
 	frame.EventPolicy.Interrupted =
 		wrapEvtListeners(frame.EventPolicy.Interrupted, e.Interrupted)
 
-	// Recover event listener, when panic on .Must and inside .Listen/ListenTLS/ListenUNIX/ListenLETSENCRYPT/Serve
+	// Recover event listener, when panic on .Must and inside .Listen//Serve
 	// only one allowed, no wrapper is used.
 	if e.Recover != nil {
 		frame.EventPolicy.Recover = e.Recover

@@ -2,7 +2,6 @@ package iris2
 
 import (
 	"context"
-	"crypto/tls"
 	"net"
 	"net/http"
 	"os"
@@ -11,7 +10,6 @@ import (
 	"time"
 
 	"github.com/go-iris2/iris2/errors"
-	"golang.org/x/crypto/acme/autocert"
 )
 
 var (
@@ -34,93 +32,6 @@ func TCPKeepAlive(addr string) (net.Listener, error) {
 		return nil, err
 	}
 	return TCPKeepAliveListener{ln.(*net.TCPListener)}, err
-}
-
-// UNIX returns a new unix(file) Listener
-func UNIX(addr string, mode os.FileMode) (net.Listener, error) {
-	if errOs := os.Remove(addr); errOs != nil && !os.IsNotExist(errOs) {
-		return nil, errRemoveUnix.Format(addr, errOs.Error())
-	}
-
-	listener, err := net.Listen("unix", addr)
-	if err != nil {
-		return nil, errPortAlreadyUsed.AppendErr(err)
-	}
-
-	if err = os.Chmod(addr, mode); err != nil {
-		return nil, errChmod.Format(mode, addr, err.Error())
-	}
-
-	return listener, nil
-}
-
-// TLS returns a new TLS Listener
-func TLS(addr, certFile, keyFile string) (net.Listener, error) {
-
-	if certFile == "" || keyFile == "" {
-		return nil, errCertKeyMissing
-	}
-
-	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
-	if err != nil {
-		return nil, errParseTLS.Format(certFile, keyFile, err)
-	}
-
-	return CERT(addr, cert)
-}
-
-// CERT returns a listener which contans tls.Config with the provided certificate, use for ssl
-func CERT(addr string, cert tls.Certificate) (net.Listener, error) {
-	ln, err := TCP4(addr)
-	if err != nil {
-		return nil, err
-	}
-
-	tlsConfig := &tls.Config{
-		Certificates:             []tls.Certificate{cert},
-		PreferServerCipherSuites: true,
-	}
-	return tls.NewListener(ln, tlsConfig), nil
-}
-
-// LETSENCRYPT returns a new Automatic TLS Listener using letsencrypt.org service
-// receives two parameters, the first is the domain of the server
-// and the second is optionally, the cache directory, if you skip it then the cache directory is "./certcache"
-// if you want to disable cache directory then simple give it a value of empty string ""
-//
-// does NOT supports localhost domains for testing.
-//
-// this is the recommended function to use when you're ready for production state
-func LETSENCRYPT(addr string, cacheDirOptional ...string) (net.Listener, error) {
-	if portIdx := strings.IndexByte(addr, ':'); portIdx == -1 {
-		addr += ":443"
-	}
-
-	ln, err := TCP4(addr)
-	if err != nil {
-		return nil, err
-	}
-
-	cacheDir := "./certcache"
-	if len(cacheDirOptional) > 0 {
-		cacheDir = cacheDirOptional[0]
-	}
-
-	m := autocert.Manager{
-		Prompt: autocert.AcceptTOS,
-	} // HostPolicy is missing, if user wants it, then she/he should manually
-	// configure the autocertmanager and use the `iris2.Default.Serve` to pass that listener
-
-	if cacheDir == "" {
-		// then the user passed empty by own will, then I guess she/he doesnt' want any cache directory
-	} else {
-		m.Cache = autocert.DirCache(cacheDir)
-	}
-
-	tlsConfig := &tls.Config{GetCertificate: m.GetCertificate}
-	tlsLn := tls.NewListener(ln, tlsConfig)
-
-	return tlsLn, nil
 }
 
 // TCPKeepAliveListener sets TCP keep-alive timeouts on accepted

@@ -43,8 +43,8 @@ type Configuration struct {
 	// VHost is the addr or the domain that server listens to, which it's optional
 	// When to set VHost manually:
 	// 1. it's automatically setted when you're calling
-	//     $instance.Listen/ListenUNIX/ListenTLS/ListenLETSENCRYPT functions or
-	//     ln,_ := iris2.TCP4/UNIX/TLS/LETSENCRYPT; $instance.Serve(ln)
+	//     $instance.Listen function or
+	//     ln,_ := iris2.TCP4; $instance.Serve(ln)
 	// 2. If you using a balancer, or something like nginx
 	//    then set it in order to have the correct url
 	//    when calling the template helper '{{url }}'
@@ -53,18 +53,18 @@ type Configuration struct {
 	// Note: this is the main's server Host, you can setup unlimited number of net/http servers
 	// listening to the $instance.Handler after the manually-called $instance.Build
 	//
-	// Default comes from iris2.Default.Listen/.Serve with iris' listeners (iris2.TCP4/UNIX/TLS/LETSENCRYPT).
+	// Default comes from iris2.Default.Listen/.Serve with iris' listeners (iris2.TCP4).
 	VHost string
 
 	// VScheme is the scheme (http:// or https://) putted at the template function '{{url }}'
 	// It's an optional field,
 	// When to set VScheme manually:
-	// 1. You didn't start the main server using $instance.Listen/ListenTLS/ListenLETSENCRYPT
+	// 1. You didn't start the main server using $instance.Listen
 	//    or $instance.Serve($instance.TCP4()/.TLS...)
 	// 2. if you're using something like nginx and have iris listening with
 	//   addr only(http://) but the nginx mapper is listening to https://
 	//
-	// Default comes from iris2.Default.Listen/.Serve with iris' listeners (TCP4,UNIX,TLS,LETSENCRYPT).
+	// Default comes from iris2.Default.Listen/.Serve with iris' listeners (TCP4).
 	VScheme string
 
 	// ReadTimeout is the maximum duration before timing out read of the request.
@@ -157,8 +157,8 @@ var (
 	// OptionVHost is the addr or the domain that server listens to, which it's optional
 	// When to set VHost manually:
 	// 1. it's automatically setted when you're calling
-	//     $instance.Listen/ListenUNIX/ListenTLS/ListenLETSENCRYPT functions or
-	//     ln,_ := iris2.TCP4/UNIX/TLS/LETSENCRYPT; $instance.Serve(ln)
+	//     $instance.Listen functions or
+	//     ln,_ := iris2.TCP4; $instance.Serve(ln)
 	// 2. If you using a balancer, or something like nginx
 	//    then set it in order to have the correct url
 	//    when calling the template helper '{{url }}'
@@ -167,7 +167,7 @@ var (
 	// Note: this is the main's server Host, you can setup unlimited number of net/http servers
 	// listening to the $instance.Handler after the manually-called $instance.Build
 	//
-	// Default comes from iris2.Default.Listen/.Serve with iris' listeners (iris2.TCP4/UNIX/TLS/LETSENCRYPT).
+	// Default comes from iris2.Default.Listen/.Serve with iris' listeners (iris2.TCP4).
 	OptionVHost = func(val string) OptionSet {
 		return func(c *Configuration) {
 			c.VHost = val
@@ -177,12 +177,12 @@ var (
 	// OptionVScheme is the scheme (http:// or https://) putted at the template function '{{url }}'
 	// It's an optional field,
 	// When to set Scheme manually:
-	// 1. You didn't start the main server using $instance.Listen/ListenTLS/ListenLETSENCRYPT
+	// 1. You didn't start the main server using $instance.Listen
 	//     or $instance.Serve($instance.TCP4()/.TLS...)
 	// 2. if you're using something like nginx and have iris listening with
 	//    addr only(http://) but the nginx mapper is listening to https://
 	//
-	// Default comes from iris2.Default.Listen/.Serve with iris' listeners (TCP4,UNIX,TLS,LETSENCRYPT).
+	// Default comes from iris2.Default.Listen/.Serve with iris' listeners (TCP4).
 	OptionVScheme = func(val string) OptionSet {
 		return func(c *Configuration) {
 			c.VScheme = val

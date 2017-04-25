@@ -1,6 +1,8 @@
 package iris2_test
 
 import (
+	"time"
+	"math/rand"
 	"strconv"
 	"net/http"
 	"testing"
@@ -127,6 +129,11 @@ func TestMuxSimple(t *testing.T) {
 			Status(r.Status).Body().Equal(r.Body)
 	}
 
+}
+
+func getRandomNumber(min int, max int) int {
+	rand.Seed(time.Now().Unix())
+	return rand.Intn(max-min) + min
 }
 
 func TestMuxSimpleParty(t *testing.T) {
