@@ -674,28 +674,7 @@ func TypeByExtension(fullfilename string) (t string) {
 	ext := filepath.Ext(fullfilename)
 	//these should be found by the windows(registry) and unix(apache) but on windows some machines have problems on this part.
 	if t = mime.TypeByExtension(ext); t == "" {
-		// no use of map here because we will have to lock/unlock it, by hand is better, no problem:
-		if ext == ".json" {
-			t = "application/json"
-		} else if ext == ".js" {
-			t = "application/javascript"
-		} else if ext == ".zip" {
-			t = "application/zip"
-		} else if ext == ".3gp" {
-			t = "video/3gpp"
-		} else if ext == ".7z" {
-			t = "application/x-7z-compressed"
-		} else if ext == ".ace" {
-			t = "application/x-ace-compressed"
-		} else if ext == ".aac" {
-			t = "audio/x-aac"
-		} else if ext == ".ico" { // for any case
-			t = "image/x-icon"
-		} else if ext == ".png" {
-			t = "image/png"
-		} else {
-			t = "application/octet-stream"
-		}
+		return
 		// mime.TypeByExtension returns as text/plain; | charset=utf-8 the static .js (not always)
 	} else if t == "text/plain" || t == "text/plain; charset=utf-8" {
 		if ext == ".js" {

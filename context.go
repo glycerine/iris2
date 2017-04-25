@@ -1119,14 +1119,17 @@ func (ctx *Context) SetClientCachedBody(status int, bodyContent []byte, cType st
 // You can define your own "Content-Type" header also, after this function call
 // Doesn't implements resuming (by range), use ctx.SendFile instead
 func (ctx *Context) ServeContent(content io.ReadSeeker, filename string, modtime time.Time, gzipCompression bool) error {
-	if t, err := time.Parse(ctx.framework.Config.TimeFormat, ctx.RequestHeader(ifModifiedSince)); err == nil && modtime.Before(t.Add(1*time.Second)) {
+	if t, err := time.Parse(ctx.framework.Config.TimeFormat, ctx.RequestHeader(ifModifiedSince)); err == nil &&
+		modtime.Before(t.Add(1*time.Second)) {
 		ctx.ResponseWriter.Header().Del(contentType)
 		ctx.ResponseWriter.Header().Del(contentLength)
 		ctx.SetStatusCode(http.StatusNotModified)
 		return nil
 	}
 
-	ctx.ResponseWriter.Header().Set(contentType, TypeByExtension(filename))
+	if ext := TypeByExtension(filename); ext != "" {
+		ctx.ResponseWriter.Header().Set(contentType, ext)
+	}
 	ctx.ResponseWriter.Header().Set(lastModified, modtime.UTC().Format(ctx.framework.Config.TimeFormat))
 	ctx.SetStatusCode(http.StatusOK)
 	var out io.Writer
