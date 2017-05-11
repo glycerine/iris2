@@ -54,6 +54,7 @@
 		},
 		{
 			"ImportPath": "github.com/fatih/structs",
+			"Comment": "v1.0",
 			"Rev": "a720dfa8df582c51dee1b36feabb906bde1588bd"
 		},
 		{
@@ -119,6 +120,10 @@
 			"Rev": "53e6ce116135b80d037921a7fdd5138cf32d7a8a"
 		},
 		{
+			"ImportPath": "github.com/gorilla/schema",
+			"Rev": "1c72d033473165ade8a126ba64180d76a9212dcd"
+		},
+		{
 			"ImportPath": "github.com/gorilla/websocket",
 			"Comment": "v1.1.0-24-g3f3e394",
 			"Rev": "3f3e394da2b801fbe732a935ef40724762a67a07"
@@ -132,10 +137,6 @@
 			"ImportPath": "github.com/imkira/go-interpol",
 			"Comment": "v1.1.0",
 			"Rev": "5accad8134979a6ac504d456a6c7f1c53da237ca"
-		},
-		{
-			"ImportPath": "github.com/iris-contrib/formBinder",
-			"Rev": "81b6a071e35797b83562caf4b3cad24dc01912dc"
 		},
 		{
 			"ImportPath": "github.com/iris-contrib/httpexpect",
@@ -173,6 +174,10 @@
 		{
 			"ImportPath": "github.com/microcosm-cc/bluemonday",
 			"Rev": "e79763773ab6222ca1d5a7cbd9d62d83c1f77081"
+		},
+		{
+			"ImportPath": "github.com/mitchellh/mapstructure",
+			"Rev": "cc8532a8e9a55ea36402aa21efdf403a60d34096"
 		},
 		{
 			"ImportPath": "github.com/moul/http2curl",
@@ -314,32 +319,20 @@
 			"Rev": "d1c525dea8ce39ea9a783d33cf08932305373f2c"
 		},
 		{
-			"ImportPath": "golang.org/x/crypto/acme",
-			"Rev": "453249f01cfeb54c3d549ddb75ff152ca243f9d8"
-		},
-		{
-			"ImportPath": "golang.org/x/crypto/acme/autocert",
-			"Rev": "453249f01cfeb54c3d549ddb75ff152ca243f9d8"
-		},
-		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "6b27048ae5e6ad1ef927e72e437531493de612fe"
-		},
-		{
-			"ImportPath": "golang.org/x/net/context/ctxhttp",
-			"Rev": "6b27048ae5e6ad1ef927e72e437531493de612fe"
+			"Rev": "c9b681d35165f1995d6f3034e61f8761d4b90c99"
 		},
 		{
 			"ImportPath": "golang.org/x/net/html",
-			"Rev": "6b27048ae5e6ad1ef927e72e437531493de612fe"
+			"Rev": "c9b681d35165f1995d6f3034e61f8761d4b90c99"
 		},
 		{
 			"ImportPath": "golang.org/x/net/html/atom",
-			"Rev": "6b27048ae5e6ad1ef927e72e437531493de612fe"
+			"Rev": "c9b681d35165f1995d6f3034e61f8761d4b90c99"
 		},
 		{
 			"ImportPath": "golang.org/x/net/publicsuffix",
-			"Rev": "6b27048ae5e6ad1ef927e72e437531493de612fe"
+			"Rev": "c9b681d35165f1995d6f3034e61f8761d4b90c99"
 		},
 		{
 			"ImportPath": "gopkg.in/ini.v1",
@@ -355,10 +348,6 @@
 			"ImportPath": "gopkg.in/vmihailenco/msgpack.v2/codes",
 			"Comment": "v2.8.3",
 			"Rev": "a1382b1ce0c749733b814157c245e02cc1f41076"
-		},
-		{
-			"ImportPath": "gopkg.in/yaml.v2",
-			"Rev": "a3f3340b5840cee44f372bddb5880fcbc419b46a"
 		}
 	]
 }
