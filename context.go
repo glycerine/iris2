@@ -22,7 +22,7 @@ import (
 
 	"github.com/go-iris2/iris2/errors"
 	"github.com/go-iris2/iris2/template"
-	"github.com/iris-contrib/formBinder"
+	"github.com/gorilla/schema"
 )
 
 const (
@@ -162,6 +162,11 @@ func (c *contextPool) Acquire(w http.ResponseWriter, r *http.Request) *Context {
 	ctx := c.pool.Get().(*Context)
 	ctx.ResponseWriter = acquireResponseWriter(w)
 	ctx.Request = r
+	if ctx.formDecoder == nil {
+		ctx.formDecoder = schema.NewDecoder()
+		ctx.formDecoder.SetAliasTag("form")
+		ctx.formDecoder.IgnoreUnknownKeys(true)
+	}
 	return ctx
 }
 
@@ -207,8 +212,9 @@ type (
 		values         requestValues
 		framework      *Framework
 		//keep track all registered middleware (handlers)
-		Middleware Middleware //  exported because is useful for debugging
-		session    Session
+		Middleware  Middleware //  exported because is useful for debugging
+		session     Session
+		formDecoder *schema.Decoder
 		// Pos is the position number of the Context, look .Next to understand
 		Pos int // exported because is useful for debugging
 	}
@@ -578,7 +584,6 @@ func (ctx *Context) FormFile(key string) (multipart.File, *multipart.FileHeader,
 }
 
 var (
-	errReadBody     = errors.New("While trying to read %s from the request body. Trace %s")
 	errServeContent = errors.New("While trying to serve content to the client. Trace %s")
 )
 
@@ -697,7 +702,8 @@ func (ctx *Context) ReadForm(formObject interface{}) error {
 	if values == nil {
 		return errors.New("An empty form passed on context.ReadForm")
 	}
-	return errReadBody.With(formBinder.Decode(values, formObject))
+
+	return ctx.formDecoder.Decode(formObject, values)
 }
 
 /* Response */
