@@ -1,0 +1,30 @@
+{
+	"Vendor": true,
+	"LineLength": 120,
+	"Enable": [
+		"aligncheck",
+		"deadcode",
+		"dupl",
+		"gas",
+		"goconst",
+		"gocyclo",
+		"gofmt",
+		"golint",
+		"gotype",
+		"ineffassign",
+		"interfacer",
+		"lll",
+		"megacheck",
+		"misspell",
+		"structcheck",
+		"unconvert",
+		"varcheck",
+		"vet",
+		"vetshadow"],
+	"Severity": {
+		"golint" :    "error",
+		"gotype" :    "error",
+		"vet" :       "error",
+		"vetshadow" : "error"
+	}
+}

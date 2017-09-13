@@ -1,137 +1,82 @@
 package httptest
 
 import (
-	"crypto/tls"
+	"bufio"
 	"net/http"
+	"net/http/httputil"
+	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/require"
+	"github.com/valyala/fasthttp"
+	"github.com/valyala/fasthttp/fasthttputil"
+
 	"github.com/go-iris2/iris2"
-	"github.com/iris-contrib/httpexpect"
 )
 
-type (
-	// OptionSetter sets a configuration field to the configuration
-	OptionSetter interface {
-		// Set receives a pointer to the Configuration type and does the job of filling it
-		Set(c *Configuration)
-	}
-	// OptionSet implements the OptionSetter
-	OptionSet func(c *Configuration)
-)
-
-// Set is the func which makes the OptionSet an OptionSetter, this is used mostly
-func (o OptionSet) Set(c *Configuration) {
-	o(c)
-}
-
-// Configuration httptest configuration
-type Configuration struct {
-	// ExplicitURL If true then the url (should) be prepended manually, useful when want to test subdomains
-	// Default is false
-	ExplicitURL bool
-	// Debug if true then debug messages from the httpexpect will be shown when a test runs
-	// Default is false
-	Debug bool
-}
-
-// Set implements the OptionSetter for the Configuration itself
-func (c Configuration) Set(main *Configuration) {
-	main.ExplicitURL = c.ExplicitURL
-	main.Debug = c.Debug
-}
-
-var (
-	// ExplicitURL If true then the url (should) be prepended manually, useful when want to test subdomains
-	// Default is false
-	ExplicitURL = func(val bool) OptionSet {
-		return func(c *Configuration) {
-			c.ExplicitURL = val
-		}
-	}
-	// Debug if true then debug messages from the httpexpect will be shown when a test runs
-	// Default is false
-	Debug = func(val bool) OptionSet {
-		return func(c *Configuration) {
-			c.Debug = val
-		}
-	}
-)
-
-// DefaultConfiguration returns the default configuration for the httptest
-// all values are defaulted to false for clarity
-func DefaultConfiguration() *Configuration {
-	return &Configuration{ExplicitURL: false, Debug: false}
+type HTTPTest struct {
+	t   *testing.T
+	srv *iris2.Server
+	l   *fasthttputil.InmemoryListener
 }
 
 // New Prepares and returns a new test framework based on the app
-// is useful when you need to have more than one test framework for the same iris instance
-// usage:
-// iris2.Default.Get("/mypath", func(ctx *iris2.Context){ctx.Write("my body")})
-// ...
-// e := httptest.New(iris2.Default, t)
-// e.GET("/mypath").Expect().Status(http.StatusOK).Body().Equal("my body")
-//
-// You can find example on the https://github.com/kataras/iris/glob/master/context_test.go
-func New(app *iris2.Framework, t *testing.T, setters ...OptionSetter) *httpexpect.Expect {
-	conf := DefaultConfiguration()
-	for _, setter := range setters {
-		setter.Set(conf)
+func New(app *iris2.Server, t *testing.T) *HTTPTest {
+
+	ht := &HTTPTest{
+		t:   t,
+		srv: app,
+		l:   fasthttputil.NewInmemoryListener(),
 	}
-
-	baseURL := ""
-	app.Boot()
-
-	if !conf.ExplicitURL {
-		baseURL = app.Config.VScheme + app.Config.VHost
-		// if it's still empty then set it to the default server addr
-		if baseURL == "" {
-			baseURL = iris2.SchemeHTTP + iris2.DefaultServerAddr
+	go func() {
+		err := ht.srv.Serve(ht.l)
+		if err != nil {
+			panic(err)
 		}
-
-	}
-
-	testConfiguration := httpexpect.Config{
-		BaseURL: baseURL,
-		Client: &http.Client{
-			Transport: httpexpect.NewBinder(app.Router),
-			Jar:       httpexpect.NewJar(),
-		},
-		Reporter: httpexpect.NewAssertReporter(t),
-	}
-
-	if conf.Debug {
-		testConfiguration.Printers = []httpexpect.Printer{
-			httpexpect.NewDebugPrinter(t, true),
-		}
-	}
-
-	return httpexpect.WithConfig(testConfiguration)
+	}()
+	return ht
 }
 
-// NewInsecure same as New but receives a single host instead of the whole framework
-func NewInsecure(baseURL string, t *testing.T, setters ...OptionSetter) *httpexpect.Expect {
-	conf := DefaultConfiguration()
-	for _, setter := range setters {
-		setter.Set(conf)
+func (h *HTTPTest) Get(url string) *Expecter {
+	return h.Request("GET", url)
+}
+
+func (h *HTTPTest) Post(url string) *Expecter {
+	return h.Request("GET", url)
+}
+
+func (h *HTTPTest) Request(method, url string) *Expecter {
+	if !strings.Contains(url, "http://") {
+		url = "http://localhost" + url
 	}
-	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	req, _ := http.NewRequest(method, url, nil)
+	req.Header.Set("User-Agent", "HTTPTest/v1.0")
+
+	dump, err := httputil.DumpRequestOut(req, true)
+	require.Nil(h.t, err)
+
+	c, err := h.l.Dial()
+	require.Nil(h.t, err)
+
+	_, err = c.Write(dump)
+	require.Nil(h.t, err)
+
+	br := bufio.NewReader(c)
+	var resp fasthttp.Response
+	err = resp.Read(br)
+	require.Nil(h.t, err)
+
+	var body []byte
+	if string(resp.Header.Peek("Content-Encoding")) == "gzip" {
+		body, err = resp.BodyGunzip()
+		require.Nil(h.t, err)
+	} else {
+		body = resp.Body()
 	}
 
-	testConfiguration := httpexpect.Config{
-		BaseURL: baseURL,
-		Client: &http.Client{
-			Transport: transport,
-			Jar:       httpexpect.NewJar(),
-		},
-		Reporter: httpexpect.NewAssertReporter(t),
+	return &Expecter{
+		body: string(body),
+		t:    h.t,
+		resp: &resp,
 	}
-
-	if conf.Debug {
-		testConfiguration.Printers = []httpexpect.Printer{
-			httpexpect.NewDebugPrinter(t, true),
-		}
-	}
-
-	return httpexpect.WithConfig(testConfiguration)
 }
