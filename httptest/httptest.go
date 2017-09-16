@@ -7,11 +7,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/go-iris2/iris2"
 	"github.com/stretchr/testify/require"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttputil"
-
-	"github.com/go-iris2/iris2"
 )
 
 type HTTPTest struct {
@@ -42,7 +41,7 @@ func (h *HTTPTest) Get(url string) *Expecter {
 }
 
 func (h *HTTPTest) Post(url string) *Expecter {
-	return h.Request("GET", url)
+	return h.Request("POST", url)
 }
 
 func (h *HTTPTest) Request(method, url string) *Expecter {

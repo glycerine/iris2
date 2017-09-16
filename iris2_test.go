@@ -44,10 +44,10 @@ func TestRoutePath(t *testing.T) {
 	c.Get("/route/path/you/know/not").Status(http.StatusNotFound)
 }
 
-/*func TestParamPath(t *testing.T) {
+func TestParamPath(t *testing.T) {
 	app := iris2.New()
-	app.Get("/parstr/<param>", func(ctx *iris2.Context) error {
-		ctx.WriteString(ctx.Param("param"))
+	app.Get("/parstr/:param", func(ctx *iris2.Context) error {
+		ctx.WriteString(ctx.ParamString("param"))
 		return nil
 	})
 
@@ -56,17 +56,16 @@ func TestRoutePath(t *testing.T) {
 	c.Get("https://127.0.0.1/parstr/forreal").Status(http.StatusOK).Body("forreal")
 	c.Get("https://127.0.0.1/parstr/for%2Dreal").Status(http.StatusOK).Body("for-real")
 }
-*/
-/*
+
 func TestGroup(t *testing.T) {
 	app := iris2.New()
-	r := app.Party("/test")
-	r.Get("/parstr/<param>", func(ctx *iris2.Context) {
-		ctx.WriteString(ctx.Param("param"))
+	r := app.Group("/test")
+	r.Get("/parstr/:param", func(ctx *iris2.Context) error {
+		ctx.WriteString(ctx.ParamString("param"))
+		return nil
 	})
 
 	c := httptest.New(app, t)
 	c.Get("https://127.0.0.1/parstr/%20").Status(http.StatusNotFound)
 	c.Get("https://127.0.0.1/test/parstr/%20").Status(http.StatusOK).Body(" ")
 }
-*/
