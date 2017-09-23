@@ -36,6 +36,7 @@ func (r *RamStorage) Exist(sessID string) bool {
 func (r *RamStorage) New(sessID string) *Session {
 	s := &Session{
 		data:    make(map[string]interface{}),
+		flashes: make(map[string][]interface{}),
 		id:      sessID,
 		storage: r,
 	}
