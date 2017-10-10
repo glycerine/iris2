@@ -9,22 +9,23 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/Sirupsen/logrus"
 	"github.com/flosch/pongo2"
+	"github.com/go-iris2/iris2"
 )
 
 type (
 	// Engine the pongo2 engine
 	Engine struct {
 		Config        Config
+		mu            sync.RWMutex
 		templateCache map[string]*pongo2.Template
-		mu            sync.Mutex
 	}
 )
 
 const (
-	templateErrorMessage = `
-	<html><body>
-	<h2>Error in template</h2>
+	templateErrorMessage = `<html><body>
+	<h2>Error in template: %s</h2>
 	<h3>%s</h3>
 	</body></html>`
 )
@@ -42,29 +43,13 @@ func New(cfg ...Config) *Engine {
 	if c.Filters == nil {
 		c.Filters = make(map[string]FilterFunction, 0)
 	}
-
+	c.DebugTemplates = true
 	return &Engine{Config: c, templateCache: make(map[string]*pongo2.Template)}
 }
 
 // Funcs should returns the helper funcs
 func (p *Engine) Funcs() map[string]interface{} {
 	return p.Config.Globals
-}
-
-// this exists because of moving the pongo2 to the vendors without conflictitions if users
-// wants to register pongo2 filters they can use this django.FilterFunc to do so.
-func (p *Engine) convertFilters() map[string]pongo2.FilterFunction {
-	filters := make(map[string]pongo2.FilterFunction, len(p.Config.Filters))
-	for k, v := range p.Config.Filters {
-		func(filterName string, filterFunc FilterFunction) {
-			fn := pongo2.FilterFunction(func(in *pongo2.Value, param *pongo2.Value) (*pongo2.Value, *pongo2.Error) {
-				theOut, theErr := filterFunc((*Value)(in), (*Value)(param))
-				return (*pongo2.Value)(theOut), (*pongo2.Error)(theErr)
-			})
-			filters[filterName] = fn
-		}(k, v)
-	}
-	return filters
 }
 
 // LoadDirectory builds the templates
@@ -78,7 +63,7 @@ func (p *Engine) LoadDirectory(dir string, extension string) (templateErr error)
 	set.Globals = getPongoContext(p.Config.Globals)
 
 	// set the filters
-	filters := p.convertFilters()
+	filters := p.Config.Filters
 	for filterName, filterFunc := range filters {
 		pongo2.RegisterFilter(filterName, filterFunc)
 	}
@@ -93,33 +78,32 @@ func (p *Engine) LoadDirectory(dir string, extension string) (templateErr error)
 		// them should be treat as normal.
 		// If is a dir, return immediately (dir is not a valid golang template).
 		if info == nil || info.IsDir() {
+			return nil
+		}
+		rel, err := filepath.Rel(dir, path)
+		if err != nil {
+			templateErr = err
+			return err
+		}
 
-		} else {
-
-			rel, err := filepath.Rel(dir, path)
+		ext := filepath.Ext(rel)
+		if ext == extension {
+			buf, err := ioutil.ReadFile(path)
 			if err != nil {
 				templateErr = err
 				return err
 			}
+			name := filepath.ToSlash(rel)
 
-			ext := filepath.Ext(rel)
-			if ext == extension {
+			p.templateCache[name], templateErr = set.FromString(string(buf))
 
-				buf, err := ioutil.ReadFile(path)
-				if err != nil {
-					templateErr = err
-					return err
-				}
-				name := filepath.ToSlash(rel)
-
-				p.templateCache[name], templateErr = set.FromString(string(buf))
-
-				if templateErr != nil && p.Config.DebugTemplates {
+			if templateErr != nil {
+				logrus.Warnf("error loading template(%s): %v", name, templateErr)
+				if p.Config.DebugTemplates {
 					p.templateCache[name], _ = set.FromString(
-						fmt.Sprintf(templateErrorMessage, templateErr.Error()))
+						fmt.Sprintf(templateErrorMessage, name, templateErr.Error()))
 				}
 			}
-
 		}
 		return nil
 	})
@@ -138,7 +122,7 @@ func (p *Engine) LoadAssets(virtualDirectory string, virtualExtension string, as
 	set.Globals = getPongoContext(p.Config.Globals)
 
 	// set the filters
-	filters := p.convertFilters()
+	filters := p.Config.Filters
 	for filterName, filterFunc := range filters {
 		pongo2.RegisterFilter(filterName, filterFunc)
 	}
@@ -196,20 +180,17 @@ func getPongoContext(templateData interface{}) pongo2.Context {
 		return contextData
 	}
 
+	if dat, ok := templateData.(iris2.Map); ok {
+		return map[string]interface{}(dat)
+	}
 	return templateData.(map[string]interface{})
 }
 
 func (p *Engine) fromCache(relativeName string) *pongo2.Template {
-	p.mu.Lock() // defer is slow
-
-	tmpl, ok := p.templateCache[relativeName]
-
-	if ok {
-		p.mu.Unlock()
-		return tmpl
-	}
-	p.mu.Unlock()
-	return nil
+	p.mu.RLock()
+	tmpl, _ := p.templateCache[relativeName]
+	p.mu.RUnlock()
+	return tmpl
 }
 
 // ExecuteWriter executes a templates and write its results to the out writer
@@ -219,7 +200,7 @@ func (p *Engine) ExecuteWriter(out io.Writer, name string, binding interface{}, 
 		return tmpl.ExecuteWriter(getPongoContext(binding), out)
 	}
 
-	return fmt.Errorf("[IRIS TEMPLATES] Template with name %s doesn't exists in the dir", name)
+	return fmt.Errorf("Template with name %s doesn't exists in the dir", name)
 }
 
 // ExecuteRaw receives, parse and executes raw source template contents

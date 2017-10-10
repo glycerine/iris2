@@ -3,12 +3,8 @@ package django
 import "github.com/flosch/pongo2"
 
 type (
-	// Value conversion for pongo2.Value
-	Value pongo2.Value
-	// Error conversion for pongo2.Error
-	Error pongo2.Error
 	// FilterFunction conversion for pongo2.FilterFunction
-	FilterFunction func(in *Value, param *Value) (out *Value, err *Error)
+	FilterFunction = pongo2.FilterFunction
 )
 
 // Config for django template engine

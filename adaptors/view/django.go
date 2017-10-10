@@ -5,29 +5,9 @@ import (
 )
 
 type (
-	// Value conversion for django.Value
-	Value django.Value
-	// Error conversion for django.Error
-	Error django.Error
 	// FilterFunction conversion for django.FilterFunction
-	FilterFunction func(in *Value, param *Value) (out *Value, err *Error)
+	FilterFunction = django.FilterFunction
 )
-
-// this exists because of moving the pongo2 to the vendors without conflictitions if users
-// wants to register pongo2 filters they can use this django.FilterFunc to do so.
-func convertFilters(djangoFilters map[string]FilterFunction) map[string]django.FilterFunction {
-	filters := make(map[string]django.FilterFunction, len(djangoFilters))
-	for k, v := range djangoFilters {
-		func(filterName string, filterFunc FilterFunction) {
-			fn := django.FilterFunction(func(in *django.Value, param *django.Value) (*django.Value, *django.Error) {
-				theOut, theErr := filterFunc((*Value)(in), (*Value)(param))
-				return (*django.Value)(theOut), (*django.Error)(theErr)
-			})
-			filters[filterName] = fn
-		}(k, v)
-	}
-	return filters
-}
 
 // DjangoAdaptor is the  adaptor for the Django engine.
 // Read more about the Django Go Template at:
@@ -59,16 +39,13 @@ func Django(directory string, extension string) *DjangoAdaptor {
 // Note, these Filters function overrides ALL the previous filters
 // It SETS a new filter map based on the given 'filtersMap' parameter.
 func (d *DjangoAdaptor) Filters(filtersMap map[string]FilterFunction) *DjangoAdaptor {
-
 	if len(filtersMap) == 0 {
 		return d
 	}
 	// configuration maps are never nil, because
 	// they are initialized at each of the engine's New func
 	// so we're just passing them inside it.
-
-	filters := convertFilters(filtersMap)
-	d.engine.Config.Filters = filters
+	d.engine.Config.Filters = filtersMap
 	return d
 }
 
