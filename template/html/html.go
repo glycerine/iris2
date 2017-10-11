@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/Sirupsen/logrus"
 )
 
 const (
@@ -193,6 +195,9 @@ func (s *Engine) layoutFuncsFor(name string, binding interface{}) {
 		"yield": func() (template.HTML, error) {
 			buf, err := s.executeTemplateBuf(name, binding)
 			// Return safe HTML here since we are rendering our own template.
+			if err != nil {
+				logrus.Warnf("yield error: %v", err)
+			}
 			return template.HTML(buf.String()), err
 		},
 		"current": func() (string, error) {
@@ -202,6 +207,9 @@ func (s *Engine) layoutFuncsFor(name string, binding interface{}) {
 			fullPartialName := fmt.Sprintf("%s-%s", partialName, name)
 			if s.Templates.Lookup(fullPartialName) != nil {
 				buf, err := s.executeTemplateBuf(fullPartialName, binding)
+				if err != nil {
+					logrus.Warnf("partial error: %v", err)
+				}
 				return template.HTML(buf.String()), err
 			}
 			return "", nil
@@ -216,12 +224,18 @@ func (s *Engine) layoutFuncsFor(name string, binding interface{}) {
 			fullPartialName := fmt.Sprintf("%s%s%s", root, partialName, ext)
 			if s.Templates.Lookup(fullPartialName) != nil {
 				buf, err := s.executeTemplateBuf(fullPartialName, binding)
+				if err != nil {
+					logrus.Warnf("partial_r error: %v", err)
+				}
 				return template.HTML(buf.String()), err
 			}
 			return "", nil
 		},
 		"render": func(fullPartialName string) (template.HTML, error) {
 			buf, err := s.executeTemplateBuf(fullPartialName, binding)
+			if err != nil {
+				logrus.Warnf("render error: %v", err)
+			}
 			return template.HTML(buf.String()), err
 		},
 	}
