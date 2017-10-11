@@ -2,10 +2,12 @@ package file
 
 import (
 	"fmt"
-	"github.com/go-iris2/iris2/adaptors/sessions"
-	"gopkg.in/vmihailenco/msgpack.v2"
 	"io/ioutil"
 	"os"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/go-iris2/iris2/adaptors/sessions"
+	"gopkg.in/vmihailenco/msgpack.v2"
 )
 
 // fileStorage structure for the file-storage
@@ -15,6 +17,13 @@ type fileStorage struct {
 
 // New returns a new session storage instance
 func New(p string) sessions.Database {
+	_, err := os.Stat(p)
+	if os.IsNotExist(err) {
+		err := os.Mkdir(p, 0700)
+		if err != nil {
+			logrus.Fatalf("error creating session-dir: %v", err)
+		}
+	}
 	return &fileStorage{path: p}
 }
 
